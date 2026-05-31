@@ -17,11 +17,7 @@ export function PanelShell({ children, role, userName }: Props) {
     return <RecolectorShell userName={userName}>{children}</RecolectorShell>;
   }
 
-  const links = [{ href: "/panel", label: "Inicio" }];
-
-  if (isStaffRole(role)) {
-    links.push({ href: "/panel", label: "Operativo" });
-  }
+  const links = [{ href: "/panel", label: isStaffRole(role) ? "Operativo" : "Inicio" }];
 
   if (canManageUsers({ role })) {
     links.push({ href: "/panel/usuarios", label: "Usuarios" });
@@ -42,7 +38,7 @@ export function PanelShell({ children, role, userName }: Props) {
           <nav className="flex flex-wrap items-center gap-4">
             {links.map((link) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 className="text-sm font-medium text-zinc-700 hover:text-emerald-800 dark:text-zinc-300"
               >

@@ -1,4 +1,8 @@
-import { RECOLECCION_OPERATIVA_LABELS } from "@/lib/domain/constants";
+import {
+  RecoleccionEstadoBadge,
+  RutaEstadoBadge,
+  ZonaBadge,
+} from "@/components/panel/operario/operario-badges";
 import {
   formatHoraReal,
   formatMoney,
@@ -33,6 +37,7 @@ export function OperarioRecoleccionesTable({ recolecciones, rutaSeleccionada }: 
         <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
           <tr>
             <th className="px-3 py-3 font-medium">Estado</th>
+            <th className="px-3 py-3 font-medium">Zona</th>
             <th className="px-3 py-3 font-medium">Dirección</th>
             <th className="px-3 py-3 font-medium">Horario prog.</th>
             <th className="px-3 py-3 font-medium">Nombre</th>
@@ -53,7 +58,10 @@ export function OperarioRecoleccionesTable({ recolecciones, rutaSeleccionada }: 
               className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
             >
               <td className="whitespace-nowrap px-3 py-2.5">
-                {RECOLECCION_OPERATIVA_LABELS[item.estado_operativo]}
+                <RecoleccionEstadoBadge estado={item.estado_operativo} />
+              </td>
+              <td className="whitespace-nowrap px-3 py-2.5">
+                <ZonaBadge zona={item.zona} />
               </td>
               <td className="max-w-[160px] truncate px-3 py-2.5" title={item.direccion}>
                 {item.direccion}

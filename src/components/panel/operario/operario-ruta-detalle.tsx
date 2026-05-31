@@ -1,3 +1,6 @@
+import type { ReactNode } from "react";
+
+import { RutaEstadoBadge } from "@/components/panel/operario/operario-badges";
 import {
   formatMoney,
   formatRutaFecha,
@@ -10,22 +13,22 @@ type Props = {
   operarioNombre: string;
 };
 
-export function OperarioRutaDetalle({ detalle, operarioNombre }: Props) {
-  if (!detalle) {
-    return (
-      <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900">
-        Seleccioná una ruta para ver el detalle.
-      </div>
-    );
-  }
+type DetalleItem = {
+  label: string;
+  value: ReactNode;
+  highlight?: boolean;
+};
 
-  const items = [
+export function OperarioRutaDetalle({ detalle, operarioNombre }: Props) {
+  if (!detalle) return null;
+
+  const items: DetalleItem[] = [
     { label: "Fecha", value: formatRutaFecha(detalle.fecha) },
     { label: "ID Ruta", value: detalle.id.slice(0, 8) + "…" },
     { label: "Turno", value: formatTurno(detalle.turno) },
     { label: "Nombre operario", value: operarioNombre },
     { label: "Nombre recolector", value: detalle.recolector_nombre ?? "—" },
-    { label: "Estado", value: detalle.estado_label },
+    { label: "Estado", value: <RutaEstadoBadge estado={detalle.estado} /> },
     { label: "Recolecciones exitosas", value: String(detalle.recolecciones_exitosas) },
     { label: "Recolecciones pendientes", value: String(detalle.recolecciones_pendientes) },
     { label: "Recolecciones canceladas", value: String(detalle.recolecciones_canceladas) },
@@ -37,7 +40,7 @@ export function OperarioRutaDetalle({ detalle, operarioNombre }: Props) {
   ];
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-xl bg-white dark:bg-zinc-900">
       <dl className="divide-y divide-zinc-100 dark:divide-zinc-800">
         {items.map((item) => (
           <div

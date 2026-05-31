@@ -83,3 +83,24 @@ export function getSheetsImportSecret(): string | undefined {
 export function isSheetsImportConfigured(): boolean {
   return isSupabaseAdminConfigured() && Boolean(getSheetsImportSecret());
 }
+
+/** Maps JavaScript API — solo cliente (restringir por dominio en Google Cloud). */
+export function getGoogleMapsPublicKey(): string | undefined {
+  return readEnv("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY");
+}
+
+/** Geocoding API — solo servidor (restringir por IP o usar key separada). */
+export function getGoogleGeocodingKey(): string | undefined {
+  return (
+    readEnv("GOOGLE_MAPS_GEOCODING_API_KEY") ??
+    readEnv("GOOGLE_MAPS_SERVER_API_KEY")
+  );
+}
+
+export function isGoogleMapsConfigured(): boolean {
+  return Boolean(getGoogleMapsPublicKey());
+}
+
+export function isGoogleGeocodingConfigured(): boolean {
+  return Boolean(getGoogleGeocodingKey());
+}

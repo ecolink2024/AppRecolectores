@@ -7,7 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { fetchOperarioDashboardData } from "@/lib/data/operario-dashboard";
 import { formatRutaFecha } from "@/lib/domain/rutas";
 import { isStaffRole } from "@/lib/domain/constants";
-import { isSupabaseAdminConfigured } from "@/lib/env";
+import { getGoogleMapsPublicKey, isSupabaseAdminConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PanelHomePage() {
@@ -85,6 +85,7 @@ export default async function PanelHomePage() {
           rutas={rutas}
           recolecciones={recolecciones}
           operarioNombre={operarioNombre}
+          mapsApiKey={getGoogleMapsPublicKey() ?? null}
         />
         {profile && canManageUsers(profile) && (
           <div className="border-t border-zinc-200 pt-6 dark:border-zinc-800">

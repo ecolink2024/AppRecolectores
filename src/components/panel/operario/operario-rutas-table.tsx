@@ -1,3 +1,4 @@
+import { RutaEstadoBadge } from "@/components/panel/operario/operario-badges";
 import {
   formatDateTime,
   formatMoney,
@@ -5,15 +6,24 @@ import {
   formatTurno,
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
-import { RUTA_ESTADO_OPERARIO_LABELS } from "@/lib/domain/constants";
 
 type Props = {
   rutas: RutaOperarioRow[];
   selectedRutaId: string | null;
   onSelect: (id: string) => void;
+  onVerDetalle: (id: string) => void;
+  onVerMapa: (id: string) => void;
+  mapsDisponible: boolean;
 };
 
-export function OperarioRutasTable({ rutas, selectedRutaId, onSelect }: Props) {
+export function OperarioRutasTable({
+  rutas,
+  selectedRutaId,
+  onSelect,
+  onVerDetalle,
+  onVerMapa,
+  mapsDisponible,
+}: Props) {
   if (rutas.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900">
@@ -39,6 +49,8 @@ export function OperarioRutasTable({ rutas, selectedRutaId, onSelect }: Props) {
             <th className="px-3 py-3 font-medium">Cierre operario</th>
             <th className="px-3 py-3 font-medium text-right">Total recaudado</th>
             <th className="px-3 py-3 font-medium">Observaciones</th>
+            <th className="px-3 py-3 font-medium text-center">Detalle</th>
+            <th className="px-3 py-3 font-medium text-center">Mapa</th>
           </tr>
         </thead>
         <tbody>
@@ -59,7 +71,7 @@ export function OperarioRutasTable({ rutas, selectedRutaId, onSelect }: Props) {
                 </td>
                 <td className="px-3 py-2.5">{ruta.recolector_nombre ?? "—"}</td>
                 <td className="px-3 py-2.5">
-                  {RUTA_ESTADO_OPERARIO_LABELS[ruta.estado]}
+                  <RutaEstadoBadge estado={ruta.estado} />
                 </td>
                 <td className="px-3 py-2.5">{formatTurno(ruta.turno)}</td>
                 <td className="px-3 py-2.5 text-center">{ruta.puntos_recoleccion}</td>
@@ -81,6 +93,32 @@ export function OperarioRutasTable({ rutas, selectedRutaId, onSelect }: Props) {
                 </td>
                 <td className="max-w-[180px] truncate px-3 py-2.5 text-zinc-600" title={ruta.observaciones_operario ?? undefined}>
                   {ruta.observaciones_operario || "—"}
+                </td>
+                <td className="px-3 py-2.5 text-center">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onVerDetalle(ruta.id);
+                    }}
+                    className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900"
+                  >
+                    Ver detalle
+                  </button>
+                </td>
+                <td className="px-3 py-2.5 text-center">
+                  <button
+                    type="button"
+                    disabled={!mapsDisponible}
+                    title={mapsDisponible ? "Ver mapa de la ruta" : "Falta configurar Google Maps"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onVerMapa(ruta.id);
+                    }}
+                    className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
+                  >
+                    Ver mapa
+                  </button>
                 </td>
               </tr>
             );

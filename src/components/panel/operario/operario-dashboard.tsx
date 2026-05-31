@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 
 import { OperarioRecoleccionesTable } from "@/components/panel/operario/operario-recolecciones-table";
-import { OperarioRutaDetalle } from "@/components/panel/operario/operario-ruta-detalle";
+import { OperarioRutaDetalleModal } from "@/components/panel/operario/operario-ruta-detalle-modal";
+import { OperarioRutaMapModal } from "@/components/panel/operario/operario-ruta-map-modal";
 import { OperarioRutasTable } from "@/components/panel/operario/operario-rutas-table";
 import {
   buildRutaDetalle,
@@ -16,18 +17,28 @@ type Props = {
   rutas: RutaOperarioRow[];
   recolecciones: RecoleccionOperarioRow[];
   operarioNombre: string;
+  mapsApiKey: string | null;
 };
 
-export function OperarioDashboard({ rutas, recolecciones, operarioNombre }: Props) {
+export function OperarioDashboard({
+  rutas,
+  recolecciones,
+  operarioNombre,
+  mapsApiKey,
+}: Props) {
   const defaultId = useMemo(() => pickDefaultRutaId(rutas), [rutas]);
   const [selectedRutaId, setSelectedRutaId] = useState<string | null>(defaultId);
+  const [detalleRutaId, setDetalleRutaId] = useState<string | null>(null);
+  const [mapaRutaId, setMapaRutaId] = useState<string | null>(null);
 
   const selectedRuta = rutas.find((r) => r.id === selectedRutaId) ?? null;
+  const detalleRuta = rutas.find((r) => r.id === detalleRutaId) ?? null;
+  const mapaRuta = rutas.find((r) => r.id === mapaRutaId) ?? null;
   const recoleccionesRuta = useMemo(
     () => recolecciones.filter((r) => r.ruta_id === selectedRutaId),
     [recolecciones, selectedRutaId],
   );
-  const detalle = selectedRuta ? buildRutaDetalle(selectedRuta) : null;
+  const detalle = detalleRuta ? buildRutaDetalle(detalleRuta) : null;
 
   return (
     <div className="space-y-8">
@@ -46,33 +57,41 @@ export function OperarioDashboard({ rutas, recolecciones, operarioNombre }: Prop
           rutas={rutas}
           selectedRutaId={selectedRutaId}
           onSelect={setSelectedRutaId}
+          onVerDetalle={setDetalleRutaId}
+          onVerMapa={setMapaRutaId}
+          mapsDisponible={!!mapsApiKey}
         />
       </section>
 
-      <div className="grid gap-8 xl:grid-cols-5">
-        <section className="space-y-3 xl:col-span-3">
-          <SectionTitle
-            title="Recolecciones"
-            subtitle={
-              selectedRuta
-                ? `${selectedRuta.nombre} · ${recoleccionesRuta.length} parada(s)`
-                : "Seleccioná una ruta"
-            }
-          />
-          <OperarioRecoleccionesTable
-            recolecciones={recoleccionesRuta}
-            rutaSeleccionada={!!selectedRuta}
-          />
-        </section>
+      <section className="space-y-3">
+        <SectionTitle
+          title="Recolecciones"
+          subtitle={
+            selectedRuta
+              ? `${selectedRuta.nombre} · ${recoleccionesRuta.length} parada(s)`
+              : "Seleccioná una ruta"
+          }
+        />
+        <OperarioRecoleccionesTable
+          recolecciones={recoleccionesRuta}
+          rutaSeleccionada={!!selectedRuta}
+        />
+      </section>
 
-        <section className="space-y-3 xl:col-span-2">
-          <SectionTitle title="Detalle de ruta" />
-          <OperarioRutaDetalle
-            detalle={detalle}
-            operarioNombre={operarioNombre}
-          />
-        </section>
-      </div>
+      <OperarioRutaDetalleModal
+        open={detalleRutaId !== null}
+        detalle={detalle}
+        operarioNombre={operarioNombre}
+        onClose={() => setDetalleRutaId(null)}
+      />
+
+      <OperarioRutaMapModal
+        open={mapaRutaId !== null}
+        rutaId={mapaRutaId}
+        rutaNombre={mapaRuta?.nombre ?? null}
+        mapsApiKey={mapsApiKey}
+        onClose={() => setMapaRutaId(null)}
+      />
     </div>
   );
 }

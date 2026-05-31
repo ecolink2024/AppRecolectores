@@ -34,6 +34,7 @@ export type RecoleccionOperarioRow = {
   id: string;
   ruta_id: string;
   orden: number;
+  zona: string | null;
   estado_operativo: RecoleccionOperativaEstado;
   direccion: string;
   hora_programada: string;
@@ -147,6 +148,7 @@ export function buildRecoleccionOperarioRows(
       id: item.id,
       ruta_id: item.ruta_id,
       orden: item.orden,
+      zona: item.zona,
       estado_operativo: item.estado_operativo,
       direccion: item.direccion,
       hora_programada: String(item.hora).slice(0, 5),
