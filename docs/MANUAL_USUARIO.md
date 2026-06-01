@@ -16,7 +16,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes:** finalizar ruta, suspensión de rutas, parámetros de precio de bolsa extra, Mis rutas agrupadas por estado.
+**Novedades recientes:** formulario de cierre al finalizar ruta, campos extra al agregar recolecciones, bloqueo en rutas finalizadas, mensajes visibles cuando una acción está deshabilitada.
 
 ---
 
@@ -96,7 +96,7 @@ Muestra las paradas de la **ruta seleccionada** arriba.
 | Acción | Qué hace |
 |--------|----------|
 | **Editar** | Modificar datos de la parada (dirección, hora, precio, etc.) |
-| **+ Agregar recolección** | Agregar una parada manual a la ruta |
+| **+ Agregar recolección** | Agregar una parada manual a la ruta (no disponible si la ruta ya está finalizada) |
 | **Eliminar** | Quitar una parada |
 
 ### 3.2 Mapa y reorden de paradas
@@ -218,9 +218,21 @@ También podés cambiar el estado manualmente desde **Editar** (incluido **Suspe
 
 Desde la tabla de recolecciones:
 
-- **Editar:** cambiar dirección, cliente, hora, precio, observaciones, teléfono, etc.
+- **Editar:** cambiar dirección, cliente, hora, observaciones, teléfono, etc.
 - **Agregar:** crear una parada nueva en la ruta seleccionada
 - **Eliminar:** quitar una parada incorrecta
+
+Al **crear** o **editar** una recolección manual, además de los datos básicos podés completar:
+
+| Campo | Descripción |
+|-------|-------------|
+| **Tipo de servicio** | Tipo de retiro/servicio del cliente |
+| **Unidad** | Unidad del servicio |
+| **Frecuencia** | Frecuencia del servicio |
+| **Precio** | Precio de retiro (base para el cobro en campo) |
+| **Deuda** | Deuda pendiente del cliente, si aplica |
+
+> **Rutas finalizadas:** no se pueden agregar recolecciones nuevas. El botón **+ Agregar recolección** queda deshabilitado y muestra el motivo.
 
 ### 4.6 Gestión de usuarios (solo recolectores)
 
@@ -245,7 +257,7 @@ Barra inferior con dos pestañas:
 
 | Pestaña | Contenido |
 |---------|-----------|
-| **Inicio** | Saludo + rutas **activas de hoy** + acceso rápido |
+| **Inicio** | Saludo + rutas de **hoy** (Activas / Completadas / Suspendidas) o, si no hay de hoy, la **Última jornada** |
 | **Mis rutas** | Todas tus rutas, agrupadas en **Activas**, **Completadas** y **Suspendidas** |
 
 Dentro de cada sección, las rutas se ordenan por fecha (más recientes arriba). En cada tarjeta ves fecha, turno y estado.
@@ -333,8 +345,21 @@ Las paradas visitadas o canceladas muestran **Editar carga →**. Podés volver 
 Cuando terminaste todas las paradas del día:
 
 1. Volvé al **Detalle de ruta**
-2. Verificá que **todas** las recolecciones estén **Visitadas** o **Canceladas** (si falta alguna, el botón queda deshabilitado)
-3. Tocá **Finalizar ruta** y confirmá
+2. Verificá que **todas** las recolecciones estén **Visitadas** o **Canceladas**
+3. Tocá **Finalizar ruta** (si falta algo, el botón queda deshabilitado y aparece el **motivo** debajo)
+4. Completá el **formulario de cierre**:
+   - **Kilómetros finales** (obligatorio; deben ser **menores o iguales** a los km iniciales)
+   - **Descarga realizada** (casilla)
+   - **Combustible**, **Descuento**, **Otros gastos** (opcionales; solo si hubo **efectivo recaudado**)
+   - **Total efectivo** (se calcula automáticamente: efectivo recaudado − gastos)
+   - **Observaciones** (opcional)
+5. Tocá **Finalizar ruta** en el formulario
+
+**Reglas del cierre:**
+
+- Si la ruta **no recaudó efectivo**, no podés cargar gastos (combustible, descuento, otros)
+- Los gastos **no pueden superar** el efectivo recaudado
+- El **total efectivo** nunca puede quedar negativo
 
 **Qué pasa al finalizar:**
 
@@ -354,7 +379,7 @@ Login
       → Por cada parada:
           → Cargar en campo (retiro + cobro + firma)
           → o Cancelar con motivo
-      → Finalizar ruta                    ← cuando todas las paradas están listas
+      → Finalizar ruta                    ← formulario de cierre
         → Vuelta al Inicio
 ```
 
@@ -422,11 +447,27 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 - El operario la pausó desde el panel. No podés iniciarla ni cargar paradas
 - Contactá al operario para que la reactive desde Ver detalle
 
-### No aparece el botón Finalizar ruta
+### No aparece el botón Finalizar ruta / no puedo apretarlo
 
 - Todas las paradas deben estar **Visitadas** o **Canceladas**
 - La ruta debe estar **iniciada** (en proceso)
 - Si está **suspendida**, primero tiene que reactivarla el operario
+- Si el botón está deshabilitado, leé el **mensaje debajo** (ej: faltan paradas, ruta no iniciada)
+
+### No puedo cargar gastos al finalizar
+
+- Si la ruta **no recaudó efectivo**, los campos de gastos quedan bloqueados
+- Los gastos no pueden superar el efectivo recaudado
+
+### Kilómetros finales no me deja finalizar
+
+- Son **obligatorios**
+- Deben ser **menores o iguales** a los km iniciales de la ruta
+
+### No puedo agregar recolección (operario)
+
+- Si la ruta ya está **finalizada (Completada)**, no se pueden agregar paradas nuevas
+- El botón **+ Agregar recolección** queda deshabilitado con el motivo visible
 
 ### “Inicio de ruta” no guarda / error de columnas
 
@@ -466,7 +507,8 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Recolección / parada** | Visita a un cliente (dirección, hora, precio) |
 | **Turno** | Mañana (antes de 12:00) o Tarde (desde 12:00) |
 | **Inicio de ruta** | Registro de km y insumos al comenzar la jornada |
-| **Finalizar ruta** | Cierre de la jornada cuando todas las paradas están visitadas o canceladas |
+| **Finalizar ruta** | Cierre de la jornada con formulario (km finales, gastos, observaciones) |
+| **Cierre de ruta** | Datos que el recolector completa al finalizar (km finales, descarga, gastos) |
 | **Ruta suspendida** | Pausada por el operario; el recolector no puede operarla |
 | **Bolsa extra** | Cobro adicional por cada bolsa llena por encima de las 2 incluidas en el retiro |
 | **Carga en campo** | Datos que el recolector carga en cada parada |
@@ -475,4 +517,4 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 
 ---
 
-*Manual actualizado con las funcionalidades disponibles a mayo 2026 (finalizar ruta, suspensión de rutas, parámetros de bolsa extra). Para detalles técnicos de instalación y desarrollo, ver [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md).*
+*Manual actualizado con las funcionalidades disponibles a junio 2026 (cierre de ruta, campos extra en recolecciones, bloqueos con mensajes visibles). Para detalles técnicos de instalación y desarrollo, ver [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md).*

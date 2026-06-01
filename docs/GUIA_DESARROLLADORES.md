@@ -129,6 +129,7 @@ node scripts/apply-pending-migrations.mjs
 | `20260524140000_fix_missing_operativo_columns.sql` | Reparación idempotente + reload schema PostgREST |
 | `20260525120000_sistema_parametros_precio.sql` | Tabla `sistema_precio_historial` (precio bolsa extra vigente) |
 | `20260526120000_ruta_estado_suspendida.sql` | Estado `suspendida` en enum `ruta_estado` |
+| `20260531120000_ruta_cierre_recolector_campos.sql` | Campos de cierre: km final, descarga, gastos, total efectivo, observaciones recolector |
 
 > **Importante:** si aparece `Could not find the '...' column in the schema cache`, ejecutá la migración faltante y/o el `NOTIFY pgrst, 'reload schema'` del archivo `20260524140000`.
 
@@ -210,12 +211,13 @@ Matriz resumida (`src/lib/auth/permissions.ts`):
 | Ruta | Rol | Descripción |
 |------|-----|-------------|
 | `/login` | Público | Inicio de sesión |
-| `/panel` | Todos | Staff → dashboard operario. Recolector → home del día (solo rutas activas de hoy) |
+| `/panel` | Todos | Staff → dashboard operario. Recolector → home (Hoy / Última jornada) |
 | `/panel/parametros` | superadmin, admin | Precio de bolsa extra (historial con vigencia) |
 | `/panel/usuarios` | superadmin, admin | Alta y gestión de usuarios |
 | `/panel/mis-rutas` | recolector | Rutas asignadas (Activas / Completadas / Suspendidas) |
-| `/panel/mis-rutas/[id]` | recolector | Detalle de ruta + lista de paradas + finalizar ruta |
+| `/panel/mis-rutas/[id]` | recolector | Detalle de ruta + lista de paradas + botón **Finalizar ruta** |
 | `/panel/mis-rutas/[id]/iniciar` | recolector | Formulario km + insumos |
+| `/panel/mis-rutas/[id]/finalizar` | recolector | Formulario de cierre de ruta (km finales, gastos, observaciones) |
 | `/panel/mis-rutas/[id]/recolecciones/[recoleccionId]` | recolector | Carga en campo por parada |
 
 Aliases que redirigen: `/panel/rutas`, `/panel/recolecciones`, `/admin/usuarios` → rutas actuales.
@@ -247,7 +249,7 @@ Aliases que redirigen: `/panel/rutas`, `/panel/recolecciones`, `/admin/usuarios`
 | DELETE | `/api/panel/rutas/[id]` | Eliminar ruta |
 | POST | `/api/panel/rutas/[id]/suspender` | Suspender ruta (`activa` / `en_curso` → `suspendida`) |
 | DELETE | `/api/panel/rutas/[id]/suspender` | Reactivar ruta suspendida (vuelve a `activa` o `en_curso`) |
-| POST | `/api/panel/rutas/[id]/recolecciones` | Agregar parada |
+| POST | `/api/panel/rutas/[id]/recolecciones` | Agregar parada (bloqueado si ruta `completada`) |
 | PATCH | `/api/panel/rutas/[id]/recolecciones/[recoleccionId]` | Editar parada |
 | DELETE | `/api/panel/rutas/[id]/recolecciones/[recoleccionId]` | Eliminar parada |
 | PATCH | `/api/panel/rutas/[id]/recolecciones/reorden` | Reordenar (`{ orden: string[] }`) |
@@ -259,12 +261,13 @@ Aliases que redirigen: `/panel/rutas`, `/panel/recolecciones`, `/admin/usuarios`
 | Método | Endpoint | Body | Descripción |
 |--------|----------|------|-------------|
 | POST | `/api/recolector/rutas/[id]/iniciar` | `{ km_inicial, insumos[] }` | Pasa ruta a `en_curso` |
-| POST | `/api/recolector/rutas/[id]/finalizar` | — | Cierra ruta (`completada`) si todas las paradas están visitadas o canceladas |
+| POST | `/api/recolector/rutas/[id]/finalizar` | ver cierre abajo | Cierra ruta (`completada`) si cumple condiciones |
 | PATCH | `/api/recolector/rutas/[id]/recolecciones/[recoleccionId]/campo` | ver dominio | Carga retiro/cobro/firma |
 
 Validación de carga en campo: `src/lib/domain/recolector-recoleccion-campo.ts`  
 Validación inicio de ruta: `src/lib/domain/ruta-insumos.ts`  
 Validación finalizar ruta: `src/lib/domain/recolector-finalizar-ruta.ts`  
+Validación cierre de ruta: `src/lib/domain/recolector-cierre-ruta.ts`  
 Precio total a cobrar (bolsa extra): `src/lib/domain/sistema-parametros.ts`
 
 ### Integración Sheets
@@ -328,6 +331,7 @@ Componentes en `src/components/panel/recolector/`:
 | `recolector-shell.tsx` | Layout mobile + header + bottom nav |
 | `mis-rutas-cards.tsx` | Listado agrupado por categoría (Activas / Completadas / Suspendidas) |
 | `recolector-ruta-detalle.tsx` | Detalle, Maps, lista de paradas, botón **Finalizar ruta** |
+| `recolector-finalizar-ruta-form.tsx` | Formulario de cierre antes de finalizar |
 | `recolector-inicio-ruta-form.tsx` | Km + insumos |
 | `recolector-recoleccion-campo-form.tsx` | Carga por parada (con desglose de bolsa extra) |
 | `recolector-recoleccion-sheet.tsx` | Preview read-only (ruta no iniciada) |
@@ -339,12 +343,51 @@ Dominio: `src/lib/domain/recolector-ruta.ts`, `recolector-recoleccion-form.ts`, 
 
 #### Finalizar ruta (recolector)
 
-Condiciones (cliente y servidor en `recolector-finalizar-ruta.ts`):
+Condiciones previas (cliente y servidor en `recolector-finalizar-ruta.ts`):
 
-1. Ruta en estado `en_curso`
+1. Ruta en estado `en_curso` (o con `inicio_jornada_at` en columna o `metadata`)
 2. Todas las paradas en `visitada` o `cancelada` (pendientes u omitidas bloquean)
 
-Al confirmar: `POST /api/recolector/rutas/[id]/finalizar` → estado `completada`, `cierre_recolector_at`, suma de efectivo. La UI redirige a `/panel`.
+Flujo:
+
+1. Botón **Finalizar ruta** en detalle → navega a `/panel/mis-rutas/[id]/finalizar`
+2. Formulario de cierre (`recolector-finalizar-ruta-form.tsx`)
+3. `POST /api/recolector/rutas/[id]/finalizar` con body de cierre
+4. Ruta pasa a `completada`, se guarda `cierre_recolector_at` y datos de cierre
+5. UI redirige a `/panel`
+
+Body de cierre (`recolector-cierre-ruta.ts`):
+
+```json
+{
+  "km_final": 45200,
+  "descarga": true,
+  "combustible": 0,
+  "descuento": 0,
+  "otros_gastos": 0,
+  "total_efectivo": 15000,
+  "observaciones_recolector": "Opcional"
+}
+```
+
+Validaciones de cierre:
+
+- `km_final` obligatorio; **≤ km_inicial**
+- `combustible`, `descuento`, `otros_gastos`: ≥ 0
+- Si **efectivo recaudado = 0**, no se permiten gastos
+- Gastos no pueden superar el efectivo recaudado
+- `total_efectivo = efectivo recaudado − combustible − descuento − otros_gastos`
+
+Columnas en `rutas` (migración `20260531120000`): `km_final`, `descarga`, `combustible`, `descuento`, `otros_gastos`, `total_efectivo`, `observaciones_recolector`
+
+#### Ruta iniciada (detección unificada)
+
+Función `getInicioJornadaAt()` en `recolector-ruta.ts`:
+
+- Lee `inicio_jornada_at` de columna **o** de `metadata.inicio_jornada_at`
+- Una ruta se considera iniciada si `estado === "en_curso"` **o** existe inicio de jornada
+
+Usada en detalle recolector, formulario de campo, API PATCH de carga y evaluación de finalizar.
 
 #### Suspender ruta (staff)
 
@@ -359,6 +402,33 @@ En `recolector-recoleccion-campo.ts`:
 
 - Efectivo, transferencia y QR: obligatorios, mínimo 0 (default `"0"` en el form)
 - Suma de los tres montos **≥ total a cobrar** (puede ser mayor, no menor)
+
+#### Recolecciones manuales (operario)
+
+Al crear/editar parada desde el panel (`operario-recoleccion-form-modal.tsx`), campos adicionales:
+
+- `precio`, `deuda`, `frecuencia`, `tipo_servicio`, `unidad`
+
+Parser: `parseRecoleccionFields()` en `operario-crud.ts`.
+
+**Restricción:** no se puede agregar parada a ruta `completada` (409 en API; botón deshabilitado en UI).
+
+#### UX: botones deshabilitados
+
+Cuando una acción está bloqueada, la UI debe mostrar **el motivo visible** (texto debajo del botón o recuadro informativo), no solo `disabled` o `title`. Ejemplos:
+
+- Finalizar ruta sin km finales
+- Gastos sin efectivo recaudado
+- Agregar recolección en ruta finalizada
+
+#### Fechas y timezone
+
+Formateo de fechas/horas usa `timeZone: "America/Argentina/Buenos_Aires"` en:
+
+- `formatInicioJornada()` (recolector)
+- `formatDateTime()` / `formatHoraReal()` (operario)
+
+El home del recolector (`/panel`) calcula “hoy” con timezone Argentina y muestra **Última jornada** si no hay rutas de hoy.
 
 ---
 
@@ -425,6 +495,8 @@ npm run start    # Servidor de producción local
 | Tipos de DB | `src/types/database.ts` |
 | Constantes de dominio | `src/lib/domain/constants.ts` |
 | Finalizar ruta (dominio) | `src/lib/domain/recolector-finalizar-ruta.ts` |
+| Cierre de ruta (dominio) | `src/lib/domain/recolector-cierre-ruta.ts` |
+| Formulario cierre recolector | `src/components/panel/recolector/recolector-finalizar-ruta-form.tsx` |
 | Suspensión de rutas | `src/lib/domain/ruta-estado-transiciones.ts` |
 | Listado recolector por categoría | `src/lib/domain/recolector-rutas-list.ts` |
 | Precio bolsa extra | `src/lib/domain/sistema-parametros.ts` |
