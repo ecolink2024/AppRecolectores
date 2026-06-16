@@ -6,6 +6,7 @@ import {
   type ImportRecoleccionPayload,
 } from "@/lib/integrations/sheets-import-recolecciones";
 import {
+  buildRecolectoresLookup,
   validateRecoleccionRow,
   type RecoleccionSheetRow,
 } from "@/lib/integrations/sheet-recoleccion-validation";
@@ -72,13 +73,13 @@ export async function POST(request: Request) {
   }
 
   const recolectores = await fetchRecolectoresEmails(admin);
-  const emailSet = new Set(recolectores.map((r) => r.email.toLowerCase()));
+  const recolectoresLookup = buildRecolectoresLookup(recolectores);
 
   const validated = [];
   const rejections: string[] = [];
 
   for (const fila of filas) {
-    const result = validateRecoleccionRow(fila as RecoleccionSheetRow, emailSet);
+    const result = validateRecoleccionRow(fila as RecoleccionSheetRow, recolectoresLookup);
     if (result.estado !== "Pendiente" || !result.data) {
       rejections.push(
         `Fila ${(fila as RecoleccionSheetRow).fila ?? "?"}: ${result.mensaje || result.estado}`,
@@ -136,5 +137,12 @@ export async function GET(request: Request) {
   }
 
   const recolectores = await fetchRecolectoresEmails(admin);
-  return NextResponse.json({ recolectores });
+  const lookup = buildRecolectoresLookup(recolectores);
+  return NextResponse.json({
+    recolectores: recolectores.map((r, i) => ({
+      email: r.email,
+      nombre: r.nombre,
+      label: lookup.labels[i],
+    })),
+  });
 }

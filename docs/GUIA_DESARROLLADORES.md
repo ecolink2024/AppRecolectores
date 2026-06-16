@@ -5,7 +5,7 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 **Manual de uso (no técnico):** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
-**Cambios recientes (jun 2026):** Operativo / Historial / KPIs / Parámetros; cierre operario y reactivar; tablas operario con insumos, materiales y recaudación; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas por unidad × tipo de cliente) y de recolección (retiro + cobro); Maps recolector con todas las paradas abiertas en orden; WhatsApp **Avisar**; reglas de cobro Empresa / Mixto / estándar; script `clear-rutas-recolecciones.mjs`; API `/api/panel/parametros/[clave]`.
+**Cambios recientes (jun 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio del recolector); tablas operario con bolsas/biotachos/montos; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas por unidad × tipo) y de parada (modal retiro + cobro); mapa operario con **hora programada** al reordenar; Maps recolector con **todas** las paradas abiertas en orden; WhatsApp **Avisar**; cierre operario / reactivar; reglas cobro Empresa/Mixto/estándar; migración `insumos_operario`; `supabase/apply-pending-operativo.sql`.
 
 ---
 
@@ -93,6 +93,8 @@ sistema_precio_historial (parámetros de precio con vigencia)
 
 Una **ruta** se agrupa por `(fecha, turno, recolector)`. Cada fila de la planilla es una **recolección**, única por teléfono normalizado dentro de la ruta.
 
+**Turnos** (derivados de la columna `Hora` en planilla): **mañana** 8:30–13:30, **tarde** 14:30–20:30. Lógica centralizada en `src/lib/domain/ruta-turno.ts` (`turnoFromHoraParts`, `parseHora` en validación de import).
+
 Tablas legacy (`organizaciones`, `recolecciones`) existen en migraciones tempranas pero el flujo operativo actual usa `rutas` + `ruta_recolecciones`.
 
 ### Aplicar migraciones
@@ -134,8 +136,12 @@ node scripts/apply-pending-migrations.mjs
 | `20260531120000_ruta_cierre_recolector_campos.sql` | Campos de cierre: km final, descarga, gastos, total efectivo, observaciones recolector |
 | `20260601120000_ruta_estado_terminada.sql` | Estado `cerrada` en enum `ruta_estado` (cierre operario → Historial) |
 | `20260602120000_ruta_estado_terminada_a_cerrada.sql` | Renombra `terminada` → `cerrada` si existía; idempotente |
+| `20260603120000_recoleccion_empresa_punto_campos.sql` | `bolsas_llenas_punto`, `bolsas_nuevas_vendidas` (Empresa + Punto) |
+| `20260604120000_rutas_insumos_operario.sql` | `insumos_operario`, `insumos_operario_at` (preparación operario) |
 
 Columnas de **cierre operario** en `rutas` (desde `20260523120000` / `20260524140000`): `cierre_operario_at`, `cierre_operario_por`.
+
+**SQL rápido (SQL Editor):** `supabase/apply-pending-operativo.sql` agrupa migraciones operativas pendientes (idempotente). Equivalente a `node scripts/apply-pending-migrations.mjs` cuando hay `SUPABASE_DB_URL`.
 
 > **Importante:** si aparece `Could not find the '...' column in the schema cache`, ejecutá la migración faltante y/o el `NOTIFY pgrst, 'reload schema'` del archivo `20260524140000`.
 
@@ -167,6 +173,7 @@ src/
     admin/                  # Panel de usuarios
     auth/                   # Login, formularios auth
     panel/
+      insumos-lista-editor.tsx   # Editor compartido de insumos (operario + recolector)
       operario/             # Dashboard staff (admin/superadmin)
       recolector/           # UI mobile campo
   lib/
@@ -265,14 +272,15 @@ Aliases que redirigen: `/panel/rutas`, `/panel/recolecciones`, `/admin/usuarios`
 | PATCH | `/api/panel/rutas/[id]/recolecciones/[recoleccionId]` | Editar parada |
 | DELETE | `/api/panel/rutas/[id]/recolecciones/[recoleccionId]` | Eliminar parada |
 | PATCH | `/api/panel/rutas/[id]/recolecciones/reorden` | Reordenar (`{ orden: string[] }`) |
-| GET | `/api/panel/rutas/[id]/mapa` | Puntos geocodificados para mapa |
+| GET | `/api/panel/rutas/[id]/mapa` | Paradas geocodificadas + `horaProgramada` para lista lateral |
+| POST | `/api/panel/rutas/[id]/insumos-operario` | Guardar preparación de insumos (`{ insumos[] }`; bloqueado si ruta ya inició) |
 | GET/POST | `/api/panel/parametros/[clave]` | Historial y alta de precio (`bolsa-extra`, `retiro-reciclable-mixto`, `bolsa-punto`, `bolsa-llena-punto`) |
 
 ### Recolector
 
 | Método | Endpoint | Body | Descripción |
 |--------|----------|------|-------------|
-| POST | `/api/recolector/rutas/[id]/iniciar` | `{ km_inicial, insumos[] }` | Pasa ruta a `en_curso` |
+| POST | `/api/recolector/rutas/[id]/iniciar` | `{ km_inicial, insumos[] }` | Pasa ruta a `en_curso`; requiere `insumos_operario` completado |
 | POST | `/api/recolector/rutas/[id]/finalizar` | ver cierre abajo | Cierra ruta (`completada`) si cumple condiciones |
 | PATCH | `/api/recolector/rutas/[id]/recolecciones/[recoleccionId]/campo` | ver dominio | Carga retiro/cobro/firma |
 
@@ -325,6 +333,7 @@ Componentes en `src/components/panel/operario/`:
 | `operario-historial-recolecciones-table.tsx` | Paradas en Historial (columnas ampliadas; sin modal de detalle unificado) |
 | `operario-cliente-detalle-modal.tsx` | Popup datos del cliente desde Historial |
 | `operario-ruta-map-modal.tsx` | Mapa + drag-and-drop reorder |
+| `operario-mapa-recolecciones-list.tsx` | Lista lateral reordenable; muestra **hora programada** por parada |
 | `operario-ruta-detalle-modal.tsx` | Detalle + suspender/reactivar |
 | `operario-kpis-dashboard.tsx` | Secciones KPI + gráfico recaudación |
 | `operario-kpis-filtro-fechas.tsx` | Presets y rango `desde`/`hasta` → `/panel/kpis?...` |
@@ -341,6 +350,8 @@ Datos:
   - `buildRutaOperarioRows()` — suma bolsas/biotachos visitadas, `monto_a_recaudar`, `total_recaudado` (efectivo + transferencia + QR)
   - `buildRutaDetalle()` + `buildRecoleccionesPorUnidadTipo()` — desglose exitosas / pendientes / canceladas por `(unidad, tipo_servicio)`
   - `buildRecoleccionOperarioDetalleCarga()` — retiro y cobro para modal de parada
+  - `parseInsumosFromJson()`, `insumosOperarioCompletados()` — preparación operario (`ruta-insumos.ts`)
+- `src/lib/domain/mapa-puntos.ts` — `MapaRecoleccionItem.horaProgramada`, `formatHoraProgramadaMapa()`
 - `src/lib/data/operario-kpis.ts` — KPIs: rutas por `fecha` en rango, `.limit(5000)` + recolecciones de esas rutas
 
 Dominio KPI: `src/lib/domain/operario-kpis.ts` (`resolveKpiFiltroFechas`, `buildOperarioKpis`, constante `KPI_LABEL_SERVICIOS` = `"Recolecciones (servicios)"`).
@@ -389,7 +400,13 @@ Columnas en `rutas`: `insumos_operario` (JSONB), `insumos_operario_at`.
 - **UI operario:** columna **Preparación** en `operario-rutas-table.tsx` → `operario-ruta-preparacion-insumos-modal.tsx`
 - **UI recolector:** `Insumos asignados` en `recolector-ruta-detalle.tsx` cuando hay preparación guardada
 
-Mismos tipos que inicio de jornada: `INSUMO_TIPOS` en `ruta-insumos.ts`.
+Mismos tipos que inicio de jornada: `INSUMO_TIPOS` en `ruta-insumos.ts`. Editor compartido: `insumos-lista-editor.tsx`. Solo bloquea **Inicio de ruta** del recolector (Maps y detalle de ruta siguen disponibles).
+
+#### Mapa operario (reorden de paradas)
+
+- Modal **Ver mapa** → geocodifica vía `GET /api/panel/rutas/[id]/mapa`
+- Lista lateral (`operario-mapa-recolecciones-list.tsx`): cada ticket muestra **hora programada** (`HH:MM`) junto al nombre — útil para ordenar la ruta
+- Al soltar una fila, `PATCH .../recolecciones/reorden` persiste el nuevo orden
 
 #### Columnas agregadas en tabla de rutas (Operativo)
 
@@ -401,7 +418,8 @@ Calculadas en `buildRutaOperarioRows()` desde paradas **visitadas**:
 | Biotachos | Suma `biotachos_llenos + biotachos_nuevos`; tooltip |
 | Monto a recaudar | Suma `precio_total` visitadas |
 | Total recaudado | Suma efectivo + transferencia + QR visitadas (no solo efectivo de cierre de ruta) |
-| Ver insumos | `ruta.insumos_detalle` al iniciar jornada |
+| Ver insumos | Declaración del recolector al **iniciar** jornada (`insumos_inicio` → `insumos_detalle`) |
+| Preparación | `insumos_operario` — formulario obligatorio del operario antes del inicio |
 
 ### Parámetros de sistema
 
@@ -574,6 +592,7 @@ Parser: `parseRecoleccionFields()` en `operario-crud.ts`.
 
 Cuando una acción está bloqueada, la UI debe mostrar **el motivo visible** (texto debajo del botón o recuadro informativo), no solo `disabled` o `title`. Ejemplos:
 
+- Inicio de ruta sin preparación de insumos del operario
 - Finalizar ruta sin km finales
 - Gastos sin efectivo recaudado
 - Agregar recolección en ruta finalizada
@@ -593,7 +612,8 @@ El home del recolector (`/panel`) calcula “hoy” con timezone Argentina y mue
 
 | Script | Uso |
 |--------|-----|
-| `scripts/apply-pending-migrations.mjs` | Aplicar migraciones operativas/recolector |
+| `scripts/apply-pending-migrations.mjs` | Aplicar migraciones operativas/recolector (requiere `SUPABASE_DB_URL`) |
+| `supabase/apply-pending-operativo.sql` | Mismo contenido operativo para pegar en Supabase SQL Editor |
 | `scripts/clear-rutas-recolecciones.mjs` | Borrar todas las rutas y recolecciones (pruebas); no toca usuarios ni parámetros |
 | `scripts/reset-superadmin-password.mjs` | Reset de contraseña del superadmin vía API |
 | `scripts/reset-users-except-superadmin.mjs` | Limpiar usuarios Auth (excepto superadmin) |

@@ -11,7 +11,7 @@ import {
   RECOLECCION_OPERATIVA_ESTADOS,
   RECOLECCION_OPERATIVA_LABELS,
 } from "@/lib/domain/constants";
-import { defaultHoraForTurno } from "@/lib/domain/operario-crud";
+import { defaultHoraForTurno } from "@/lib/domain/ruta-turno";
 import type { RecoleccionOperarioRow, RutaOperarioRow } from "@/lib/domain/operario-dashboard";
 
 type CreateTarget = {

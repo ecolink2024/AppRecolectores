@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (junio 2026):** menús **Operativo**, **Historial**, **KPIs** y **Parámetros**; **Cierre operario** y **Reactivar**; tabla de rutas con **insumos**, **bolsas/biotachos**, **montos**; **Ver detalle** de ruta (desglose por unidad y tipo de cliente) y de cada parada (retiro + cobro); recolector: **Maps** (ruta y parada), **Avisar** por WhatsApp; reglas de cobro **Empresa** / **Mixto** / estándar.
+**Novedades recientes (junio 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio); tabla de rutas con bolsas/biotachos/montos; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas) y de parada (retiro + cobro en modal); mapa operario con **hora programada** al reordenar; recolector: **Maps** (todas las paradas abiertas en orden), **Avisar** WhatsApp, **Insumos asignados**; cierre operario / reactivar; cobro Empresa/Mixto/estándar.
 
 ---
 
@@ -182,6 +182,7 @@ Lista las rutas del contexto actual. Cada fila incluye, entre otros:
 | **Ver detalle** | Popup con resumen, **desglose de paradas** y **recaudación** (ver abajo) |
 | **Ver mapa** | Mapa con direcciones geocodificadas |
 | **Ver insumos** | Insumos de inicio de jornada |
+| **Completar** / **Ver prep.** | Preparación de insumos (obligatoria antes del inicio del recolector) |
 | **Editar** | Cambiar nombre, fecha, turno, estado, recolector, observaciones |
 | **Suspender** | Pausa la ruta (solo rutas activas) |
 | **Reactivar** | Reabre una ruta **Realizado** o **Suspendida** → **En proceso** |
@@ -213,6 +214,8 @@ Antes de que el recolector pueda **Inicio de ruta**, el operario debe:
 Hasta que no se guarde, el recolector ve un aviso y el botón **Inicio de ruta** queda deshabilitado. Una vez guardada, en el detalle de ruta del recolector aparece **Insumos asignados** con el listado.
 
 Podés editar la preparación mientras la ruta no haya sido iniciada por el recolector.
+
+> **Maps y Avisar** no dependen de la preparación: el recolector puede ver la ruta y usar Maps antes del inicio. Solo **Inicio de ruta** queda bloqueado hasta que guardes la preparación.
 
 #### Tabla **Recolecciones (servicios)** (Operativo)
 
@@ -352,15 +355,15 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 ### 4.1 Día a día
 
 1. **Ingresá** al panel operativo (`/panel` → menú **Operativo**)
-2. Revisá la tabla de **Rutas** — fecha, recolector, exitosas, bolsas, montos
-3. **Seleccioná una ruta** para ver sus recolecciones abajo
-4. **Ver detalle** (ruta): desglose de exitosas/pendientes/canceladas por unidad y tipo de cliente + recaudación
-5. **Ver detalle** (parada): retiro y cobro de cada servicio visitado
-6. Si hace falta corregir datos → **Editar** ruta o recolección
-7. Para planificar el recorrido → **Ver mapa** y reordenar paradas
+2. Revisá la tabla de **Rutas**
+3. **Completar** la **Preparación de insumos** de cada ruta activa (obligatorio antes de que el recolector inicie)
+4. **Seleccioná una ruta** para ver sus recolecciones abajo
+5. **Ver detalle** (ruta): desglose por unidad/tipo + recaudación
+6. **Ver detalle** (parada): retiro y cobro cuando ya fue visitada o cancelada
+7. **Ver mapa** para reordenar paradas (cada fila muestra la hora programada)
 8. Seguí el avance cuando el recolector carga en campo
 9. Rutas **Realizadas** → **Cierre operario** cuando corresponda
-10. **Suspender** / **Reactivar** si hace falta pausar o reabrir
+10. **Suspender** / **Reactivar** si hace falta
 11. **Historial** o **KPIs** para reportes; exportá CSV si necesitás Excel
 12. **Parámetros** cuando cambien precios
 
@@ -449,8 +452,9 @@ Dentro de cada sección, las rutas se ordenan por fecha (más recientes arriba).
 1. Tocá una tarjeta de ruta
 2. Entrás al **Detalle de ruta** con:
    - Turno, fecha, estado
+   - **Insumos asignados** (preparación del operario), cuando ya está completa
    - Efectivo recaudado (si hay cargas)
-   - Km iniciales e insumos (después de iniciar)
+   - Km iniciales e **Insumos declarados** (después de iniciar)
    - Botones **Maps** (recorrido), **Avisar** (WhatsApp, tras iniciar) e **Inicio de ruta**
    - Lista de **recolecciones** en orden (cada una con su botón **Maps**)
 
@@ -605,15 +609,15 @@ Las rutas y paradas se cargan masivamente desde una planilla de Google. Esto lo 
 
 Cada fila = una parada/cliente. Campos obligatorios:
 
-- **Nombre**, **Direccion**, **Telefono**, **Dia** (fecha), **Hora**, **Recolector** (email del recolector en la app)
+- **Nombre**, **Direccion**, **Telefono**, **Dia** (fecha), **Hora**, **Recolector** (nombre del recolector en la app; el desplegable lo trae automáticamente)
 
 ### Cómo se arma una ruta
 
 La app agrupa filas automáticamente cuando comparten:
 
 - Misma **fecha** (columna Dia)
-- Mismo **turno** (Mañana si Hora &lt; 12:00, Tarde si Hora ≥ 12:00)
-- Mismo **recolector** (email)
+- Mismo **turno** (Mañana si Hora entre **8:30 y 13:30**; Tarde si Hora entre **14:30 y 20:30**)
+- Mismo **recolector** (nombre o email)
 
 Si cambiás fecha, turno o recolector → es **otra ruta**.
 
@@ -631,7 +635,7 @@ Si cambiás fecha, turno o recolector → es **otra ruta**.
 Desde el menú del script (instalado una vez):
 
 1. **Configurar integración** — URL de la app + secreto compartido
-2. **Actualizar desplegable recolectores** — trae emails desde la base
+2. **Actualizar desplegable recolectores** — trae **nombres** desde la base (si hay dos con el mismo nombre, muestra también el email)
 3. **Validar todas las filas** — revisa antes de enviar
 4. **Enviar pendientes a la app** — importa filas Pendiente
 
@@ -697,9 +701,15 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 - Verificá que en **Parámetros** estén cargados los precios vigentes (bolsa extra, retiro reciclable mixto)
 - Con **1 o 2 bolsas** en Mixto el total es el mismo; con **3+** se suma bolsa extra
 
+### No puedo iniciar la ruta (recolector)
+
+- El operario debe completar **Preparación de insumos** en el panel operativo (columna **Completar** → **Guardar preparación**)
+- Hasta entonces verás un aviso y el botón **Inicio de ruta** dirá **Falta preparación**
+- Cuando esté lista, en el detalle aparece **Insumos asignados**
+
 ### “Inicio de ruta” no guarda / error de columnas
 
-- Avisá al equipo técnico: puede faltar actualizar la base de datos (migraciones)
+- Avisá al equipo técnico: puede faltar la migración `insumos_operario` en Supabase (ejecutar `supabase/apply-pending-operativo.sql` en SQL Editor)
 - Mientras tanto, probá cerrar sesión, volver a entrar y reintentar
 
 ### No puedo cargar una parada
@@ -728,14 +738,19 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### La planilla no importa filas
 
 - Ejecutá **Validar todas las filas** y corregí errores en rojo
-- Verificá que el email del Recolector exista en la app
+- Verificá que el **nombre** (o email) del Recolector exista en la app — usá **Actualizar desplegable recolectores**
 - Las filas **Enviada** (verde) no se reimportan — creá fila nueva si hace falta
+
+### No veo el botón Completar / error al guardar preparación (operario)
+
+- Ejecutá en Supabase el SQL de `supabase/apply-pending-operativo.sql` (o pedile al equipo técnico)
+- No podés editar la preparación si el recolector **ya inició** la ruta
 
 ### Maps del recolector no abre direcciones
 
 - Verificá que las paradas tengan **dirección** cargada
 - El botón **Maps** de la ruta se deshabilita si no quedan paradas abiertas (todas visitadas, canceladas u omitidas)
-- El recorrido de la ruta **no incluye** paradas ya cerradas: arranca desde la siguiente en orden
+- El recorrido incluye **todas** las paradas abiertas en orden de ruta, aunque hayas visitado otras más adelante
 - Probá con conexión a internet activa
 
 ---
@@ -746,7 +761,12 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 |---------|-------------|
 | **Ruta** | Jornada de un recolector en una fecha y turno, con N paradas |
 | **Recolección / servicio / parada** | Visita a un cliente en una ruta (misma cosa en la UI) |
-| **Turno** | Mañana (antes de 12:00) o Tarde (desde 12:00) |
+| **Preparación de insumos** | Formulario del operario con los insumos que debe llevar el recolector; obligatorio antes del inicio |
+| **Insumos asignados** | Lo que cargó el operario en la preparación (visible para el recolector) |
+| **Insumos declarados** | Lo que el recolector confirma al **iniciar** la ruta (km + insumos) |
+| **Ver detalle (ruta)** | Popup con desglose de paradas por unidad/tipo y recaudación |
+| **Ver detalle (parada)** | Popup con retiro (bolsas/biotachos) y cobro (efectivo/transferencia/QR) |
+| **Turno** | Mañana (**8:30–13:30**) o Tarde (**14:30–20:30**); define en qué ruta cae cada parada |
 | **Realizado** | Recolector finalizó; sigue en Operativo hasta cierre operario |
 | **Cerrada** | Cierre operario hecho; la ruta está en Historial |
 | **Cierre operario** | Acción del staff que archiva una ruta Realizada |

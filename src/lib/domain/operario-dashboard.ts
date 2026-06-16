@@ -1,3 +1,4 @@
+import { horaInicioTurnoForSort } from "@/lib/domain/ruta-turno";
 import type { Database, RecoleccionOperativaEstado, RutaTurno } from "@/types/database";
 import {
   RUTA_ESTADO_OPERARIO_LABELS,
@@ -589,8 +590,8 @@ export function pickDefaultRutaId(rutas: RutaOperarioRow[]): string | null {
   let bestPast: { id: string; diff: number } | null = null;
 
   for (const ruta of rutas) {
-    const hour = ruta.turno === "tarde" ? 14 : 8;
-    const ts = new Date(`${ruta.fecha}T${String(hour).padStart(2, "0")}:00:00`).getTime();
+    const horaInicio = horaInicioTurnoForSort(ruta.turno);
+    const ts = new Date(`${ruta.fecha}T${horaInicio}:00`).getTime();
     const diff = ts - now;
     if (diff >= 0) {
       if (!bestFuture || diff < bestFuture.diff) {

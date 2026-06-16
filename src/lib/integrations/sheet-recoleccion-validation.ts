@@ -1,3 +1,5 @@
+import { RUTA_TURNO_FUERA_RANGO_MSG, turnoFromHoraParts } from "@/lib/domain/ruta-turno";
+
 export const UNIDADES = ["Hogar", "Empresa", "Puntos"] as const;
 export const TIPOS_SERVICIO = ["Reciclaje", "Mixto", "Organico", "Punto"] as const;
 export const FRECUENCIAS = ["Mensual", "Puntual", "Semanal"] as const;
@@ -148,7 +150,9 @@ export function parseHora(value: unknown): { ok: true; value: string; turno: Rut
     const m = value.getMinutes();
     const s = value.getSeconds();
     const formatted = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
-    return { ok: true, value: formatted, turno: h < 12 ? "manana" : "tarde" };
+    const turno = turnoFromHoraParts(h, m);
+    if (!turno) return { ok: false, error: RUTA_TURNO_FUERA_RANGO_MSG };
+    return { ok: true, value: formatted, turno };
   }
 
   const raw = str(value);
@@ -166,7 +170,9 @@ export function parseHora(value: unknown): { ok: true; value: string; turno: Rut
   }
 
   const formatted = `${pad2(hh)}:${pad2(mm)}:${pad2(ss)}`;
-  return { ok: true, value: formatted, turno: hh < 12 ? "manana" : "tarde" };
+  const turno = turnoFromHoraParts(hh, mm);
+  if (!turno) return { ok: false, error: RUTA_TURNO_FUERA_RANGO_MSG };
+  return { ok: true, value: formatted, turno };
 }
 
 function pad2(n: number) {
@@ -209,9 +215,62 @@ function parseDeuda(value: unknown): string | null {
   return str(value);
 }
 
+export type RecolectorRef = { email: string; nombre: string };
+
+function normalizeRecolectorLookupKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "");
+}
+
+/** Resuelve nombre o email del recolector al email canónico (para planilla y API). */
+export function buildRecolectoresLookup(recolectores: RecolectorRef[]) {
+  const emails = new Set(recolectores.map((r) => r.email.toLowerCase()));
+  const byKey = new Map<string, string>();
+  const nameCounts = new Map<string, number>();
+  const labels: string[] = [];
+
+  for (const r of recolectores) {
+    const nombre = (r.nombre || r.email).trim();
+    const key = normalizeRecolectorLookupKey(nombre);
+    nameCounts.set(key, (nameCounts.get(key) ?? 0) + 1);
+  }
+
+  for (const r of recolectores) {
+    const email = r.email.toLowerCase();
+    const nombre = (r.nombre || r.email).trim();
+    byKey.set(normalizeRecolectorLookupKey(email), email);
+
+    const nameKey = normalizeRecolectorLookupKey(nombre);
+    const label =
+      (nameCounts.get(nameKey) ?? 0) > 1 ? `${nombre} (${email})` : nombre;
+    labels.push(label);
+    byKey.set(normalizeRecolectorLookupKey(label), email);
+    if ((nameCounts.get(nameKey) ?? 0) === 1) {
+      byKey.set(nameKey, email);
+    }
+  }
+
+  return {
+    emails,
+    labels,
+    resolve(raw: string): string | null {
+      const trimmed = raw.trim();
+      if (!trimmed) return null;
+      const lower = trimmed.toLowerCase();
+      if (emails.has(lower)) return lower;
+      return byKey.get(normalizeRecolectorLookupKey(trimmed)) ?? null;
+    },
+  };
+}
+
+export type RecolectoresLookup = ReturnType<typeof buildRecolectoresLookup>;
+
 export function validateRecoleccionRow(
   row: RecoleccionSheetRow,
-  recolectoresEmails: Set<string>,
+  recolectoresLookup: RecolectoresLookup,
 ): RowValidationResult {
   const fila = row.fila ?? 0;
   const errors: FieldError[] = [];
@@ -219,7 +278,8 @@ export function validateRecoleccionRow(
 
   const nombre = str(row.nombre);
   const direccion = str(row.direccion);
-  const recolector = str(row.recolector ?? row.recolector_email).toLowerCase();
+  const recolectorRaw = str(row.recolector ?? row.recolector_email);
+  let recolectorEmail: string | null = null;
 
   if (!nombre) missing.push("Nombre");
   else checkLength("nombre", "Nombre", nombre, 150, errors);
@@ -294,9 +354,12 @@ export function validateRecoleccionRow(
     else errors.push({ field: "hora", message: horaParsed.error });
   }
 
-  if (!recolector) missing.push("Recolector");
-  else if (!recolectoresEmails.has(recolector)) {
-    errors.push({ field: "recolector", message: "Recolector (no existe en la base)" });
+  if (!recolectorRaw) missing.push("Recolector");
+  else {
+    recolectorEmail = recolectoresLookup.resolve(recolectorRaw);
+    if (!recolectorEmail) {
+      errors.push({ field: "recolector", message: "Recolector (no existe en la base)" });
+    }
   }
 
   const precioParsed = parsePrecio(row.precio);
@@ -350,7 +413,7 @@ export function validateRecoleccionRow(
       nota_encargado,
       precio: precioParsed.ok ? precioParsed.value : null,
       deuda,
-      recolector_email: recolector,
+      recolector_email: recolectorEmail ?? "",
       turno: horaParsed.ok ? horaParsed.turno : "manana",
     },
   };

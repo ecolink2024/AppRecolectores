@@ -9,8 +9,8 @@ Una **ruta** se identifica por:
 | Clave | Origen en planilla |
 |-------|-------------------|
 | **Fecha** | Columna `Dia` (YYYY-MM-DD) |
-| **Turno** | Derivado de `Hora`: antes de 12:00 = Mañana, desde 12:00 = Tarde |
-| **Recolector** | Columna `Recolector` (email que existe en la app) |
+| **Turno** | Derivado de `Hora`: **Mañana** si está entre 8:30 y 13:30; **Tarde** si está entre 14:30 y 20:30 |
+| **Recolector** | Columna `Recolector` — **nombre** del recolector (desplegable desde la app; también acepta email) |
 
 Si cambia la fecha, el turno o el recolector → es **otra ruta**.
 
@@ -53,7 +53,7 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 
 1. Pegar `scripts/google-apps-script/ImportarRuta.gs` en Extensiones → Apps Script
 2. **Configurar integración** → URL `https://app-recolectores.vercel.app` + secreto
-3. **Actualizar desplegable recolectores** (trae emails de la base)
+3. **Actualizar desplegable recolectores** (trae nombres de la base; si hay nombres repetidos muestra `Nombre (email)`)
 4. Completar filas de datos
 5. **Validar todas las filas**
 6. **Enviar pendientes a la app**

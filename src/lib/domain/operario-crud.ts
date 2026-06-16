@@ -152,7 +152,3 @@ export function parseRecoleccionUpdate(
     },
   };
 }
-
-export function defaultHoraForTurno(turno: RutaTurno | null): string {
-  return turno === "tarde" ? "14:00" : "09:00";
-}

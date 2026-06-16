@@ -130,7 +130,7 @@ function normalizar_(s) {
 function validarTodas() {
   const sheet = getSheet_();
   const map = getColumnMap_(sheet);
-  const recolectores = cargarEmailsRecolectores_();
+  const recolectores = cargarRecolectoresLookup_();
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) {
     SpreadsheetApp.getUi().alert("No hay filas de datos.");
@@ -167,7 +167,7 @@ function enviarPendientes() {
   const map = getColumnMap_(sheet);
   const cols = getCols_(map);
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const recolectores = cargarEmailsRecolectores_();
+  const recolectores = cargarRecolectoresLookup_();
   const pendientes = [];
 
   for (let r = 2; r <= sheet.getLastRow(); r++) {
@@ -261,10 +261,9 @@ function actualizarDesplegableRecolectores() {
     return;
   }
 
-  const emails = (body.recolectores || []).map(function (r) {
-    return r.email;
-  });
-  if (emails.length === 0) {
+  const lookup = buildRecolectoresLookup_(body.recolectores || []);
+  const labels = lookup.labels;
+  if (labels.length === 0) {
     SpreadsheetApp.getUi().alert("No hay recolectores en la base.");
     return;
   }
@@ -278,15 +277,62 @@ function actualizarDesplegableRecolectores() {
   }
 
   const rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(emails, true)
+    .requireValueInList(labels, true)
     .setAllowInvalid(false)
     .build();
 
   sheet.getRange(2, col, Math.max(sheet.getLastRow(), 100), 1).setDataValidation(rule);
-  SpreadsheetApp.getUi().alert("Desplegable actualizado (" + emails.length + " recolectores).");
+  SpreadsheetApp.getUi().alert("Desplegable actualizado (" + labels.length + " recolectores por nombre).");
 }
 
-function cargarEmailsRecolectores_() {
+/** Índice nombre/email → email canónico (misma lógica que la API). */
+function buildRecolectoresLookup_(recolectores) {
+  var byKey = {};
+  var emails = {};
+  var labels = [];
+  var nameCounts = {};
+  var items = recolectores || [];
+
+  items.forEach(function (r) {
+    var email = String(r.email || "").trim().toLowerCase();
+    var nombre = String(r.nombre || r.email || "").trim();
+    if (!email) return;
+    emails[email] = true;
+    var nameKey = normalizar_(nombre);
+    nameCounts[nameKey] = (nameCounts[nameKey] || 0) + 1;
+    r._email = email;
+    r._nombre = nombre;
+  });
+
+  items.forEach(function (r) {
+    var email = r._email;
+    var nombre = r._nombre;
+    if (!email) return;
+    byKey[normalizar_(email)] = email;
+    var nameKey = normalizar_(nombre);
+    var label = nameCounts[nameKey] > 1 ? nombre + " (" + email + ")" : nombre;
+    byKey[normalizar_(label)] = email;
+    if (nameCounts[nameKey] === 1) {
+      byKey[nameKey] = email;
+    }
+    labels.push(label);
+  });
+
+  return {
+    labels: labels,
+    resolve: function (raw) {
+      var s = String(raw || "").trim();
+      if (!s) return null;
+      var key = normalizar_(s);
+      if (byKey[key]) return byKey[key];
+      var lower = s.toLowerCase();
+      if (emails[lower]) return lower;
+      return null;
+    },
+  };
+}
+
+function cargarRecolectoresLookup_() {
   const props = PropertiesService.getScriptProperties();
   const apiUrl = props.getProperty("API_URL");
   const apiSecret = props.getProperty("API_SECRET");
@@ -302,13 +348,9 @@ function cargarEmailsRecolectores_() {
       },
     );
     const body = JSON.parse(response.getContentText());
-    const map = {};
-    (body.recolectores || []).forEach(function (r) {
-      map[String(r.email).toLowerCase()] = true;
-    });
-    return map;
+    return buildRecolectoresLookup_(body.recolectores || []);
   } catch (e) {
-    return {};
+    return buildRecolectoresLookup_([]);
   }
 }
 
@@ -373,14 +415,15 @@ function filaVacia_(row) {
   );
 }
 
-function validarFila_(row, recolectoresMap) {
+function validarFila_(row, recolectoresLookup) {
   const errors = [];
   const missing = [];
   const errorFields = {};
 
   const nombre = String(row.nombre || "").trim();
   const direccion = String(row.direccion || "").trim();
-  const recolector = String(row.recolector || "").trim().toLowerCase();
+  const recolectorRaw = String(row.recolector || "").trim();
+  const recolectorEmail = recolectoresLookup.resolve(recolectorRaw);
 
   if (!nombre) missing.push("Nombre");
   else if (nombre.length > 150) addErr_(errors, errorFields, "nombre", "Nombre (muy largo (>150))");
@@ -422,8 +465,8 @@ function validarFila_(row, recolectoresMap) {
     else addErr_(errors, errorFields, "hora", hora.error);
   }
 
-  if (!recolector) missing.push("Recolector");
-  else if (!recolectoresMap[recolector]) addErr_(errors, errorFields, "recolector", "Recolector (no existe en la base)");
+  if (!recolectorRaw) missing.push("Recolector");
+  else if (!recolectorEmail) addErr_(errors, errorFields, "recolector", "Recolector (no existe en la base)");
 
   const precio = parsePrecio_(row.precio);
   if (!precio.ok) addErr_(errors, errorFields, "precio", precio.error);
@@ -459,7 +502,7 @@ function validarFila_(row, recolectoresMap) {
       nota_encargado: String(row.nota_encargado || "").trim() || null,
       precio: precio.value,
       deuda: String(row.deuda || "").trim() || null,
-      recolector_email: recolector,
+      recolector_email: recolectorEmail,
       turno: hora.turno,
     };
   }
@@ -546,7 +589,9 @@ function parseHora_(value) {
     const m = value.getMinutes();
     const s = value.getSeconds();
     const fmt = pad2_(h) + ":" + pad2_(m) + ":" + pad2_(s);
-    return { ok: true, value: fmt, turno: h < 12 ? "manana" : "tarde" };
+    const turno = turnoFromHoraParts_(h, m);
+    if (!turno) return { ok: false, error: "Hora fuera de turno (mañana 8:30–13:30, tarde 14:30–20:30)" };
+    return { ok: true, value: fmt, turno: turno };
   }
   const raw = String(value || "").trim();
   const m = raw.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
@@ -556,7 +601,17 @@ function parseHora_(value) {
   const ss = Number(m[3] || 0);
   if (hh > 23 || mm > 59 || ss > 59) return { ok: false, error: "Hora (formato hora inválido)" };
   const fmt = pad2_(hh) + ":" + pad2_(mm) + ":" + pad2_(ss);
-  return { ok: true, value: fmt, turno: hh < 12 ? "manana" : "tarde" };
+  const turno = turnoFromHoraParts_(hh, mm);
+  if (!turno) return { ok: false, error: "Hora fuera de turno (mañana 8:30–13:30, tarde 14:30–20:30)" };
+  return { ok: true, value: fmt, turno: turno };
+}
+
+/** Mañana 8:30–13:30; tarde 14:30–20:30 (hora local). */
+function turnoFromHoraParts_(hh, mm) {
+  const min = hh * 60 + mm;
+  if (min >= 8 * 60 + 30 && min <= 13 * 60 + 30) return "manana";
+  if (min >= 14 * 60 + 30 && min <= 20 * 60 + 30) return "tarde";
+  return null;
 }
 
 function pad2_(n) {
