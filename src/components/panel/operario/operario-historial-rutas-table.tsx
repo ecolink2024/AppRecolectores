@@ -1,5 +1,9 @@
 import { RutaEstadoBadge } from "@/components/panel/operario/operario-badges";
 import {
+  OPERARIO_SCROLL_HISTORIAL_RUTAS,
+  OperarioScrollableTable,
+} from "@/components/panel/operario/operario-scrollable-table";
+import {
   formatDateTime,
   formatKm,
   formatMoney,
@@ -18,19 +22,19 @@ type Props = {
 
 /** Primera columna fija al scroll horizontal */
 const STICKY_1 =
-  "sticky left-0 z-20 min-w-[6.5rem] bg-inherit shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]";
+  "sticky left-0 z-30 min-w-[6.5rem] bg-inherit shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]";
 /** Segunda columna fija */
 const STICKY_2 =
-  "sticky left-[6.5rem] z-20 min-w-[9.5rem] max-w-[9.5rem] bg-inherit shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]";
+  "sticky left-[6.5rem] z-30 min-w-[9.5rem] max-w-[9.5rem] bg-inherit shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]";
 /** Tercera columna fija (borde derecho al separar del scroll) */
 const STICKY_3 =
-  "sticky left-[16rem] z-20 min-w-[5.5rem] border-r border-zinc-200 bg-inherit dark:border-zinc-700";
+  "sticky left-[16rem] z-30 min-w-[5.5rem] border-r border-zinc-200 bg-inherit dark:border-zinc-700";
 
 const TH = "whitespace-nowrap px-3 py-3 font-medium";
 const TD = "whitespace-nowrap px-3 py-2.5";
 const TH_HEAD =
-  "border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400";
-const TD_STICKY_HEAD = `${TH_HEAD} ${TH} bg-zinc-50 dark:bg-zinc-950`;
+  "sticky top-0 z-20 border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]";
+const TD_STICKY_HEAD = `${TH_HEAD} ${TH} z-40 bg-zinc-50 dark:bg-zinc-950`;
 
 function stickyRowBg(selected: boolean) {
   return selected
@@ -53,7 +57,14 @@ export function OperarioHistorialRutasTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <OperarioScrollableTable
+      maxHeight={OPERARIO_SCROLL_HISTORIAL_RUTAS}
+      footer={
+        rutas.length > 8
+          ? `${rutas.length} rutas en historial · Desplazá para ver más`
+          : `${rutas.length} ruta${rutas.length === 1 ? "" : "s"} en historial`
+      }
+    >
       <table className="min-w-[3200px] w-full text-left text-sm">
         <thead className={TH_HEAD}>
           <tr>
@@ -181,6 +192,6 @@ export function OperarioHistorialRutasTable({
           })}
         </tbody>
       </table>
-    </div>
+    </OperarioScrollableTable>
   );
 }

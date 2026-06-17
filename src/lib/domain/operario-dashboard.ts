@@ -1,3 +1,4 @@
+import { esFirmaDigitalImagen as esFirmaDigitalImagenFromDomain } from "@/lib/domain/firma-digital";
 import { horaInicioTurnoForSort } from "@/lib/domain/ruta-turno";
 import type { Database, RecoleccionOperativaEstado, RutaTurno } from "@/types/database";
 import {
@@ -482,8 +483,7 @@ export function buildRecoleccionOperarioDetalleCarga(
 }
 
 export function esFirmaDigitalImagen(firma: string | null): boolean {
-  if (!firma) return false;
-  return firma.startsWith("data:image") || firma.startsWith("http");
+  return esFirmaDigitalImagenFromDomain(firma);
 }
 
 function labelUnidadTipo(value: string | null | undefined, fallback: string): string {

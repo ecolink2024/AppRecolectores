@@ -13,6 +13,7 @@ import {
   recoleccionCerradaParaRecolector,
 } from "@/lib/domain/recolector-recoleccion-campo";
 import { getInicioJornadaAt } from "@/lib/domain/recolector-ruta";
+import { uploadFirmaRecoleccionPng } from "@/lib/storage/firmas-recoleccion";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 
@@ -115,7 +116,23 @@ export async function PATCH(request: Request, { params }: Props) {
       fetchPrecioBolsaPuntoActivo(),
       fetchPrecioBolsaLlenaPuntoActivo(),
     ]);
-  const parsed = parseRecoleccionCampoBody(body, {
+
+  const firmaPng = typeof body.firma_png === "string" ? body.firma_png.trim() : "";
+  if (!firmaPng) {
+    return NextResponse.json(
+      { ok: false, error: "Debés capturar la firma del cliente en el recuadro" },
+      { status: 400 },
+    );
+  }
+
+  const uploaded = await uploadFirmaRecoleccionPng(admin, rutaId, recoleccionId, firmaPng);
+  if (!uploaded.ok) {
+    return NextResponse.json({ ok: false, error: uploaded.error }, { status: 400 });
+  }
+
+  const parsed = parseRecoleccionCampoBody(
+    { ...body, firma_digital: uploaded.storageRef },
+    {
     unidad: recoleccion.unidad,
     tipoServicio: recoleccion.tipo_servicio,
     precioRetiro,
@@ -123,7 +140,8 @@ export async function PATCH(request: Request, { params }: Props) {
     precioRetiroReciclableMixto,
     precioBolsaPunto,
     precioBolsaLlenaPunto,
-  });
+    },
+  );
   if (!parsed.ok) {
     return NextResponse.json({ ok: false, error: parsed.error }, { status: 400 });
   }

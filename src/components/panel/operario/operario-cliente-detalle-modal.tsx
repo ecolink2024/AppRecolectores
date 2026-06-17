@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { FirmaDigitalImage } from "@/components/panel/firma-digital-image";
 import {
   esFirmaDigitalImagen,
   formatMoney,
@@ -161,10 +162,9 @@ export function OperarioClienteDetalleModal({
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
                   Firma digital
                 </p>
-                <img
-                  src={recoleccion.firma_digital}
+                <FirmaDigitalImage
+                  firmaRef={recoleccion.firma_digital}
                   alt={`Firma de ${recoleccion.nombre_firmante ?? recoleccion.nombre}`}
-                  className="max-h-32 rounded-lg border border-zinc-200 bg-white dark:border-zinc-700"
                 />
               </div>
             )}

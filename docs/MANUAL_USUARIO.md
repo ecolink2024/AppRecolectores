@@ -479,7 +479,9 @@ Si la ruta está **Suspendida**, verás un aviso y no podrás operarla hasta que
 
 #### Maps — toda la ruta
 
-En el detalle de ruta, tocá **Maps** (al lado de **Avisar**). Se abre Google Maps con un recorrido por las paradas que te faltan, **en el orden de la ruta**.
+En el detalle de ruta, tocá **Maps** (al lado de **Avisar**). Se abre Google Maps con un recorrido **desde tu ubicación actual** hacia las paradas que te faltan, **en el orden de la ruta**.
+
+Google Maps pedirá permiso de ubicación si aún no lo diste; el primer punto del recorrido es **donde estás vos** (punto de partida del día).
 
 Solo entran paradas **pendientes** o **en camino**. Las visitadas, canceladas u omitidas no se incluyen. Si visitaste paradas fuera de orden (por ejemplo la 1, 2 y 7), Maps sigue mostrando las que faltan en medio (3, 4, 5, 6) y cualquier otra abierta que venga después.
 
@@ -489,7 +491,7 @@ No requiere configuración extra: usa la app de Maps del teléfono.
 
 #### Maps — una parada
 
-En cada fila de la lista hay un botón **Maps** que abre **solo esa dirección** (coordenadas si están cargadas; si no, la dirección escrita). Sirve para ir a un cliente puntual sin armar el recorrido completo.
+En cada fila de la lista hay un botón **Maps** que abre la navegación **desde tu ubicación actual** hasta **solo esa dirección** (coordenadas si están cargadas; si no, la dirección escrita). Sirve para ir a un cliente puntual sin armar el recorrido completo.
 
 #### Avisar clientes (WhatsApp)
 

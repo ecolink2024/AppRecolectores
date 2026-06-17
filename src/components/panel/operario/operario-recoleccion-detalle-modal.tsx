@@ -2,8 +2,10 @@
 
 import { useEffect } from "react";
 
+import { FirmaDigitalImage } from "@/components/panel/firma-digital-image";
 import {
   buildRecoleccionOperarioDetalleCarga,
+  esFirmaDigitalImagen,
   type RecoleccionOperarioRow,
 } from "@/lib/domain/operario-dashboard";
 
@@ -126,6 +128,28 @@ export function OperarioRecoleccionDetalleModal({
                 </dl>
               </div>
             </>
+          )}
+
+          {(recoleccion.nombre_firmante || recoleccion.firma_digital) && (
+            <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+              <p className="font-medium text-zinc-700 dark:text-zinc-300">Firma</p>
+              {recoleccion.nombre_firmante && (
+                <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+                  Firmante:{" "}
+                  <span className="font-medium text-zinc-900 dark:text-zinc-50">
+                    {recoleccion.nombre_firmante}
+                  </span>
+                </p>
+              )}
+              {recoleccion.firma_digital && esFirmaDigitalImagen(recoleccion.firma_digital) && (
+                <div className="mt-3">
+                  <FirmaDigitalImage
+                    firmaRef={recoleccion.firma_digital}
+                    alt={`Firma de ${recoleccion.nombre_firmante ?? recoleccion.nombre}`}
+                  />
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

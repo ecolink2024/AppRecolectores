@@ -46,7 +46,7 @@ export type RecoleccionCampoFormData = {
   montoTransferencia: string;
   montoQr: string;
   nombreFirmante: string;
-  firmaConfirmada: boolean;
+  firmaDigital: string | null;
   completada: boolean;
   soloLectura: boolean;
 };
@@ -102,7 +102,7 @@ export function buildRecoleccionCampoFormData(
     montoTransferencia: paymentFieldToString(item.monto_transferencia),
     montoQr: paymentFieldToString(item.monto_qr),
     nombreFirmante: item.nombre_firmante ?? "",
-    firmaConfirmada: !!item.firma_digital,
+    firmaDigital: item.firma_digital,
     completada,
     soloLectura,
   };

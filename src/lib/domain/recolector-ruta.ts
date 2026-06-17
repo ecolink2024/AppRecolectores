@@ -248,30 +248,54 @@ export function buildDireccionesMapsActivas(
     .filter(Boolean);
 }
 
+const MAPS_ORIGIN_CURRENT_LOCATION = "Current Location";
+
+function buildGoogleMapsDirUrl(params: {
+  destination: string;
+  waypoints?: string[];
+}): string {
+  const search = new URLSearchParams({
+    api: "1",
+    origin: MAPS_ORIGIN_CURRENT_LOCATION,
+    destination: params.destination,
+    travelmode: "driving",
+  });
+
+  if (params.waypoints && params.waypoints.length > 0) {
+    search.set("waypoints", params.waypoints.join("|"));
+  }
+
+  return `https://www.google.com/maps/dir/?${search.toString()}`;
+}
+
 export function buildGoogleMapsDirectionsUrl(addresses: string[]): string | null {
   const cleaned = addresses.map((a) => a.trim()).filter(Boolean);
   if (cleaned.length === 0) return null;
 
   if (cleaned.length === 1) {
-    return buildGoogleMapsRecoleccionUrl({ direccion: cleaned[0], latitud: null, longitud: null });
+    return buildGoogleMapsDirUrl({ destination: cleaned[0] });
   }
 
-  const path = cleaned.map((a) => encodeURIComponent(a)).join("/");
-  return `https://www.google.com/maps/dir/${path}`;
+  return buildGoogleMapsDirUrl({
+    destination: cleaned[cleaned.length - 1],
+    waypoints: cleaned.slice(0, -1),
+  });
 }
 
-/** Ubicación de una parada (coordenadas o búsqueda por dirección). */
+/** Ubicación de una parada (navegación desde ubicación actual). */
 export function buildGoogleMapsRecoleccionUrl(
   item: Pick<RecolectorRecoleccionPreview, "direccion" | "latitud" | "longitud">,
 ): string | null {
   if (item.latitud != null && item.longitud != null) {
-    return `https://www.google.com/maps?q=${item.latitud},${item.longitud}`;
+    return buildGoogleMapsDirUrl({
+      destination: `${item.latitud},${item.longitud}`,
+    });
   }
 
   const direccion = item.direccion.trim();
   if (!direccion) return null;
 
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
+  return buildGoogleMapsDirUrl({ destination: direccion });
 }
 
 export function formatInicioJornada(value: string | null): string {

@@ -1,5 +1,10 @@
 import { RutaEstadoBadge } from "@/components/panel/operario/operario-badges";
 import {
+  OPERARIO_SCROLL_RUTAS,
+  OPERARIO_TABLE_HEAD_STICKY,
+  OperarioScrollableTable,
+} from "@/components/panel/operario/operario-scrollable-table";
+import {
   formatDateTime,
   formatMaterialesRecolectadosDisplay,
   formatMoney,
@@ -47,9 +52,16 @@ export function OperarioRutasTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <OperarioScrollableTable
+      maxHeight={OPERARIO_SCROLL_RUTAS}
+      footer={
+        rutas.length > 8
+          ? `${rutas.length} rutas · Desplazá vertical u horizontalmente para ver más`
+          : `${rutas.length} ruta${rutas.length === 1 ? "" : "s"}`
+      }
+    >
       <table className="min-w-[1400px] w-full text-left text-sm">
-        <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+        <thead className={OPERARIO_TABLE_HEAD_STICKY}>
           <tr>
             <th className="px-3 py-3 font-medium">Fecha</th>
             <th className="px-3 py-3 font-medium">Recolector</th>
@@ -249,6 +261,6 @@ export function OperarioRutasTable({
           })}
         </tbody>
       </table>
-    </div>
+    </OperarioScrollableTable>
   );
 }

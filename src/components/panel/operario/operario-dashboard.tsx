@@ -190,7 +190,7 @@ export function OperarioDashboard({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
@@ -217,7 +217,10 @@ export function OperarioDashboard({
       </div>
 
       <section className="space-y-3">
-        <SectionTitle title="Ruta" subtitle="Seleccioná una fila para ver sus recolecciones" />
+        <SectionTitle
+          title="Ruta"
+          subtitle={`${rutas.length} ruta${rutas.length === 1 ? "" : "s"} · Seleccioná una fila para ver sus recolecciones`}
+        />
         {isHistorial ? (
           <OperarioHistorialRutasTable
             rutas={rutas}
@@ -296,6 +299,7 @@ export function OperarioDashboard({
           <OperarioRecoleccionesTable
             recolecciones={recoleccionesRuta}
             rutaSeleccionada={!!selectedRuta}
+            ruta={selectedRuta}
             onEditar={setEditRecoleccionId}
           />
         )}

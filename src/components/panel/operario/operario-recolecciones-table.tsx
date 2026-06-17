@@ -6,28 +6,42 @@ import {
   RecoleccionEstadoBadge,
   ZonaBadge,
 } from "@/components/panel/operario/operario-badges";
+import {
+  OPERARIO_SCROLL_RECOLECCIONES,
+  OPERARIO_TABLE_HEAD_STICKY,
+  OperarioScrollableTable,
+} from "@/components/panel/operario/operario-scrollable-table";
+import { OperarioClienteDetalleModal } from "@/components/panel/operario/operario-cliente-detalle-modal";
 import { OperarioRecoleccionDetalleModal } from "@/components/panel/operario/operario-recoleccion-detalle-modal";
 import {
   buildRecoleccionOperarioDetalleCarga,
+  esFirmaDigitalImagen,
   formatHoraReal,
   formatMoney,
   type RecoleccionOperarioRow,
+  type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
+import { isLegacyFirmaPlaceholder } from "@/lib/domain/firma-digital";
 
 type Props = {
   recolecciones: RecoleccionOperarioRow[];
   rutaSeleccionada: boolean;
+  ruta?: Pick<RutaOperarioRow, "fecha" | "turno" | "recolector_nombre" | "nombre"> | null;
   onEditar?: (id: string) => void;
 };
 
 export function OperarioRecoleccionesTable({
   recolecciones,
   rutaSeleccionada,
+  ruta = null,
   onEditar,
 }: Props) {
   const [detalleRecoleccionId, setDetalleRecoleccionId] = useState<string | null>(null);
+  const [clienteRecoleccionId, setClienteRecoleccionId] = useState<string | null>(null);
   const recoleccionDetalle =
     recolecciones.find((item) => item.id === detalleRecoleccionId) ?? null;
+  const clienteRecoleccion =
+    recolecciones.find((item) => item.id === clienteRecoleccionId) ?? null;
 
   if (!rutaSeleccionada) {
     return (
@@ -47,9 +61,16 @@ export function OperarioRecoleccionesTable({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <OperarioScrollableTable
+        maxHeight={OPERARIO_SCROLL_RECOLECCIONES}
+        footer={
+          recolecciones.length > 10
+            ? `${recolecciones.length} paradas · Desplazá para ver más`
+            : `${recolecciones.length} parada${recolecciones.length === 1 ? "" : "s"}`
+        }
+      >
         <table className="min-w-[1100px] w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+          <thead className={OPERARIO_TABLE_HEAD_STICKY}>
             <tr>
               <th className="px-3 py-3 font-medium">#</th>
               <th className="px-3 py-3 font-medium">Estado</th>
@@ -137,7 +158,19 @@ export function OperarioRecoleccionesTable({
                   </td>
                   <td className="px-3 py-2.5">
                     {item.firma_digital ? (
-                      <span className="text-emerald-700 dark:text-emerald-400">Sí</span>
+                      esFirmaDigitalImagen(item.firma_digital) ? (
+                        <button
+                          type="button"
+                          onClick={() => setClienteRecoleccionId(item.id)}
+                          className="text-xs font-medium text-violet-800 underline dark:text-violet-300"
+                        >
+                          Ver firma
+                        </button>
+                      ) : isLegacyFirmaPlaceholder(item.firma_digital) ? (
+                        <span className="text-emerald-700 dark:text-emerald-400">Confirmada</span>
+                      ) : (
+                        <span className="text-emerald-700 dark:text-emerald-400">Sí</span>
+                      )
                     ) : (
                       "—"
                     )}
@@ -159,12 +192,28 @@ export function OperarioRecoleccionesTable({
             })}
           </tbody>
         </table>
-      </div>
+      </OperarioScrollableTable>
 
       <OperarioRecoleccionDetalleModal
         open={detalleRecoleccionId !== null}
         recoleccion={recoleccionDetalle}
         onClose={() => setDetalleRecoleccionId(null)}
+      />
+
+      <OperarioClienteDetalleModal
+        open={clienteRecoleccionId !== null}
+        recoleccion={clienteRecoleccion}
+        rutaContext={
+          ruta
+            ? {
+                fecha: ruta.fecha,
+                turno: ruta.turno,
+                recolector_nombre: ruta.recolector_nombre,
+                nombre_ruta: ruta.nombre,
+              }
+            : null
+        }
+        onClose={() => setClienteRecoleccionId(null)}
       />
     </>
   );

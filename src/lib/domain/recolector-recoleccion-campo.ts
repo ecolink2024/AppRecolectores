@@ -114,18 +114,16 @@ export function parseRecoleccionCampoBody(
 ): { ok: true; data: RecoleccionCampoPayload } | { ok: false; error: string } {
   const motivo_cancelacion = str(body.motivo_cancelacion) || null;
   const nombre_firmante = str(body.nombre_firmante);
-  const firmaConfirmada = body.firma_confirmada === true || body.firma_confirmada === "true";
+  const firma_digital = str(body.firma_digital);
   const empresaPunto = isEmpresaPuntoCobro(precios.unidad, precios.tipoServicio);
 
   if (!nombre_firmante) {
     return { ok: false, error: "El nombre del firmante es obligatorio" };
   }
 
-  if (!firmaConfirmada) {
-    return { ok: false, error: "Debés confirmar la firma del cliente" };
+  if (!firma_digital) {
+    return { ok: false, error: "Debés capturar la firma del cliente en el recuadro" };
   }
-
-  const firma_digital = str(body.firma_digital) || `confirmada-${Date.now()}`;
 
   if (motivo_cancelacion) {
     return {

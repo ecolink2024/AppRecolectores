@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+
+import { FirmaCanvas, type FirmaCanvasRef } from "@/components/panel/firma-canvas";
+import { FirmaDigitalImage } from "@/components/panel/firma-digital-image";
 
 import {
   type RecoleccionCampoFormData,
@@ -35,7 +38,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
   const [montoTransferencia, setMontoTransferencia] = useState(data.montoTransferencia);
   const [montoQr, setMontoQr] = useState(data.montoQr);
   const [nombreFirmante, setNombreFirmante] = useState(data.nombreFirmante);
-  const [firmaConfirmada, setFirmaConfirmada] = useState(data.firmaConfirmada);
+  const firmaCanvasRef = useRef<FirmaCanvasRef>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -101,6 +104,20 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
       return;
     }
 
+    if (!nombreFirmante.trim()) {
+      setError("Completá el nombre del firmante");
+      setSaving(false);
+      return;
+    }
+
+    if (!firmaCanvasRef.current || firmaCanvasRef.current.isEmpty()) {
+      setError("El cliente debe firmar en el recuadro");
+      setSaving(false);
+      return;
+    }
+
+    const firmaPng = firmaCanvasRef.current.toDataURL();
+
     try {
       const response = await fetch(
         `/api/recolector/rutas/${data.rutaId}/recolecciones/${data.id}/campo`,
@@ -123,7 +140,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
             monto_transferencia: montoTransferenciaVal,
             monto_qr: montoQrVal,
             nombre_firmante: nombreFirmante.trim(),
-            firma_confirmada: firmaConfirmada,
+            firma_png: firmaPng,
           }),
         },
       );
@@ -315,17 +332,24 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
               required
             />
           </label>
-          <label className="mt-4 flex min-h-[3rem] cursor-pointer items-start gap-3 rounded-xl border border-zinc-200 p-3 dark:border-zinc-700">
-            <input
-              type="checkbox"
-              checked={firmaConfirmada}
-              onChange={(e) => setFirmaConfirmada(e.target.checked)}
-              className="mt-1 h-5 w-5 rounded border-zinc-300"
-            />
-            <span className="text-sm text-zinc-700 dark:text-zinc-300">
-              Confirmo la firma del cliente (canvas de firma próximamente)
-            </span>
-          </label>
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                Firma del cliente *
+              </span>
+              <button
+                type="button"
+                onClick={() => firmaCanvasRef.current?.clear()}
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              >
+                Limpiar
+              </button>
+            </div>
+            <FirmaCanvas ref={firmaCanvasRef} className="h-36 w-full" />
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Pedile al cliente que firme con el dedo dentro del recuadro.
+            </p>
+          </div>
         </section>
 
         <button
@@ -424,11 +448,18 @@ function RecoleccionCampoSoloLectura({
         <h2 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-50">Firma</h2>
         <dl className="space-y-2 text-sm">
           <ReadOnlyRow label="Firmante" value={data.nombreFirmante || "—"} />
-          <ReadOnlyRow
-            label="Firma confirmada"
-            value={data.firmaConfirmada ? "Sí" : "No"}
-          />
         </dl>
+        {data.firmaDigital && (
+          <div className="mt-3">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              Firma del cliente
+            </p>
+            <FirmaDigitalImage
+              firmaRef={data.firmaDigital}
+              alt={`Firma de ${data.nombreFirmante || data.nombre}`}
+            />
+          </div>
+        )}
       </section>
     </div>
   );

@@ -4,6 +4,11 @@ import { useState } from "react";
 
 import { OperarioClienteDetalleModal } from "@/components/panel/operario/operario-cliente-detalle-modal";
 import {
+  OPERARIO_SCROLL_HISTORIAL_RECOLECCIONES,
+  OPERARIO_TABLE_HEAD_STICKY,
+  OperarioScrollableTable,
+} from "@/components/panel/operario/operario-scrollable-table";
+import {
   RecoleccionEstadoBadge,
   ZonaBadge,
 } from "@/components/panel/operario/operario-badges";
@@ -103,9 +108,16 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <OperarioScrollableTable
+        maxHeight={OPERARIO_SCROLL_HISTORIAL_RECOLECCIONES}
+        footer={
+          recolecciones.length > 10
+            ? `${recolecciones.length} paradas · Desplazá para ver más`
+            : `${recolecciones.length} parada${recolecciones.length === 1 ? "" : "s"}`
+        }
+      >
         <table className="min-w-[2360px] w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+          <thead className={OPERARIO_TABLE_HEAD_STICKY}>
             <tr>
               <th className={TH}>Horario</th>
               <th className={TH}>Recolector</th>
@@ -219,7 +231,7 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
             })}
           </tbody>
         </table>
-      </div>
+      </OperarioScrollableTable>
 
       <OperarioClienteDetalleModal
         open={clienteRecoleccionId !== null}
