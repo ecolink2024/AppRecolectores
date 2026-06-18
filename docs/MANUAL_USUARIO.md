@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (junio 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio); tabla de rutas con bolsas/biotachos/montos; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas) y de parada (retiro + cobro en modal); mapa operario con **hora programada** al reordenar; recolector: **Maps** (todas las paradas abiertas en orden), **Avisar** WhatsApp, **Insumos asignados**; cierre operario / reactivar; cobro Empresa/Mixto/estándar.
+**Novedades recientes (junio 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio); tabla de rutas con bolsas/biotachos/montos; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas) y de parada (retiro + cobro en modal); mapa operario con **hora programada** al reordenar; **tablas con scroll** en Operativo e Historial (rutas y recolecciones sin alargar la página); recolector: **Maps** (todas las paradas abiertas en orden), **Avisar** WhatsApp, **Insumos asignados**; cierre operario / reactivar; cobro Empresa/Mixto/estándar.
 
 ---
 
@@ -83,6 +83,8 @@ El superadmin es la cuenta principal de administración (`somos@ecolink.com.ar`)
 
 Al ingresar llegás a **Operativo** (menú superior). Muestra rutas **activas** (pendientes o en proceso), **suspendidas** y **realizadas** (completadas por el recolector, pendientes de cierre operario). Desde acá podés suspender, reactivar suspendidas y aplicar **Cierre operario** a las realizadas.
 
+**Navegación en pantalla:** la tabla de **Rutas** y la de **Recolecciones (servicios)** (abajo, al seleccionar una ruta) tienen **altura fija con scroll interno**. Los encabezados de columna quedan visibles al bajar; al pie de cada tabla ves cuántas filas hay. Así podés ver rutas y paradas a la vez sin que la página crezca sin límite hacia abajo.
+
 ### 3.2 Historial
 
 Menú **Historial** → `/panel/historial`
@@ -93,7 +95,7 @@ Incluye rutas en estado **Cerrada** (después del **Cierre operario** en Operati
 
 #### Tabla de rutas (Historial)
 
-Tabla amplia con columnas fijas al hacer scroll (Fecha, Recolector, Turno) y el resto desplazable:
+Tabla amplia con **scroll vertical** (altura acotada, encabezado fijo al bajar) y **scroll horizontal**. Las primeras columnas quedan fijas al desplazarte a la derecha (Fecha, Recolector, Turno); el resto es desplazable:
 
 | Columna | Contenido |
 |---------|-----------|
@@ -112,7 +114,7 @@ Seleccioná una fila para ver sus servicios abajo.
 
 #### Tabla de recolecciones (Historial)
 
-Misma ruta seleccionada arriba. Columnas (en este orden):
+Misma ruta seleccionada arriba. Mismo criterio de **scroll vertical** (encabezado fijo) y horizontal que la tabla de rutas. Columnas (en este orden):
 
 Horario · Recolector · Nombre cliente · Horario programado · Hora real · **Unidad** · **Tipo de servicio** · Zona · Cant. biotachos · Cant. bolsas · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · Observaciones · Detalle · Firma · Firmante
 
@@ -157,7 +159,9 @@ Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
 ### 3.5 Tabla de rutas (Operativo)
 
-Lista las rutas del contexto actual. Cada fila incluye, entre otros:
+Lista las rutas del contexto actual. El subtítulo indica cuántas rutas hay (ej. `12 rutas · Seleccioná una fila…`). Si hay muchas filas, **desplazá dentro de la tabla**; el encabezado permanece visible.
+
+Cada fila incluye, entre otros:
 
 | Columna | Qué muestra |
 |---------|-------------|
@@ -219,7 +223,7 @@ Podés editar la preparación mientras la ruta no haya sido iniciada por el reco
 
 #### Tabla **Recolecciones (servicios)** (Operativo)
 
-Muestra las paradas de la **ruta seleccionada** arriba.
+Muestra las paradas de la **ruta seleccionada** arriba (fila resaltada en verde). La tabla tiene **scroll propio** para ver muchas paradas sin perder de vista la lista de rutas.
 
 **Columnas principales:** #, Estado, **Detalle**, Zona, Dirección, Horario prog., Nombre, Hora real, Unidad, Tipo de cliente, Precio total, Observaciones, Firma, Firmante, **Editar**.
 
@@ -355,9 +359,9 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 ### 4.1 Día a día
 
 1. **Ingresá** al panel operativo (`/panel` → menú **Operativo**)
-2. Revisá la tabla de **Rutas**
+2. Revisá la tabla de **Rutas** (scroll interno si hay muchas jornadas)
 3. **Completar** la **Preparación de insumos** de cada ruta activa (obligatorio antes de que el recolector inicie)
-4. **Seleccioná una ruta** para ver sus recolecciones abajo
+4. **Seleccioná una ruta** para ver sus recolecciones abajo (también con scroll si hay muchas paradas)
 5. **Ver detalle** (ruta): desglose por unidad/tipo + recaudación
 6. **Ver detalle** (parada): retiro y cobro cuando ya fue visitada o cancelada
 7. **Ver mapa** para reordenar paradas (cada fila muestra la hora programada)
@@ -369,7 +373,7 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 
 ### 4.2 Historial y KPIs
 
-- **Historial:** consulta de jornadas cerradas; **Descargar historial (CSV)** para exportar rutas + servicios
+- **Historial:** consulta de jornadas cerradas; mismas tablas con **scroll interno** que en Operativo; **Descargar historial (CSV)** para exportar rutas + servicios
 - **KPIs:** indicadores del período; usá **Desde/Hasta** para el rango que necesites; **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
@@ -731,6 +735,12 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 
 - El recorrido incluye **todas** las paradas abiertas en el **orden de la ruta**, aunque hayas visitado otras más adelante
 - Si falta una parada, recargá el detalle de la ruta (la lista se arma al abrir la pantalla)
+
+### No veo todas las rutas o paradas en pantalla (operario)
+
+- En **Operativo** e **Historial**, las tablas de rutas y recolecciones tienen **altura fija**: desplazate **dentro de la tabla** (rueda del mouse, trackpad o barra de scroll del recuadro)
+- Los **encabezados** de columna quedan fijos al bajar; al pie ves cuántas filas hay
+- En Historial, las columnas Fecha / Recolector / Turno quedan fijas al desplazarte **horizontalmente**
 
 ### El mapa del operario no carga
 

@@ -5,7 +5,7 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 **Manual de uso (no técnico):** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
-**Cambios recientes (jun 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio del recolector); tablas operario con bolsas/biotachos/montos; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas por unidad × tipo) y de parada (modal retiro + cobro); mapa operario con **hora programada** al reordenar; Maps recolector con **todas** las paradas abiertas en orden; WhatsApp **Avisar**; cierre operario / reactivar; reglas cobro Empresa/Mixto/estándar; migración `insumos_operario`; `supabase/apply-pending-operativo.sql`.
+**Cambios recientes (jun 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio del recolector); tablas operario con bolsas/biotachos/montos; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas por unidad × tipo) y de parada (modal retiro + cobro); mapa operario con **hora programada** al reordenar; **tablas con scroll** (`operario-scrollable-table.tsx`: rutas ~36vh, recolecciones ~44vh, thead sticky, pie con conteo); Maps recolector con **todas** las paradas abiertas en orden; WhatsApp **Avisar**; cierre operario / reactivar; reglas cobro Empresa/Mixto/estándar; migración `insumos_operario`; `supabase/apply-pending-operativo.sql`.
 
 ---
 
@@ -322,15 +322,16 @@ Componentes en `src/components/panel/operario/`:
 
 | Componente | Función |
 |------------|---------|
-| `operario-dashboard.tsx` | Orquestador Operativo / Historial; cierre operario, export historial |
+| `operario-dashboard.tsx` | Orquestador Operativo / Historial; cierre operario, export historial; subtítulo de sección Ruta con conteo |
+| `operario-scrollable-table.tsx` | Contenedor reutilizable: `max-h` + `overflow-auto`, thead sticky (`OPERARIO_TABLE_HEAD_STICKY`), pie opcional con conteo de filas |
 | `operario-rutas-table.tsx` | Tabla Operativo: puntos, exitosas, bolsas/biotachos, montos, insumos, **Ver detalle** |
-| `operario-historial-rutas-table.tsx` | Tabla Historial (columnas ampliadas, insumos, export) |
+| `operario-historial-rutas-table.tsx` | Tabla Historial (columnas ampliadas, insumos, export; primeras columnas sticky en scroll horizontal) |
 | `operario-ruta-preparacion-insumos-modal.tsx` | Formulario obligatorio de insumos del operario (bloquea inicio del recolector) |
 | `insumos-lista-editor.tsx` | Editor reutilizable de lista de insumos (operario + recolector) |
 | `operario-ruta-detalle.tsx` | Contenido del modal de ruta (recaudación + desglose por unidad/tipo) |
-| `operario-recolecciones-table.tsx` | Paradas en Operativo; botón **Ver detalle** por fila |
+| `operario-recolecciones-table.tsx` | Paradas en Operativo; botón **Ver detalle** por fila; scroll vertical acotado |
 | `operario-recoleccion-detalle-modal.tsx` | Popup retiro (bolsas/biotachos) + recaudación (efectivo/transferencia/QR) |
-| `operario-historial-recolecciones-table.tsx` | Paradas en Historial (columnas ampliadas; sin modal de detalle unificado) |
+| `operario-historial-recolecciones-table.tsx` | Paradas en Historial (columnas ampliadas; sin modal de detalle unificado; scroll acotado) |
 | `operario-cliente-detalle-modal.tsx` | Popup datos del cliente desde Historial |
 | `operario-ruta-map-modal.tsx` | Mapa + drag-and-drop reorder |
 | `operario-mapa-recolecciones-list.tsx` | Lista lateral reordenable; muestra **hora programada** por parada |
@@ -363,6 +364,22 @@ Exportación CSV (cliente):
 - `src/lib/domain/operario-historial-export.ts` — rutas + recolecciones del historial
 
 Navegación staff: `panel-shell.tsx` — enlaces Operativo, KPIs, Historial, Parámetros, Usuarios. Middleware permite `/panel/historial` y `/panel/kpis` solo a staff.
+
+#### Tablas con scroll (Operativo e Historial)
+
+Objetivo: evitar que `/panel` y `/panel/historial` crezcan en altura sin límite cuando hay muchas rutas o paradas; mantener rutas arriba y recolecciones abajo visibles a la vez.
+
+Implementación en `operario-scrollable-table.tsx`:
+
+| Constante | Valor Tailwind | Uso |
+|-----------|----------------|-----|
+| `OPERARIO_SCROLL_RUTAS` | `max-h-[min(36vh,24rem)]` | Tablas de rutas (Operativo + Historial) |
+| `OPERARIO_SCROLL_RECOLECCIONES` | `max-h-[min(44vh,28rem)]` | Tablas de paradas de la ruta seleccionada |
+| `OPERARIO_TABLE_HEAD_STICKY` | `sticky top-0 z-10` + fondo | Encabezado visible al scroll vertical |
+
+Consumidores: `operario-rutas-table.tsx`, `operario-recolecciones-table.tsx`, `operario-historial-rutas-table.tsx`, `operario-historial-recolecciones-table.tsx`. Pie de tabla: texto tipo `N rutas` o `N paradas · Desplazá para ver más` cuando hay más de ~10 filas.
+
+Historial mantiene columnas sticky en horizontal (`operario-historial-rutas-table.tsx`: Fecha / Recolector / Turno) con `z-index` coordinado respecto al thead sticky.
 
 #### Detalle de ruta (modal **Ver detalle**)
 
@@ -680,6 +697,7 @@ npm run start    # Servidor de producción local
 | Fetch KPIs | `src/lib/data/operario-kpis.ts` |
 | Export CSV KPIs / Historial | `operario-kpis-export.ts`, `operario-historial-export.ts`, `csv-download.ts` |
 | Cierre operario API | `src/app/api/panel/rutas/[id]/cierre-operario/route.ts` |
+| Tablas operario (scroll, thead sticky) | `src/components/panel/operario/operario-scrollable-table.tsx` |
 | Listado recolector por categoría | `src/lib/domain/recolector-rutas-list.ts` |
 | Precios de sistema (claves, slugs API) | `src/lib/domain/sistema-parametros.ts` |
 | Fetch precio activo / historial | `src/lib/data/sistema-parametros.ts` |

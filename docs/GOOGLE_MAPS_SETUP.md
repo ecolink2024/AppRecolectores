@@ -154,8 +154,9 @@ npm run dev
 ### Paso 11. Panel operario
 
 1. Entrá como admin: `https://app-recolectores.vercel.app/panel` (o `http://localhost:3000/panel`)
-2. En la tabla **Ruta**, el botón **Ver mapa** debe estar **habilitado** (azul, no gris).
-3. Click en **Ver mapa** de una ruta que tenga recolecciones con dirección.
+2. En la tabla **Ruta** (scroll interno si hay muchas filas), el botón **Ver mapa** debe estar **habilitado** (azul, no gris).
+3. Seleccioná una ruta y, si hace falta, desplazate dentro de la tabla para encontrarla.
+4. Click en **Ver mapa** de una ruta que tenga recolecciones con dirección.
 
 ### Paso 12. Qué deberías ver
 
