@@ -1,4 +1,4 @@
-import { normalizeArgPhone } from "@/lib/integrations/sheet-recoleccion-validation";
+import { normalizeArgPhone, parseTipoServicio } from "@/lib/integrations/sheet-recoleccion-validation";
 import {
   RECOLECCION_OPERATIVA_ESTADOS,
   RUTA_ESTADOS,
@@ -115,6 +115,19 @@ export function parseRecoleccionFields(body: Record<string, unknown>):
 
   const horaNormalized = hora.length === 5 ? `${hora}:00` : hora;
 
+  const tipoRaw = optionalStr(body.tipo_servicio);
+  let tipo_servicio: string | null = null;
+  if (tipoRaw) {
+    const matched = parseTipoServicio(tipoRaw);
+    if (!matched) {
+      return {
+        ok: false,
+        error: "Tipo de cliente inválido (use Reciclaje, Mixto, Orgánico o Punto)",
+      };
+    }
+    tipo_servicio = matched;
+  }
+
   return {
     ok: true,
     data: {
@@ -123,7 +136,7 @@ export function parseRecoleccionFields(body: Record<string, unknown>):
       telefono,
       telefono_normalizado: phone.value,
       unidad: optionalStr(body.unidad),
-      tipo_servicio: optionalStr(body.tipo_servicio),
+      tipo_servicio,
       frecuencia: optionalStr(body.frecuencia),
       precio: optionalStr(body.precio),
       deuda: optionalStr(body.deuda),

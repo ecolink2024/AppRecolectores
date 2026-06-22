@@ -10,8 +10,11 @@ import {
 import {
   RECOLECCION_OPERATIVA_ESTADOS,
   RECOLECCION_OPERATIVA_LABELS,
+  RECOLECCION_TIPOS_CLIENTE,
+  RECOLECCION_TIPO_CLIENTE_LABELS,
 } from "@/lib/domain/constants";
 import { defaultHoraForTurno } from "@/lib/domain/ruta-turno";
+import { parseTipoServicio } from "@/lib/integrations/sheet-recoleccion-validation";
 import type { RecoleccionOperarioRow, RutaOperarioRow } from "@/lib/domain/operario-dashboard";
 
 type CreateTarget = {
@@ -87,7 +90,7 @@ export function OperarioRecoleccionFormModal({
     setNombre(recoleccion.nombre);
     setDireccion(recoleccion.direccion);
     setTelefono(recoleccion.telefono ?? "");
-    setTipoServicio(recoleccion.tipo_servicio ?? "");
+    setTipoServicio(parseTipoServicio(recoleccion.tipo_servicio ?? "") ?? "");
     setUnidad(recoleccion.unidad ?? "");
     setFrecuencia(recoleccion.frecuencia ?? "");
     setPrecio(recoleccion.precio_tarifa ?? "");
@@ -301,8 +304,19 @@ export function OperarioRecoleccionFormModal({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Tipo de servicio">
-                <input className={inputClass} value={tipoServicio} onChange={(e) => setTipoServicio(e.target.value)} />
+              <Field label="Tipo de cliente">
+                <select
+                  className={inputClass}
+                  value={tipoServicio}
+                  onChange={(e) => setTipoServicio(e.target.value)}
+                >
+                  <option value="">— Sin especificar —</option>
+                  {RECOLECCION_TIPOS_CLIENTE.map((value) => (
+                    <option key={value} value={value}>
+                      {RECOLECCION_TIPO_CLIENTE_LABELS[value]}
+                    </option>
+                  ))}
+                </select>
               </Field>
               <Field label="Unidad">
                 <input className={inputClass} value={unidad} onChange={(e) => setUnidad(e.target.value)} />

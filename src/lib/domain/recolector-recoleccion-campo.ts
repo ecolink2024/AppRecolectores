@@ -93,12 +93,14 @@ export function getRecoleccionCampoContadoresRules(
 
 export type RecoleccionCampoPayload = {
   motivo_cancelacion: string | null;
+  observaciones_recolector: string | null;
   bolsas_llenas: number | null;
   bolsas_llenas_punto: number | null;
   bolsas_nuevas_vendidas: number | null;
   biotachos_llenos: number | null;
   bolsas_nuevas: number | null;
   biotachos_nuevos: number | null;
+  cestos: number | null;
   precio_total: number;
   monto_efectivo: number | null;
   monto_transferencia: number | null;
@@ -113,6 +115,7 @@ export function parseRecoleccionCampoBody(
   precios: Omit<PrecioCobroInput, "bolsasLlenas" | "bolsasLlenasPunto" | "bolsasNuevasVendidas">,
 ): { ok: true; data: RecoleccionCampoPayload } | { ok: false; error: string } {
   const motivo_cancelacion = str(body.motivo_cancelacion) || null;
+  const observaciones_recolector = str(body.observaciones_recolector) || null;
   const nombre_firmante = str(body.nombre_firmante);
   const firma_digital = str(body.firma_digital);
   const empresaPunto = isEmpresaPuntoCobro(precios.unidad, precios.tipoServicio);
@@ -130,12 +133,14 @@ export function parseRecoleccionCampoBody(
       ok: true,
       data: {
         motivo_cancelacion,
+        observaciones_recolector,
         bolsas_llenas: null,
         bolsas_llenas_punto: null,
         bolsas_nuevas_vendidas: null,
         biotachos_llenos: null,
         bolsas_nuevas: null,
         biotachos_nuevos: null,
+        cestos: null,
         precio_total: precios.precioRetiro,
         monto_efectivo: null,
         monto_transferencia: null,
@@ -151,6 +156,7 @@ export function parseRecoleccionCampoBody(
   const biotachos_llenos = parseOptionalCount(body.biotachos_llenos);
   const bolsas_nuevas = parseOptionalCount(body.bolsas_nuevas);
   const biotachos_nuevos = parseOptionalCount(body.biotachos_nuevos);
+  const cestos = parseOptionalCount(body.cestos);
   const bolsas_llenas_punto = parseOptionalCount(body.bolsas_llenas_punto);
   const bolsas_nuevas_vendidas = parseOptionalCount(body.bolsas_nuevas_vendidas);
 
@@ -170,6 +176,9 @@ export function parseRecoleccionCampoBody(
   }
   if (contadoresRules.biotachosNuevosRequired && biotachos_nuevos === null) {
     faltantes.push("biotachos nuevos");
+  }
+  if (cestos === null) {
+    faltantes.push("cestos");
   }
 
   if (faltantes.length > 0) {
@@ -216,12 +225,14 @@ export function parseRecoleccionCampoBody(
     ok: true,
     data: {
       motivo_cancelacion: null,
+      observaciones_recolector,
       bolsas_llenas,
       bolsas_llenas_punto: empresaPunto ? bolsas_llenas_punto : null,
       bolsas_nuevas_vendidas: empresaPunto ? bolsas_nuevas_vendidas : null,
       biotachos_llenos,
       bolsas_nuevas,
       biotachos_nuevos,
+      cestos,
       precio_total,
       monto_efectivo,
       monto_transferencia,

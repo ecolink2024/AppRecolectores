@@ -99,3 +99,27 @@ export const RECOLECCION_OPERATIVA_LABELS = {
   omitida: "Omitida",
   cancelada: "Cancelada",
 } as const;
+
+/** Valores canónicos de planilla / panel (columna «Tipo de cliente» / tipo_servicio). */
+export const RECOLECCION_TIPOS_CLIENTE = ["Reciclaje", "Mixto", "Organico", "Punto"] as const;
+export type RecoleccionTipoCliente = (typeof RECOLECCION_TIPOS_CLIENTE)[number];
+
+export const RECOLECCION_TIPO_CLIENTE_LABELS: Record<RecoleccionTipoCliente, string> = {
+  Reciclaje: "Reciclaje",
+  Mixto: "Mixto",
+  Organico: "Orgánico",
+  Punto: "Punto",
+};
+
+export function formatTipoClienteLabel(value: string | null | undefined): string {
+  const text = value?.trim();
+  if (!text) return "—";
+  const folded = text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  const found = RECOLECCION_TIPOS_CLIENTE.find((t) => t.toLowerCase() === folded);
+  if (found) return RECOLECCION_TIPO_CLIENTE_LABELS[found];
+  if (folded === "puntos") return RECOLECCION_TIPO_CLIENTE_LABELS.Punto;
+  return text;
+}

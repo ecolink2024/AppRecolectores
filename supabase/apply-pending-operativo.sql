@@ -40,4 +40,12 @@ ALTER TABLE public.rutas
 ADD COLUMN IF NOT EXISTS insumos_operario JSONB NOT NULL DEFAULT '[]'::jsonb,
 ADD COLUMN IF NOT EXISTS insumos_operario_at TIMESTAMPTZ;
 
+-- 20260606120000_recoleccion_observaciones_recolector.sql
+ALTER TABLE public.ruta_recolecciones
+ADD COLUMN IF NOT EXISTS observaciones_recolector TEXT;
+
+-- 20260607120000_recoleccion_cesto_campo.sql
+ALTER TABLE public.ruta_recolecciones
+ADD COLUMN IF NOT EXISTS cestos INT;
+
 NOTIFY pgrst, 'reload schema';

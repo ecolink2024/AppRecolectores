@@ -1,7 +1,11 @@
 import { RUTA_TURNO_FUERA_RANGO_MSG, turnoFromHoraParts } from "@/lib/domain/ruta-turno";
+import {
+  RECOLECCION_TIPOS_CLIENTE,
+  type RecoleccionTipoCliente,
+} from "@/lib/domain/constants";
 
 export const UNIDADES = ["Hogar", "Empresa", "Puntos"] as const;
-export const TIPOS_SERVICIO = ["Reciclaje", "Mixto", "Organico", "Punto"] as const;
+export const TIPOS_SERVICIO = RECOLECCION_TIPOS_CLIENTE;
 export const FRECUENCIAS = ["Mensual", "Puntual", "Semanal"] as const;
 export const ESTADOS_HOJA = ["Pendiente", "Incompleto", "Error", "Enviada"] as const;
 

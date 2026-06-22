@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { RecolectorRecoleccionSheet } from "@/components/panel/recolector/recolector-recoleccion-sheet";
+import { openGoogleMapsUrl } from "@/lib/client/google-maps-open";
 import {
   buildGoogleMapsDirectionsUrl,
   buildGoogleMapsRecoleccionUrl,
@@ -82,12 +83,14 @@ export function RecolectorRutaDetalle({
           ? "Ninguna parada tiene teléfono cargado"
           : null;
 
-  function handleMaps() {
-    if (!mapsUrl) {
+  async function handleMaps() {
+    setError(null);
+    const opened = await openGoogleMapsUrl((origin) =>
+      buildGoogleMapsDirectionsUrl(direccionesMaps, { origin }),
+    );
+    if (!opened) {
       setError("No hay paradas pendientes para abrir en Maps");
-      return;
     }
-    window.open(mapsUrl, "_blank", "noopener,noreferrer");
   }
 
   function openWhatsAppAviso(url: string) {
@@ -469,18 +472,23 @@ export function RecolectorRutaDetalle({
 }
 
 function RecoleccionMapsButton({ item }: { item: RecolectorRecoleccionPreview }) {
-  const mapsUrl = buildGoogleMapsRecoleccionUrl(item);
-  if (!mapsUrl) return null;
+  const hasDestination =
+    (item.latitud != null && item.longitud != null) || item.direccion.trim().length > 0;
+
+  if (!hasDestination) return null;
+
+  async function handleClick() {
+    await openGoogleMapsUrl((origin) => buildGoogleMapsRecoleccionUrl(item, { origin }));
+  }
 
   return (
-    <a
-      href={mapsUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+    <button
+      type="button"
+      onClick={() => void handleClick()}
       className="inline-flex min-h-[1.75rem] items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-800 active:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:active:bg-blue-900"
     >
       Maps
-    </a>
+    </button>
   );
 }
 

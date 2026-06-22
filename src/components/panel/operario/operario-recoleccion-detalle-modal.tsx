@@ -102,6 +102,12 @@ export function OperarioRecoleccionDetalleModal({
                       {detalle.biotachos}
                     </dd>
                   </div>
+                  <div className="flex justify-between gap-4">
+                    <dt>Cestos</dt>
+                    <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
+                      {detalle.cestos}
+                    </dd>
+                  </div>
                 </dl>
               </div>
               <div>

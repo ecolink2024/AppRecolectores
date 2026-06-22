@@ -318,6 +318,7 @@ export type Database = {
           telefono: string | null;
           telefono_normalizado: string;
           observaciones: string | null;
+          observaciones_recolector: string | null;
           dia: string;
           hora: string;
           nota_encargado: string | null;
@@ -343,6 +344,7 @@ export type Database = {
           biotachos_llenos: number | null;
           bolsas_nuevas: number | null;
           biotachos_nuevos: number | null;
+          cestos: number | null;
           detalle: string | null;
           firma_digital: string | null;
           nombre_firmante: string | null;
@@ -364,6 +366,7 @@ export type Database = {
           telefono?: string | null;
           telefono_normalizado: string;
           observaciones?: string | null;
+          observaciones_recolector?: string | null;
           dia: string;
           hora: string;
           nota_encargado?: string | null;
@@ -389,6 +392,7 @@ export type Database = {
           biotachos_llenos?: number | null;
           bolsas_nuevas?: number | null;
           biotachos_nuevos?: number | null;
+          cestos?: number | null;
           detalle?: string | null;
           firma_digital?: string | null;
           nombre_firmante?: string | null;
@@ -410,6 +414,7 @@ export type Database = {
           telefono?: string | null;
           telefono_normalizado?: string;
           observaciones?: string | null;
+          observaciones_recolector?: string | null;
           dia?: string;
           hora?: string;
           nota_encargado?: string | null;
@@ -435,6 +440,7 @@ export type Database = {
           biotachos_llenos?: number | null;
           bolsas_nuevas?: number | null;
           biotachos_nuevos?: number | null;
+          cestos?: number | null;
           detalle?: string | null;
           firma_digital?: string | null;
           nombre_firmante?: string | null;

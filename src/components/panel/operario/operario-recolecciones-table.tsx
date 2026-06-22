@@ -21,6 +21,7 @@ import {
   type RecoleccionOperarioRow,
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
+import { formatTipoClienteLabel } from "@/lib/domain/constants";
 import { isLegacyFirmaPlaceholder } from "@/lib/domain/firma-digital";
 
 type Props = {
@@ -83,7 +84,18 @@ export function OperarioRecoleccionesTable({
               <th className="px-3 py-3 font-medium">Unidad</th>
               <th className="px-3 py-3 font-medium">Tipo de cliente</th>
               <th className="px-3 py-3 font-medium text-right">Precio total</th>
-              <th className="px-3 py-3 font-medium">Observaciones</th>
+              <th
+                className="w-[5.5rem] max-w-[5.5rem] px-2 py-3 font-medium"
+                title="Observaciones del recolector en campo"
+              >
+                Obs. recolector
+              </th>
+              <th
+                className="w-[5.5rem] max-w-[5.5rem] px-2 py-3 font-medium"
+                title="Observaciones de planilla u operario"
+              >
+                Obs. operario
+              </th>
               <th className="px-3 py-3 font-medium">Firma</th>
               <th className="px-3 py-3 font-medium">Firmante</th>
               {onEditar && (
@@ -142,7 +154,7 @@ export function OperarioRecoleccionesTable({
                     className="max-w-[120px] truncate px-3 py-2.5 text-zinc-600 dark:text-zinc-400"
                     title={item.tipo_servicio ?? undefined}
                   >
-                    {item.tipo_servicio?.trim() || "—"}
+                    {formatTipoClienteLabel(item.tipo_servicio)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2.5 text-right">
                     {formatMoney(
@@ -151,7 +163,13 @@ export function OperarioRecoleccionesTable({
                     )}
                   </td>
                   <td
-                    className="max-w-[120px] truncate px-3 py-2.5 text-zinc-600"
+                    className="max-w-[5.5rem] truncate px-2 py-2.5 text-zinc-600"
+                    title={item.observaciones_recolector ?? undefined}
+                  >
+                    {item.observaciones_recolector || "—"}
+                  </td>
+                  <td
+                    className="max-w-[5.5rem] truncate px-2 py-2.5 text-zinc-600"
                     title={item.observaciones ?? undefined}
                   >
                     {item.observaciones || "—"}

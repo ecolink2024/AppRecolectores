@@ -24,6 +24,7 @@ export type RecoleccionCampoFormData = {
   esEmpresaPunto: boolean;
   horaProgramada: string;
   observaciones: string | null;
+  observacionesRecolector: string;
   precioRetiro: number;
   precioRetiroLabel: string;
   precioBolsaExtra: number;
@@ -42,6 +43,7 @@ export type RecoleccionCampoFormData = {
   biotachosLlenos: string;
   bolsasNuevas: string;
   biotachosNuevos: string;
+  cestos: string;
   montoEfectivo: string;
   montoTransferencia: string;
   montoQr: string;
@@ -78,6 +80,7 @@ export function buildRecoleccionCampoFormData(
     esEmpresaPunto,
     horaProgramada: String(item.hora).slice(0, 5),
     observaciones: item.observaciones,
+    observacionesRecolector: item.observaciones_recolector ?? "",
     precioRetiro,
     precioRetiroLabel: formatPrecioDisplay(precioRetiro),
     precioBolsaExtra: precios.bolsaExtra,
@@ -98,6 +101,7 @@ export function buildRecoleccionCampoFormData(
     biotachosLlenos: item.biotachos_llenos != null ? String(item.biotachos_llenos) : "",
     bolsasNuevas: item.bolsas_nuevas != null ? String(item.bolsas_nuevas) : "",
     biotachosNuevos: item.biotachos_nuevos != null ? String(item.biotachos_nuevos) : "",
+    cestos: item.cestos != null ? String(item.cestos) : "",
     montoEfectivo: paymentFieldToString(item.monto_efectivo),
     montoTransferencia: paymentFieldToString(item.monto_transferencia),
     montoQr: paymentFieldToString(item.monto_qr),

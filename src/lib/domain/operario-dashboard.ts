@@ -92,6 +92,7 @@ export type RecoleccionOperarioRow = {
   monto_efectivo: number | null;
   monto_transferencia: number | null;
   observaciones: string | null;
+  observaciones_recolector: string | null;
   detalle: string | null;
   firma_digital: string | null;
   nombre_firmante: string | null;
@@ -101,6 +102,7 @@ export type RecoleccionOperarioRow = {
   biotachos_llenos: number | null;
   bolsas_nuevas: number | null;
   biotachos_nuevos: number | null;
+  cestos: number | null;
   nota_encargado: string | null;
   dia: string | null;
   latitud: number | null;
@@ -353,6 +355,7 @@ export function buildRecoleccionOperarioRows(
       monto_transferencia:
         item.monto_transferencia != null ? num(item.monto_transferencia) : null,
       observaciones: item.observaciones,
+      observaciones_recolector: item.observaciones_recolector,
       detalle: item.detalle,
       firma_digital: item.firma_digital,
       nombre_firmante: item.nombre_firmante,
@@ -362,6 +365,7 @@ export function buildRecoleccionOperarioRows(
       biotachos_llenos: item.biotachos_llenos,
       bolsas_nuevas: item.bolsas_nuevas,
       biotachos_nuevos: item.biotachos_nuevos,
+      cestos: item.cestos,
       nota_encargado: item.nota_encargado,
       dia: item.dia || null,
       latitud: item.latitud,
@@ -429,6 +433,7 @@ export type RecoleccionOperarioDetalleCarga = {
   tieneCarga: boolean;
   bolsas: string | null;
   biotachos: string | null;
+  cestos: string | null;
   efectivo: string | null;
   transferencia: string | null;
   qr: string | null;
@@ -452,6 +457,7 @@ export function buildRecoleccionOperarioDetalleCarga(
       tieneCarga: Boolean(cancelacion),
       bolsas: null,
       biotachos: null,
+      cestos: null,
       efectivo: null,
       transferencia: null,
       qr: null,
@@ -464,6 +470,7 @@ export function buildRecoleccionOperarioDetalleCarga(
       tieneCarga: false,
       bolsas: null,
       biotachos: null,
+      cestos: null,
       efectivo: null,
       transferencia: null,
       qr: null,
@@ -475,6 +482,7 @@ export function buildRecoleccionOperarioDetalleCarga(
     tieneCarga: true,
     bolsas: formatCantidadBolsasDetalle(item) ?? "0",
     biotachos: formatCantidadBiotachosDetalle(item) ?? "0",
+    cestos: String(item.cestos ?? 0),
     efectivo: formatMoney(item.monto_efectivo ?? 0),
     transferencia: formatMoney(item.monto_transferencia ?? 0),
     qr: formatMoney(item.monto_qr ?? 0),

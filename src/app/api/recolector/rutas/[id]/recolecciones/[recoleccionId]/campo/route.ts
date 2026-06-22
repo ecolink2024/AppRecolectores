@@ -151,6 +151,7 @@ export async function PATCH(request: Request, { params }: Props) {
     hora_real: now,
     nombre_firmante: parsed.data.nombre_firmante,
     firma_digital: parsed.data.firma_digital,
+    observaciones_recolector: parsed.data.observaciones_recolector,
     precio_total: parsed.data.precio_total,
     estado_operativo: parsed.data.cancelada ? "cancelada" : "visitada",
     motivo_cancelacion: parsed.data.motivo_cancelacion,
@@ -167,6 +168,7 @@ export async function PATCH(request: Request, { params }: Props) {
     updateRow.biotachos_llenos = null;
     updateRow.bolsas_nuevas = null;
     updateRow.biotachos_nuevos = null;
+    updateRow.cestos = null;
   } else {
     updateRow.bolsas_llenas = parsed.data.bolsas_llenas;
     updateRow.bolsas_llenas_punto = parsed.data.bolsas_llenas_punto;
@@ -174,6 +176,7 @@ export async function PATCH(request: Request, { params }: Props) {
     updateRow.biotachos_llenos = parsed.data.biotachos_llenos;
     updateRow.bolsas_nuevas = parsed.data.bolsas_nuevas;
     updateRow.biotachos_nuevos = parsed.data.biotachos_nuevos;
+    updateRow.cestos = parsed.data.cestos;
     updateRow.monto_efectivo = parsed.data.monto_efectivo;
     updateRow.monto_transferencia = parsed.data.monto_transferencia;
     updateRow.monto_qr = parsed.data.monto_qr;

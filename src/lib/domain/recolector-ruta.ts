@@ -248,54 +248,74 @@ export function buildDireccionesMapsActivas(
     .filter(Boolean);
 }
 
-const MAPS_ORIGIN_CURRENT_LOCATION = "Current Location";
-
 function buildGoogleMapsDirUrl(params: {
   destination: string;
   waypoints?: string[];
+  /** Coordenadas `lat,lng` del recolector. Si se omite, Maps usa la ubicación del dispositivo. */
+  origin?: string;
+  /** Navegación turn-by-turn (parada individual en mobile). */
+  navigate?: boolean;
 }): string {
   const search = new URLSearchParams({
     api: "1",
-    origin: MAPS_ORIGIN_CURRENT_LOCATION,
     destination: params.destination,
     travelmode: "driving",
   });
+
+  if (params.origin) {
+    search.set("origin", params.origin);
+  }
 
   if (params.waypoints && params.waypoints.length > 0) {
     search.set("waypoints", params.waypoints.join("|"));
   }
 
+  if (params.navigate) {
+    search.set("dir_action", "navigate");
+  }
+
   return `https://www.google.com/maps/dir/?${search.toString()}`;
 }
 
-export function buildGoogleMapsDirectionsUrl(addresses: string[]): string | null {
+export function buildGoogleMapsDirectionsUrl(
+  addresses: string[],
+  options?: { origin?: string },
+): string | null {
   const cleaned = addresses.map((a) => a.trim()).filter(Boolean);
   if (cleaned.length === 0) return null;
 
   if (cleaned.length === 1) {
-    return buildGoogleMapsDirUrl({ destination: cleaned[0] });
+    return buildGoogleMapsDirUrl({ destination: cleaned[0], origin: options?.origin });
   }
 
   return buildGoogleMapsDirUrl({
     destination: cleaned[cleaned.length - 1],
     waypoints: cleaned.slice(0, -1),
+    origin: options?.origin,
   });
 }
 
-/** Ubicación de una parada (navegación desde ubicación actual). */
+/** Ubicación de una parada (navegación desde ubicación actual del recolector). */
 export function buildGoogleMapsRecoleccionUrl(
   item: Pick<RecolectorRecoleccionPreview, "direccion" | "latitud" | "longitud">,
+  options?: { origin?: string },
 ): string | null {
   if (item.latitud != null && item.longitud != null) {
     return buildGoogleMapsDirUrl({
       destination: `${item.latitud},${item.longitud}`,
+      origin: options?.origin,
+      navigate: true,
     });
   }
 
   const direccion = item.direccion.trim();
   if (!direccion) return null;
 
-  return buildGoogleMapsDirUrl({ destination: direccion });
+  return buildGoogleMapsDirUrl({
+    destination: direccion,
+    origin: options?.origin,
+    navigate: true,
+  });
 }
 
 export function formatInicioJornada(value: string | null): string {

@@ -34,10 +34,14 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
   const [biotachosLlenos, setBiotachosLlenos] = useState(data.biotachosLlenos);
   const [bolsasNuevas, setBolsasNuevas] = useState(data.bolsasNuevas);
   const [biotachosNuevos, setBiotachosNuevos] = useState(data.biotachosNuevos);
+  const [cestos, setCestos] = useState(data.cestos);
   const [montoEfectivo, setMontoEfectivo] = useState(data.montoEfectivo);
   const [montoTransferencia, setMontoTransferencia] = useState(data.montoTransferencia);
   const [montoQr, setMontoQr] = useState(data.montoQr);
   const [nombreFirmante, setNombreFirmante] = useState(data.nombreFirmante);
+  const [observacionesRecolector, setObservacionesRecolector] = useState(
+    data.observacionesRecolector,
+  );
   const firmaCanvasRef = useRef<FirmaCanvasRef>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -136,10 +140,12 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
             bolsas_nuevas: bolsasNuevas === "" ? null : Number.parseInt(bolsasNuevas, 10),
             biotachos_nuevos:
               biotachosNuevos === "" ? null : Number.parseInt(biotachosNuevos, 10),
+            cestos: cestos === "" ? null : Number.parseInt(cestos, 10),
             monto_efectivo: montoEfectivoVal,
             monto_transferencia: montoTransferenciaVal,
             monto_qr: montoQrVal,
             nombre_firmante: nombreFirmante.trim(),
+            observaciones_recolector: observacionesRecolector.trim() || null,
             firma_png: firmaPng,
           }),
         },
@@ -211,7 +217,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
               <ReadOnlyRow label="Tipo de servicio" value={data.tipoServicio} />
             )}
             <ReadOnlyRow label="Hora programada" value={data.horaProgramada} />
-            <ReadOnlyRow label="Observaciones" value={data.observaciones || "—"} />
+            <ReadOnlyRow label="Obs. operario" value={data.observaciones || "—"} />
           </dl>
         </section>
 
@@ -283,6 +289,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
                   onChange={setBiotachosNuevos}
                   required={contadoresRules.biotachosNuevosRequired}
                 />
+                <Field label="Cestos" value={cestos} onChange={setCestos} required />
               </div>
             </section>
 
@@ -318,6 +325,20 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
             </section>
           </>
         )}
+
+        <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <label className="block space-y-2">
+            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+              Tus observaciones <span className="font-normal text-zinc-500">(opcional)</span>
+            </span>
+            <textarea
+              value={observacionesRecolector}
+              onChange={(e) => setObservacionesRecolector(e.target.value)}
+              placeholder="Ej. cliente no estaba, acceso por portón trasero…"
+              className={`${inputClass} min-h-[72px] resize-y`}
+            />
+          </label>
+        </section>
 
         <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-50">Firma</h2>
@@ -387,7 +408,7 @@ function RecoleccionCampoSoloLectura({
           <ReadOnlyRow label="Cliente" value={data.nombre} />
           <ReadOnlyRow label="Hora programada" value={data.horaProgramada} />
           <ReadOnlyRow label="Estado" value={data.estadoLabel} />
-          <ReadOnlyRow label="Observaciones" value={data.observaciones || "—"} />
+          <ReadOnlyRow label="Obs. operario" value={data.observaciones || "—"} />
         </dl>
       </section>
 
@@ -421,6 +442,7 @@ function RecoleccionCampoSoloLectura({
               <ReadOnlyRow label="Biotachos llenos" value={data.biotachosLlenos || "0"} />
               <ReadOnlyRow label="Bolsas nuevas" value={data.bolsasNuevas || "0"} />
               <ReadOnlyRow label="Biotachos nuevos" value={data.biotachosNuevos || "0"} />
+              <ReadOnlyRow label="Cestos" value={data.cestos || "0"} />
             </dl>
           </section>
 
@@ -442,6 +464,15 @@ function RecoleccionCampoSoloLectura({
             </dl>
           </section>
         </>
+      )}
+
+      {data.observacionesRecolector.trim() && (
+        <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <h2 className="mb-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            Observaciones del recolector
+          </h2>
+          <p className="text-sm text-zinc-700 dark:text-zinc-300">{data.observacionesRecolector}</p>
+        </section>
       )}
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">

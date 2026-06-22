@@ -24,6 +24,7 @@ import {
   type RecoleccionOperarioRow,
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
+import { formatTipoClienteLabel } from "@/lib/domain/constants";
 
 type Props = {
   recolecciones: RecoleccionOperarioRow[];
@@ -172,7 +173,7 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
                     <span suppressHydrationWarning>{formatHoraReal(item.hora_real)}</span>
                   </td>
                   <TextCell value={item.unidad} maxWidth="100px" />
-                  <TextCell value={item.tipo_servicio} maxWidth="120px" />
+                  <TextCell value={formatTipoClienteLabel(item.tipo_servicio)} maxWidth="120px" />
                   <td className={TD}>
                     <button
                       type="button"

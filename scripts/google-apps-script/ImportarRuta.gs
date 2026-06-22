@@ -50,6 +50,7 @@ function onOpen() {
     .addSeparator()
     .addItem("Configurar integración", "configurarIntegracion")
     .addItem("Actualizar desplegable recolectores", "actualizarDesplegableRecolectores")
+    .addItem("Actualizar desplegable tipos de cliente", "actualizarDesplegableTiposCliente")
     .addToUi();
 }
 
@@ -283,6 +284,29 @@ function actualizarDesplegableRecolectores() {
 
   sheet.getRange(2, col, Math.max(sheet.getLastRow(), 100), 1).setDataValidation(rule);
   SpreadsheetApp.getUi().alert("Desplegable actualizado (" + labels.length + " recolectores por nombre).");
+}
+
+function actualizarDesplegableTiposCliente() {
+  const sheet = getSheet_();
+  const map = getColumnMap_(sheet);
+  const col = colIndex_(map, [CONFIG.COL.TIPO_SERVICIO, "Tipo de servicio", "Tipo de cliente"]);
+  if (!col) {
+    SpreadsheetApp.getUi().alert('Falta columna "Tipo de servicio" o "Tipo de cliente"');
+    return;
+  }
+
+  aplicarDesplegableLista_(sheet, col, CONFIG.TIPOS_SERVICIO);
+  SpreadsheetApp.getUi().alert(
+    "Desplegable de tipos de cliente actualizado: " + CONFIG.TIPOS_SERVICIO.join(", "),
+  );
+}
+
+function aplicarDesplegableLista_(sheet, col, values) {
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)
+    .setAllowInvalid(false)
+    .build();
+  sheet.getRange(2, col, Math.max(sheet.getLastRow(), 100), 1).setDataValidation(rule);
 }
 
 /** Índice nombre/email → email canónico (misma lógica que la API). */
