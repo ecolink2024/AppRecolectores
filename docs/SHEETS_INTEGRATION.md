@@ -37,7 +37,7 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 | Campo | Valores |
 |-------|---------|
 | Unidad | Hogar, Empresa, Puntos |
-| Tipo de servicio | Reciclaje, Mixto, Organico, **Punto** (con Unidad **Empresa** → cobro especial en app). No usar **Puntos** aquí: es valor de **Unidad**, no de tipo |
+| Tipo de servicio / Tipo de cliente | Reciclaje, Mixto, Organico, **Punto** (con Unidad **Empresa** → cobro especial en app). No usar **Puntos** aquí: es valor de **Unidad**, no de tipo |
 | Frecuencia | Mensual, Puntual, Semanal |
 
 ### Estado (automático — no editar)
@@ -54,9 +54,10 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 1. Pegar `scripts/google-apps-script/ImportarRuta.gs` en Extensiones → Apps Script
 2. **Configurar integración** → URL `https://app-recolectores.vercel.app` + secreto
 3. **Actualizar desplegable recolectores** (trae nombres de la base; si hay nombres repetidos muestra `Nombre (email)`)
-4. Completar filas de datos
-5. **Validar todas las filas**
-6. **Enviar pendientes a la app**
+4. **Actualizar desplegable tipos de cliente** (Reciclaje, Mixto, Organico, Punto en columna Tipo de servicio / Tipo de cliente)
+5. Completar filas de datos
+6. **Validar todas las filas**
+7. **Enviar pendientes a la app**
 
 ## API
 
@@ -64,6 +65,13 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 - `POST /api/integrations/sheets/import-recolecciones` — importa filas Pendiente
 
 ## Migraciones SQL (Supabase)
+
+Operativas recientes (también en `supabase/apply-pending-operativo.sql`):
+
+- `20260606120000_recoleccion_observaciones_recolector.sql` — `observaciones_recolector`
+- `20260607120000_recoleccion_cesto_campo.sql` — `cestos`
+
+Base histórica:
 
 1. `20260521120000_rutas_sheets_import.sql`
 2. `20260522120000_rutas_recolecciones_full.sql`

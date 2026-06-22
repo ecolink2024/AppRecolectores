@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (junio 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio); tabla de rutas con bolsas/biotachos/montos; **Ver detalle** de ruta (desglose exitosas/pendientes/canceladas) y de parada (retiro + cobro en modal); mapa operario con **hora programada** al reordenar; **tablas con scroll** en Operativo e Historial (rutas y recolecciones sin alargar la página); recolector: **Maps** (todas las paradas abiertas en orden), **Avisar** WhatsApp, **Insumos asignados**; cierre operario / reactivar; cobro Empresa/Mixto/estándar.
+**Novedades recientes (junio 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio); tabla de rutas con bolsas/biotachos/montos; **Ver detalle** de ruta y de parada (retiro con **cestos**, cobro, firma digital); **Obs. recolector** en tabla Operativo (aparte de obs. de planilla); tipo de cliente **Punto** en planilla y panel; mapa operario con **hora programada**; **tablas con scroll** en Operativo e Historial; recolector: **Maps** desde tu ubicación GPS, **Avisar** WhatsApp, **Tus observaciones** al cargar parada; cierre operario / reactivar; cobro Empresa/Mixto/estándar.
 
 ---
 
@@ -225,11 +225,13 @@ Podés editar la preparación mientras la ruta no haya sido iniciada por el reco
 
 Muestra las paradas de la **ruta seleccionada** arriba (fila resaltada en verde). La tabla tiene **scroll propio** para ver muchas paradas sin perder de vista la lista de rutas.
 
-**Columnas principales:** #, Estado, **Detalle**, Zona, Dirección, Horario prog., Nombre, Hora real, Unidad, Tipo de cliente, Precio total, Observaciones, Firma, Firmante, **Editar**.
+**Columnas principales:** #, Estado, **Detalle**, Zona, Dirección, Horario prog., Nombre, Hora real, Unidad, Tipo de cliente, Precio total, **Obs. recolector**, **Obs. operario**, Firma, Firmante, **Editar**.
+
+Los tipos de cliente válidos al crear/editar una parada son: **Reciclaje**, **Mixto**, **Orgánico** y **Punto** (este último con Unidad **Empresa** activa reglas de cobro especiales; no confundir con Unidad **Puntos**).
 
 **Ver detalle (por parada):** botón en la columna **Detalle** (tercera columna). Abrí el popup para ver:
 
-- **Retiro:** bolsas (llenas/nuevas) y biotachos (llenos/nuevos)
+- **Retiro:** bolsas (llenas/nuevas), biotachos (llenos/nuevos) y **cestos**
 - **Recaudación:** efectivo, transferencia y QR
 
 Si la parada está **pendiente**, el botón aparece deshabilitado (gris) hasta que el recolector la visite o cancele. Si está **cancelada**, el popup muestra el motivo.
@@ -243,7 +245,9 @@ Si la parada está **pendiente**, el botón aparece deshabilitado (gris) hasta q
 | **+ Agregar recolección** | Agregar una parada manual (no si la ruta está Realizada o Cerrada) |
 | **Eliminar** | Quitar una parada |
 
-Los campos **Unidad** y **Tipo de servicio** vienen de la planilla o del alta manual; definen, entre otras cosas, **cómo se calcula el cobro** en campo (ver § 5.5).
+Los campos **Unidad** y **Tipo de cliente** vienen de la planilla o del alta manual (desplegable en **Editar**); definen, entre otras cosas, **cómo se calcula el cobro** en campo (ver § 5.5).
+
+> **Obs. operario** = notas de la planilla o las que cargás al editar la parada. **Obs. recolector** = notas opcionales que el recolector escribe al guardar la carga en campo (columnas angostas; pasá el mouse para leer el texto completo).
 
 > **Antes:** las columnas Bolsas, Biotachos, Efectivo y Transferencia estaban sueltas en Operativo; ahora van dentro de **Ver detalle** para dejar la tabla más legible.
 
@@ -415,8 +419,8 @@ Al **crear** o **editar** una recolección manual, además de los datos básicos
 
 | Campo | Descripción |
 |-------|-------------|
-| **Tipo de servicio** | Tipo de retiro/servicio del cliente |
-| **Unidad** | Unidad del servicio |
+| **Tipo de cliente** | Desplegable: Reciclaje, Mixto, Orgánico, **Punto** (define reglas de cobro con Unidad) |
+| **Unidad** | Hogar, Empresa o Puntos |
 | **Frecuencia** | Frecuencia del servicio |
 | **Precio** | Precio de retiro (base para el cobro en campo) |
 | **Deuda** | Deuda pendiente del cliente, si aplica |
@@ -515,7 +519,11 @@ Con la ruta **iniciada**, tocá una parada de la lista → **Cargar en campo**.
 - Cliente (nombre)
 - Unidad y tipo de servicio (si están cargados; definen la regla de cobro)
 - Hora programada
-- Observaciones
+- **Obs. operario** (notas de planilla / operario; no las podés cambiar acá)
+
+#### Tus observaciones (opcional)
+
+Antes de firmar podés escribir **Tus observaciones** (ej. “cliente no estaba”, “portón trasero”). El operario las ve en la columna **Obs. recolector** de la tabla de paradas.
 
 #### Dos caminos posibles
 
@@ -525,18 +533,19 @@ Si la parada no se pudo hacer:
 
 1. Escribí el **Motivo de cancelación**
 2. Completá **Nombre del firmante**
-3. Marcá la casilla de **confirmación de firma**
+3. Pedile al cliente que **firme en el recuadro** (con el dedo)
 4. Guardá → la parada queda como **Cancelada**
 
-No hace falta completar bolsas ni pagos.
+No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si querés.
 
 **B) Recolección normal**
 
-1. Completá los cuatro contadores (podés poner **0**):
-   - Bolsas llenas
+1. Completá los contadores de **Retiro** (podés poner **0** en cada uno):
+   - Bolsas llenas (y, si aplica Empresa + Punto: bolsas llenas hogar, bolsas llenas punto, bolsas nuevas vendidas)
    - Biotachos llenos
    - Bolsas nuevas
    - Biotachos nuevos
+   - **Cestos**
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):
    - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, bolsa extra (Parámetros)
    - **Empresa + Punto:** el total mínimo sale de **bolsas llenas hogar** y **bolsas nuevas vendidas** (Parámetros). **Bolsas llenas punto** es solo cantidad; el monto en punto lo cargás en los pagos
@@ -548,7 +557,7 @@ No hace falta completar bolsas ni pagos.
    - Monto QR
    - **La suma de los tres no puede ser menor al total a cobrar** (puede ser mayor)
 4. **Nombre del firmante** (obligatorio)
-5. Marcá **Confirmo la firma del cliente**
+5. Pedile al cliente que **firme en el recuadro** (con el dedo; podés usar **Limpiar** para repetir)
 6. Tocá **Guardar recolección** → la parada queda como **Visitada**
 
 #### Después de guardar una parada
@@ -599,7 +608,7 @@ Login
       → Avisar (WhatsApp a clientes)      ← después de iniciar
       → Por cada parada:
           → Maps (solo esa parada)
-          → Cargar en campo (retiro + cobro + firma)
+          → Cargar en campo (retiro + cestos + cobro + firma + obs. opcional)
           → o Cancelar con motivo
       → Finalizar ruta                    ← formulario de cierre
         → Vuelta al Inicio
@@ -616,6 +625,15 @@ Las rutas y paradas se cargan masivamente desde una planilla de Google. Esto lo 
 Cada fila = una parada/cliente. Campos obligatorios:
 
 - **Nombre**, **Direccion**, **Telefono**, **Dia** (fecha), **Hora**, **Recolector** (nombre del recolector en la app; el desplegable lo trae automáticamente)
+
+**Valores habituales (opcionales pero recomendados):**
+
+| Campo | Valores |
+|-------|---------|
+| Unidad | Hogar, Empresa, Puntos |
+| Tipo de servicio / Tipo de cliente | Reciclaje, Mixto, Organico (Orgánico), **Punto** |
+
+> **Punto** (tipo) ≠ **Puntos** (unidad). Para cobro Empresa + Punto: Unidad = **Empresa** y Tipo = **Punto**.
 
 ### Cómo se arma una ruta
 
@@ -642,8 +660,9 @@ Desde el menú del script (instalado una vez):
 
 1. **Configurar integración** — URL de la app + secreto compartido
 2. **Actualizar desplegable recolectores** — trae **nombres** desde la base (si hay dos con el mismo nombre, muestra también el email)
-3. **Validar todas las filas** — revisa antes de enviar
-4. **Enviar pendientes a la app** — importa filas Pendiente
+3. **Actualizar desplegable tipos de cliente** — carga Reciclaje, Mixto, Organico, Punto en la columna Tipo de servicio / Tipo de cliente
+4. **Validar todas las filas** — revisa antes de enviar
+5. **Enviar pendientes a la app** — importa filas Pendiente
 
 > El recolector **no** necesita usar la planilla: solo ve en la app lo que ya fue importado y asignado a su email.
 
@@ -777,7 +796,9 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Insumos asignados** | Lo que cargó el operario en la preparación (visible para el recolector) |
 | **Insumos declarados** | Lo que el recolector confirma al **iniciar** la ruta (km + insumos) |
 | **Ver detalle (ruta)** | Popup con desglose de paradas por unidad/tipo y recaudación |
-| **Ver detalle (parada)** | Popup con retiro (bolsas/biotachos) y cobro (efectivo/transferencia/QR) |
+| **Ver detalle (parada)** | Popup con retiro (bolsas/biotachos/**cestos**) y cobro (efectivo/transferencia/QR) |
+| **Obs. recolector** | Notas opcionales que escribe el recolector al cargar la parada |
+| **Obs. operario** | Notas de planilla o del operario al crear/editar la parada |
 | **Turno** | Mañana (**8:30–13:30**) o Tarde (**14:30–20:30**); define en qué ruta cae cada parada |
 | **Realizado** | Recolector finalizó; sigue en Operativo hasta cierre operario |
 | **Cerrada** | Cierre operario hecho; la ruta está en Historial |
@@ -788,7 +809,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Ruta suspendida** | Pausada por el operario; el recolector no puede operarla |
 | **KPIs** | Indicadores agregados por período (staff) |
 | **Unidad** | Hogar, Empresa o Puntos (planilla); en Empresa el cobro no varía por bolsas llenas |
-| **Tipo de servicio** | Reciclaje, Mixto u Orgánico; Mixto usa precio de Retiro reciclable mixto |
+| **Tipo de cliente** | Reciclaje, Mixto, Orgánico o **Punto** (desplegable al editar). **Punto** con Unidad Empresa → cobro especial |
 | **Bolsa extra** | Precio en Parámetros; desde la 3.ª bolsa llena (regla estándar o Mixto con 3+) |
 | **Retiro reciclable mixto** | Precio en Parámetros; base del cobro Mixto con 1–2 bolsas llenas |
 | **Bolsa punto / bolsa llena punto** | Precios en Parámetros (configurables; uso en app según se habilite) |
