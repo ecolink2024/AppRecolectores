@@ -97,6 +97,75 @@ Una **ruta** se agrupa por `(fecha, turno, recolector)`. Cada fila de la planill
 
 Tablas legacy (`organizaciones`, `recolecciones`) existen en migraciones tempranas pero el flujo operativo actual usa `rutas` + `ruta_recolecciones`.
 
+### Almacenamiento en `ruta_recolecciones`
+
+No hay tabla separada por tipo de cliente ni enum PostgreSQL para Unidad/Tipo: todo va en **columnas `TEXT` / `INT` / `NUMERIC`** de `ruta_recolecciones`. La regla de cobro (estándar, mixto, empresa, empresa_punto) se **resuelve en código** leyendo `unidad` + `tipo_servicio` (`resolvePrecioCobroRegla` en `sistema-parametros.ts`).
+
+#### Origen de los datos
+
+| Origen | Qué escribe | Validación |
+|--------|-------------|------------|
+| Google Sheets → import | `unidad`, `tipo_servicio`, `precio`, etc. | `sheet-recoleccion-validation.ts` → valores canónicos |
+| Panel operario (alta/edición) | Mismas columnas | `operario-crud.ts` + `parseTipoServicio()` |
+| Recolector (carga en campo) | Contadores retiro, pagos, firma, obs. recolector | `parseRecoleccionCampoBody()` → `PATCH .../campo` |
+
+Valores canónicos guardados (texto exacto):
+
+| Concepto | Columna DB | Valores válidos (código) |
+|----------|------------|---------------------------|
+| Unidad | `unidad` | `Hogar`, `Empresa`, `Puntos` |
+| Tipo de cliente | `tipo_servicio` | `Reciclaje`, `Mixto`, `Organico`, `Punto` |
+
+`parseTipoServicio()` normaliza alias (`punto`, `puntos`, acentos) → **`Punto`** al importar o editar.
+
+> **No confundir:** Unidad **`Puntos`** (plural) ≠ tipo **`Punto`** (singular). Empresa + Punto = `unidad = 'Empresa'` **y** `tipo_servicio = 'Punto'`.
+
+#### Columnas por fase (resumen)
+
+**Planilla / operario (identificación del cliente):**
+
+| Columna | Tipo | Ejemplo Empresa + Punto |
+|---------|------|-------------------------|
+| `unidad` | TEXT | `Empresa` |
+| `tipo_servicio` | TEXT | `Punto` |
+| `precio` | TEXT | `15000` (retiro planilla; **no** entra al total automático en regla `empresa_punto`) |
+| `observaciones` | TEXT | Notas de planilla / operario |
+| `nombre`, `direccion`, `telefono`, `hora`, … | — | Datos del cliente |
+
+**Recolector (después de visitar, `estado_operativo = visitada`):**
+
+| Columna | Tipo | Rol Empresa + Punto |
+|---------|------|---------------------|
+| `bolsas_llenas` | INT | Bolsas llenas **hogar** → **sí** entra al `precio_total` |
+| `bolsas_llenas_punto` | INT | Bolsas llenas **punto** → solo registro; **no** suma al total automático |
+| `bolsas_nuevas_vendidas` | INT | Bolsas nuevas vendidas → **sí** entra al `precio_total` |
+| `bolsas_nuevas`, `biotachos_llenos`, `biotachos_nuevos`, `cestos` | INT | Retiro general (como otras unidades) |
+| `precio_total` | NUMERIC | Calculado al guardar campo |
+| `monto_efectivo`, `monto_transferencia`, `monto_qr` | NUMERIC | Recaudación declarada |
+| `observaciones_recolector` | TEXT | Notas del recolector (≠ `observaciones`) |
+| `firma_digital`, `nombre_firmante`, `hora_real` | — | Cierre de la parada |
+
+**Precios unitarios (no van en la parada):** tabla `sistema_precio_historial`, claves `bolsa_llena_punto` y `bolsa_punto` (vigencia activa = `vigencia_hasta IS NULL`).
+
+Fórmula `empresa_punto` al guardar:
+
+```
+precio_total = bolsas_llenas × bolsa_llena_punto + bolsas_nuevas_vendidas × bolsa_punto
+```
+
+Consulta SQL de ejemplo:
+
+```sql
+SELECT id, nombre, unidad, tipo_servicio, precio,
+       bolsas_llenas, bolsas_llenas_punto, bolsas_nuevas_vendidas,
+       precio_total, monto_efectivo, monto_transferencia, monto_qr
+FROM ruta_recolecciones
+WHERE unidad = 'Empresa'
+  AND lower(trim(tipo_servicio)) IN ('punto', 'puntos');
+```
+
+Implementación: `isEmpresaPuntoCobro()`, `calcPrecioEmpresaPunto()` en `src/lib/domain/sistema-parametros.ts`.
+
 ### Aplicar migraciones
 
 **Opción A — Supabase CLI (recomendada):**
@@ -326,7 +395,7 @@ Componentes en `src/components/panel/operario/`:
 |------------|---------|
 | `operario-dashboard.tsx` | Orquestador Operativo / Historial; cierre operario, export historial; subtítulo de sección Ruta con conteo |
 | `operario-scrollable-table.tsx` | Contenedor reutilizable: `max-h` + `overflow-auto`, thead sticky (`OPERARIO_TABLE_HEAD_STICKY`), pie opcional con conteo de filas |
-| `operario-rutas-table.tsx` | Tabla Operativo: puntos, exitosas, bolsas/biotachos, montos, insumos, **Ver detalle** |
+| `operario-rutas-table.tsx` | Tabla Operativo: recolecciones, exitosas, bolsas/biotachos, montos, insumos, **Ver detalle** |
 | `operario-historial-rutas-table.tsx` | Tabla Historial (columnas ampliadas, insumos, export; primeras columnas sticky en scroll horizontal) |
 | `operario-ruta-preparacion-insumos-modal.tsx` | Formulario obligatorio de insumos del operario (bloquea inicio del recolector) |
 | `insumos-lista-editor.tsx` | Editor reutilizable de lista de insumos (operario + recolector) |
@@ -471,8 +540,8 @@ Ruta `/panel/parametros` (staff). Tabla `sistema_precio_historial` (migración `
 |----------|----------|------------|
 | `bolsa-extra` | `bolsa_extra` | Cobro estándar y Mixto 3+ bolsas |
 | `retiro-reciclable-mixto` | `retiro_reciclable_mixto` | Cobro Mixto (1–2 bolsas incluidas en un solo monto) |
-| `bolsa-punto` | `bolsa_punto` | Configurado; pendiente de lógica de cobro |
-| `bolsa-llena-punto` | `bolsa_llena_punto` | Configurado; pendiente de lógica de cobro |
+| `bolsa-punto` | `bolsa_punto` | Cobro **Empresa + Punto**: × `bolsas_nuevas_vendidas` |
+| `bolsa-llena-punto` | `bolsa_llena_punto` | Cobro **Empresa + Punto**: × `bolsas_llenas` (hogar) |
 
 Constantes y UI: `PARAMETRO_PRECIO_SLUGS`, `PARAMETRO_PRECIO_ORDEN`, `PARAMETRO_PRECIO_UI` en `sistema-parametros.ts`.
 
@@ -730,6 +799,7 @@ npm run start    # Servidor de producción local
 | Precios de sistema (claves, slugs API) | `src/lib/domain/sistema-parametros.ts` |
 | Fetch precio activo / historial | `src/lib/data/sistema-parametros.ts` |
 | Cobro en campo (parse + reglas) | `src/lib/domain/recolector-recoleccion-campo.ts` |
+| Empresa + Punto (reglas y precios) | `src/lib/domain/sistema-parametros.ts` (`isEmpresaPuntoCobro`, `calcPrecioEmpresaPunto`) |
 | Formulario campo recolector | `src/lib/domain/recolector-recoleccion-form.ts` |
 | Permisos | `src/lib/auth/permissions.ts` |
 

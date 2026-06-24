@@ -85,11 +85,12 @@ export function OperarioHistorialRutasTable({
             <th className={`${TH} text-right`}>Combustible</th>
             <th className={`${TH} text-right`}>Descuento</th>
             <th className={`${TH} text-right`}>Otros gastos</th>
-            <th className={`${TH} text-center`}>Puntos</th>
+            <th className={`${TH} text-center`}>Recolecciones</th>
             <th className={`${TH} text-center`}>Exitosos</th>
             <th className={`${TH} text-center`}>Pendientes</th>
             <th className={`${TH} text-center`}>Canceladas</th>
             <th className={`${TH} text-right`}>Km recorridos</th>
+            <th className={`${TH} text-right`}>Monto a recaudar</th>
             <th className={`${TH} text-right`}>Total recaudado</th>
             <th className={`${TH} text-right`}>Después de gastos</th>
             <th className={`${TH} text-right`}>Total efectivo</th>
@@ -178,8 +179,11 @@ export function OperarioHistorialRutasTable({
                 <td className={`${TD} text-right`}>
                   {d.kmRecorridos != null ? `${formatKm(d.kmRecorridos)}` : "—"}
                 </td>
+                <td className={`${TD} text-right text-zinc-700 dark:text-zinc-300`}>
+                  {formatMoney(ruta.monto_a_recaudar)}
+                </td>
                 <td className={`${TD} text-right font-medium`}>
-                  {formatMoney(d.totalRecaudadoBruto)}
+                  {formatMoney(ruta.total_recaudado)}
                 </td>
                 <td className={`${TD} text-right`}>
                   {formatMoney(d.recaudadoDespuesGastos)}

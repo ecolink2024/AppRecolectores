@@ -1,9 +1,13 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
+import { fetchSerieMensualRecaudacion } from "@/lib/data/operario-kpis-serie-mensual";
 import {
   buildOperarioKpis,
+  buildSerieMensualRecaudacion,
+  rangoMesesSerieRecaudacion,
   resolveKpiFiltroFechas,
   type KpiFiltroFechas,
+  type KpiSerieMes,
   type OperarioKpis,
 } from "@/lib/domain/operario-kpis";
 
@@ -18,7 +22,12 @@ export type KpiFetchParams = {
 
 export async function fetchOperarioKpisData(
   params: KpiFetchParams = {},
-): Promise<{ kpis: OperarioKpis; filtro: KpiFiltroFechas; error: string | null }> {
+): Promise<{
+  kpis: OperarioKpis;
+  serieMensual: KpiSerieMes[];
+  filtro: KpiFiltroFechas;
+  error: string | null;
+}> {
   const filtro = resolveKpiFiltroFechas(params);
   const periodo = {
     desde: filtro.desde,
@@ -33,10 +42,13 @@ export async function fetchOperarioKpisData(
     const message = err instanceof Error ? err.message : "Error de configuración";
     return {
       kpis: emptyKpis(periodo),
+      serieMensual: emptySerieMensual(),
       filtro,
       error: message,
     };
   }
+
+  const serieMensualPromise = fetchSerieMensualRecaudacion(admin);
 
   const { data: rutas, error: rutasError } = await admin
     .from("rutas")
@@ -47,7 +59,13 @@ export async function fetchOperarioKpisData(
     .limit(5000);
 
   if (rutasError) {
-    return { kpis: emptyKpis(periodo), filtro, error: rutasError.message };
+    const { serie, error: serieError } = await serieMensualPromise;
+    return {
+      kpis: emptyKpis(periodo),
+      serieMensual: serie,
+      filtro,
+      error: rutasError.message ?? serieError,
+    };
   }
 
   const rutasRows = rutas ?? [];
@@ -61,7 +79,13 @@ export async function fetchOperarioKpisData(
       .in("ruta_id", rutaIds);
 
     if (recError) {
-      return { kpis: emptyKpis(periodo), filtro, error: recError.message };
+      const { serie, error: serieError } = await serieMensualPromise;
+      return {
+        kpis: emptyKpis(periodo),
+        serieMensual: serie,
+        filtro,
+        error: recError.message ?? serieError,
+      };
     }
     recolecciones = data ?? [];
   }
@@ -76,8 +100,14 @@ export async function fetchOperarioKpisData(
   );
 
   const kpis = buildOperarioKpis(rutasRows, recolecciones, nombreMap, periodo);
+  const { serie: serieMensual, error: serieError } = await serieMensualPromise;
 
-  return { kpis, filtro, error: null };
+  return { kpis, serieMensual, filtro, error: serieError };
+}
+
+function emptySerieMensual(): KpiSerieMes[] {
+  const { desdeMes, hastaMes } = rangoMesesSerieRecaudacion();
+  return buildSerieMensualRecaudacion([], [], desdeMes, hastaMes);
 }
 
 function emptyKpis(periodo: { desde: string; hasta: string; etiqueta: string }): OperarioKpis {

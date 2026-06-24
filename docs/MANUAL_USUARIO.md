@@ -107,8 +107,9 @@ Tabla amplia con **scroll vertical** (altura acotada, encabezado fijo al bajar) 
 | Estado | Cerrada, Cancelada, etc. |
 | **Ver insumos** | Popup con bolsas, kit, cestos, biotachos, ropa, celular al inicio |
 | Descarga, gastos | Combustible, descuento, otros |
-| Puntos / exitosos / pendientes / canceladas | Resumen de paradas |
-| Totales recaudados | Bruto, después de gastos, efectivo neto |
+| Recolecciones / exitosos / pendientes / canceladas | Resumen de paradas |
+| **Total recaudado** | Efectivo + transferencia + QR de paradas **visitadas** (igual que Operativo) |
+| Después de gastos / Total efectivo | Efectivo neto tras combustible, descuento y otros gastos de cierre |
 
 Seleccioná una fila para ver sus servicios abajo.
 
@@ -116,9 +117,11 @@ Seleccioná una fila para ver sus servicios abajo.
 
 Misma ruta seleccionada arriba. Mismo criterio de **scroll vertical** (encabezado fijo) y horizontal que la tabla de rutas. Columnas (en este orden):
 
-Horario · Recolector · Nombre cliente · Horario programado · Hora real · **Unidad** · **Tipo de servicio** · Zona · Cant. biotachos · Cant. bolsas · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · Observaciones · Detalle · Firma · Firmante
+Horario · Recolector · Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · Observaciones · Detalle · Firma · Firmante · **Unidad** · **Tipo de servicio**
 
-**Datos del cliente:** tocá el nombre del cliente, **Info**, la zona o el horario programado → se abre un popup con dirección, teléfono, tipo de servicio, frecuencia, cobros y más.
+**Horario programado**, **hora real** y **bolsas nuevas** de cada parada están en el popup **Info** (junto al nombre del cliente).
+
+**Datos del cliente:** tocá el nombre del cliente, **Info** o la zona → se abre un popup con **horario programado**, **hora real**, **bolsas nuevas**, dirección, teléfono, tipo de servicio, frecuencia, retiro (bolsas llenas, biotachos llenos), cobros y más.
 
 ### 3.3 KPIs (indicadores)
 
@@ -136,12 +139,12 @@ Panel de métricas agregadas según el **período** elegido. Solo lectura.
 **Secciones principales:**
 
 - Resumen: recaudación, servicios exitosos, índice de exitosas, cantidad de rutas
-- **Rutas** por estado (en proceso, realizadas, cerradas, suspendidas…)
+- **Rutas** por estado (en proceso, realizadas, cerradas, suspendidas…). **Realizadas** en KPIs = jornadas que el recolector finalizó (**Realizado** + **Cerrada**); **Cerradas** = solo las que ya tienen cierre operario.
 - **Recolecciones (servicios):** ingresadas, exitosas, canceladas, omitidas, pendientes, índice de exitosas
-- **Por zona:** servicios, tipo de servicio, frecuencia, bolsas, efectivo, transferencia, QR, ingreso total
+- **Por zona:** servicios, tipo de servicio, frecuencia, **bolsas llenas**, efectivo, transferencia, QR, ingreso total
 - **Por recolector:** agendadas, realizadas, % éxito, ingresos
 - Finanzas, operación (km, duración, materiales)
-- Gráfico **Recaudación por día**
+- Gráfico **Recaudación por mes** (últimos 12 meses visibles; independiente del filtro de fechas; podés recorrer meses anteriores o siguientes)
 
 **Descargar:** **Descargar KPIs (CSV)** exporta todo el contenido del período activo.
 
@@ -166,7 +169,7 @@ Cada fila incluye, entre otros:
 | Columna | Qué muestra |
 |---------|-------------|
 | Fecha, Recolector, Estado, Turno | Identificación de la jornada |
-| **Puntos** | Cantidad total de paradas |
+| **Recolecciones** | Cantidad total de paradas |
 | **Exitosas** | Paradas visitadas |
 | **Bolsas recolectadas** | Total de bolsas (llenas + nuevas) en paradas visitadas; pasá el mouse para ver el detalle |
 | **Biotachos** | Total de biotachos (llenos + nuevos) en visitadas; tooltip con detalle |
@@ -236,7 +239,7 @@ Los tipos de cliente válidos al crear/editar una parada son: **Reciclaje**, **M
 
 Si la parada está **pendiente**, el botón aparece deshabilitado (gris) hasta que el recolector la visite o cancele. Si está **cancelada**, el popup muestra el motivo.
 
-> En **Historial** la tabla de paradas sigue mostrando bolsas, biotachos y montos en columnas separadas (no usa este popup).
+> En **Historial** la tabla de paradas muestra **biotachos llenos** y **bolsas llenas**; **bolsas nuevas** está en el popup **Info**. Montos van en columnas aparte (no usa el popup de detalle de Operativo).
 
 | Acción (Operativo) | Qué hace |
 |--------------------|----------|
@@ -320,6 +323,18 @@ En **todos** los parámetros de precio:
 - Solo podés **agregar un precio nuevo** (no editar los anteriores)
 - El anterior se cierra automáticamente al registrar uno nuevo
 - Queda **historial** con fechas de vigencia y quién lo registró
+
+#### Empresa + Punto: qué queda guardado
+
+Para paradas con **Unidad = Empresa** y **Tipo de cliente = Punto** (en la app y en la base):
+
+| Dónde | Qué se guarda |
+|-------|----------------|
+| Al importar / editar parada | Unidad, tipo, precio de planilla (`precio`), observaciones del operario |
+| Al cargar en campo (recolector) | Bolsas llenas hogar, bolsas llenas punto (solo cantidad), bolsas nuevas vendidas, resto de retiro (biotachos, cestos…), total calculado, pagos, firma, **Tus observaciones** |
+| Parámetros del sistema | Precio **bolsa llena hogar** y **bolsa punto** (historial global; no van en la fila del cliente) |
+
+El **precio de la planilla** queda registrado pero el total a cobrar en Empresa + Punto se calcula con los parámetros y las cantidades que carga el recolector, no con ese precio fijo.
 
 ### 3.10 Gestión de usuarios
 
@@ -810,6 +825,10 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **KPIs** | Indicadores agregados por período (staff) |
 | **Unidad** | Hogar, Empresa o Puntos (planilla); en Empresa el cobro no varía por bolsas llenas |
 | **Tipo de cliente** | Reciclaje, Mixto, Orgánico o **Punto** (desplegable al editar). **Punto** con Unidad Empresa → cobro especial |
+| **Empresa + Punto** | En base: Unidad `Empresa` + Tipo `Punto`; retiro en campo con bolsas hogar / punto / vendidas |
+| **Obs. operario** | Columna `observaciones` — planilla o panel operario |
+| **Obs. recolector** | Columna `observaciones_recolector` — al guardar carga en campo |
+| **Cestos** | Columna `cestos` — cantidad retirada en campo |
 | **Bolsa extra** | Precio en Parámetros; desde la 3.ª bolsa llena (regla estándar o Mixto con 3+) |
 | **Retiro reciclable mixto** | Precio en Parámetros; base del cobro Mixto con 1–2 bolsas llenas |
 | **Bolsa punto / bolsa llena punto** | Precios en Parámetros (configurables; uso en app según se habilite) |

@@ -29,7 +29,7 @@ export default async function PanelKpisPage({ searchParams }: Props) {
   }
 
   const params = await searchParams;
-  const { kpis, filtro, error } = await fetchOperarioKpisData({
+  const { kpis, serieMensual, filtro, error } = await fetchOperarioKpisData({
     periodo: params.periodo,
     desde: params.desde,
     hasta: params.hasta,
@@ -44,6 +44,7 @@ export default async function PanelKpisPage({ searchParams }: Props) {
       )}
       <OperarioKpisDashboard
         kpis={kpis}
+        serieMensual={serieMensual}
         filtroModo={filtro.modo}
         periodoPreset={filtro.periodoPreset}
       />

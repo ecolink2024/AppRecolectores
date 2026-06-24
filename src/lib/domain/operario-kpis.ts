@@ -191,11 +191,21 @@ export type KpiRecolectorRow = {
   ingresos: number;
 };
 
-export type KpiSerieDia = {
-  fecha: string;
+export type KpiSerieMes = {
+  /** Año-mes calendario (YYYY-MM), zona Argentina */
+  mes: string;
   rutas: number;
+  /** Suma de pagos (efectivo + transferencia + QR) en visitadas */
   recaudado: number;
+  /** Suma de precio_total en visitadas */
+  totalPrecio: number;
 };
+
+/** Meses hacia atrás que se cargan para el gráfico (independiente del filtro KPI). */
+export const KPI_RECAUDACION_MENSUAL_MESES_ATRAS = 48;
+
+/** Meses visibles a la vez en el gráfico. */
+export const KPI_RECAUDACION_MENSUAL_VENTANA = 12;
 
 export type OperarioKpis = {
   periodo: { desde: string; hasta: string; etiqueta: string };
@@ -224,10 +234,13 @@ export type OperarioKpis = {
     efectivo: number;
     transferencia: number;
     qr: number;
+    /** Pagos cobrados en visitadas (efectivo + transferencia + QR) */
     total: number;
+    /** Suma de precio_total en visitadas */
+    totalPrecio: number;
     gastos: number;
-    netoRutas: number;
-    promedioPorRutaCerrada: number | null;
+    /** Recaudación total ÷ recolecciones exitosas (visitadas) */
+    promedioPorRecoleccion: number | null;
   };
   materiales: {
     bolsas: number;
@@ -239,12 +252,17 @@ export type OperarioKpis = {
     duracionPromedioMin: number | null;
   };
   porRecolector: KpiRecolectorRow[];
-  serieDiaria: KpiSerieDia[];
 };
 
-function recaudadoRecoleccion(r: RecoleccionRow): number {
-  if (r.precio_total != null) return num(r.precio_total);
+/** Montos cobrados en campo (mismo criterio que Total recaudado en KPIs). */
+export function recaudadoPagosRecoleccion(r: RecoleccionRow): number {
   return num(r.monto_efectivo) + num(r.monto_transferencia) + num(r.monto_qr);
+}
+
+/** Precio calculado a cobrar en la parada (precio_total). */
+export function totalPrecioRecoleccion(r: RecoleccionRow): number {
+  if (r.precio_total == null) return 0;
+  return num(r.precio_total);
 }
 
 function kmRuta(r: RutaRow): number {
@@ -265,8 +283,8 @@ function zonaLabel(zona: string | null | undefined): string {
   return z ? z : "Sin zona";
 }
 
-function bolsasRecoleccion(rec: RecoleccionRow): number {
-  return num(rec.bolsas_llenas) + num(rec.bolsas_nuevas);
+function bolsasLlenasRecoleccion(rec: RecoleccionRow): number {
+  return num(rec.bolsas_llenas);
 }
 
 function desgloseLabel(value: string | null | undefined): string {
@@ -332,7 +350,6 @@ export function buildOperarioKpis(
   let kmRecorridos = 0;
   let rutasFinalizadasRecolector = 0;
   let gastos = 0;
-  let netoRutas = 0;
   const duraciones: number[] = [];
 
   const rutaIds = new Set(rutas.map((r) => r.id));
@@ -342,7 +359,7 @@ export function buildOperarioKpis(
     estadoCounts.set(ruta.estado, (estadoCounts.get(ruta.estado) ?? 0) + 1);
 
     if (ruta.estado === "cerrada") cerradas += 1;
-    if (ruta.estado === "completada") realizadas += 1;
+    if (ruta.estado === "completada" || ruta.estado === "cerrada") realizadas += 1;
     if (["borrador", "activa", "en_curso"].includes(ruta.estado)) enProceso += 1;
     if (ruta.estado === "suspendida") suspendidas += 1;
     if (ruta.estado === "cancelada") canceladas += 1;
@@ -359,13 +376,8 @@ export function buildOperarioKpis(
     }
 
     if (ruta.estado === "cerrada" || ruta.estado === "completada") {
-      const gastoRuta =
+      gastos +=
         num(ruta.combustible) + num(ruta.descuento) + num(ruta.otros_gastos);
-      gastos += gastoRuta;
-      const bruto = ruta.monto_efectivo != null ? num(ruta.monto_efectivo) : 0;
-      const neto =
-        ruta.total_efectivo != null ? num(ruta.total_efectivo) : bruto - gastoRuta;
-      netoRutas += neto > 0 ? neto : bruto;
     }
   }
 
@@ -387,6 +399,7 @@ export function buildOperarioKpis(
   let efectivo = 0;
   let transferencia = 0;
   let qr = 0;
+  let totalPrecio = 0;
   let bolsas = 0;
   let biotachos = 0;
 
@@ -421,14 +434,15 @@ export function buildOperarioKpis(
       efectivo += eff;
       transferencia += trans;
       qr += qrVal;
-      bolsas += bolsasRecoleccion(rec);
+      totalPrecio += totalPrecioRecoleccion(rec);
+      bolsas += bolsasLlenasRecoleccion(rec);
       biotachos += num(rec.biotachos_llenos) + num(rec.biotachos_nuevos);
 
-      zonaRow.bolsas += bolsasRecoleccion(rec);
+      zonaRow.bolsas += bolsasLlenasRecoleccion(rec);
       zonaRow.efectivo += eff;
       zonaRow.transferencia += trans;
       zonaRow.qr += qrVal;
-      zonaRow.ingresoTotal += recaudadoRecoleccion(rec);
+      zonaRow.ingresoTotal += recaudadoPagosRecoleccion(rec);
     }
   }
 
@@ -471,7 +485,7 @@ export function buildOperarioKpis(
     for (const p of paradas) {
       if (p.estado_operativo === "visitada") {
         row.realizadas += 1;
-        row.ingresos += recaudadoRecoleccion(p);
+        row.ingresos += recaudadoPagosRecoleccion(p);
       }
     }
   }
@@ -482,21 +496,6 @@ export function buildOperarioKpis(
       porcentajeExito: tasaExitoPct(row.realizadas, row.agendadas),
     }))
     .sort((a, b) => b.ingresos - a.ingresos);
-
-  const serieMap = new Map<string, { rutas: number; recaudado: number }>();
-  for (const ruta of rutas) {
-    const entry = serieMap.get(ruta.fecha) ?? { rutas: 0, recaudado: 0 };
-    entry.rutas += 1;
-    const paradas = recByRuta.get(ruta.id) ?? [];
-    entry.recaudado += paradas
-      .filter((p) => p.estado_operativo === "visitada")
-      .reduce((acc, p) => acc + recaudadoRecoleccion(p), 0);
-    serieMap.set(ruta.fecha, entry);
-  }
-
-  const serieDiaria: KpiSerieDia[] = [...serieMap.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([fecha, data]) => ({ fecha, ...data }));
 
   const duracionPromedioMin =
     duraciones.length > 0
@@ -528,10 +527,10 @@ export function buildOperarioKpis(
       transferencia,
       qr,
       total: totalRecaudado,
+      totalPrecio,
       gastos,
-      netoRutas,
-      promedioPorRutaCerrada:
-        cerradas > 0 ? Math.round(netoRutas / cerradas) : null,
+      promedioPorRecoleccion:
+        exitosas > 0 ? Math.round(totalRecaudado / exitosas) : null,
     },
     materiales: { bolsas, biotachos },
     operacion: {
@@ -540,8 +539,91 @@ export function buildOperarioKpis(
       duracionPromedioMin,
     },
     porRecolector,
-    serieDiaria,
   };
+}
+
+function monthKeyFromFecha(fecha: string): string {
+  return fecha.slice(0, 7);
+}
+
+function addMonthsToMonthKey(mes: string, delta: number): string {
+  const [year, month] = mes.split("-").map(Number);
+  const d = new Date(year, month - 1 + delta, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function currentMonthKeyAr(): string {
+  return todayIsoAr().slice(0, 7);
+}
+
+export function rangoMesesSerieRecaudacion(
+  mesesAtras = KPI_RECAUDACION_MENSUAL_MESES_ATRAS,
+): { desdeMes: string; hastaMes: string; desdeFecha: string; hastaFecha: string } {
+  const hastaMes = currentMonthKeyAr();
+  const desdeMes = addMonthsToMonthKey(hastaMes, -(mesesAtras - 1));
+  const [y, m] = hastaMes.split("-").map(Number);
+  const lastDay = new Date(y, m, 0).getDate();
+  return {
+    desdeMes,
+    hastaMes,
+    desdeFecha: `${desdeMes}-01`,
+    hastaFecha: `${hastaMes}-${String(lastDay).padStart(2, "0")}`,
+  };
+}
+
+export function listMesesEnRango(desdeMes: string, hastaMes: string): string[] {
+  const meses: string[] = [];
+  let cursor = desdeMes;
+  while (cursor <= hastaMes) {
+    meses.push(cursor);
+    cursor = addMonthsToMonthKey(cursor, 1);
+  }
+  return meses;
+}
+
+export function buildSerieMensualRecaudacion(
+  rutas: RutaRow[],
+  recolecciones: RecoleccionRow[],
+  desdeMes: string,
+  hastaMes: string,
+): KpiSerieMes[] {
+  const recByRuta = new Map<string, RecoleccionRow[]>();
+  for (const rec of recolecciones) {
+    const list = recByRuta.get(rec.ruta_id) ?? [];
+    list.push(rec);
+    recByRuta.set(rec.ruta_id, list);
+  }
+
+  const serieMap = new Map<string, { rutas: number; recaudado: number; totalPrecio: number }>();
+  for (const mes of listMesesEnRango(desdeMes, hastaMes)) {
+    serieMap.set(mes, { rutas: 0, recaudado: 0, totalPrecio: 0 });
+  }
+
+  for (const ruta of rutas) {
+    const mes = monthKeyFromFecha(ruta.fecha);
+    const entry = serieMap.get(mes);
+    if (!entry) continue;
+    entry.rutas += 1;
+    const paradas = recByRuta.get(ruta.id) ?? [];
+    for (const p of paradas) {
+      if (p.estado_operativo !== "visitada") continue;
+      entry.recaudado += recaudadoPagosRecoleccion(p);
+      entry.totalPrecio += totalPrecioRecoleccion(p);
+    }
+  }
+
+  return listMesesEnRango(desdeMes, hastaMes).map((mes) => ({
+    mes,
+    rutas: serieMap.get(mes)!.rutas,
+    recaudado: serieMap.get(mes)!.recaudado,
+    totalPrecio: serieMap.get(mes)!.totalPrecio,
+  }));
+}
+
+export function formatKpiMesLabel(mes: string): string {
+  const [year, month] = mes.split("-").map(Number);
+  const d = new Date(year, month - 1, 1);
+  return d.toLocaleDateString("es-AR", { month: "short", year: "numeric" });
 }
 
 export function formatKpiPercent(value: number | null): string {

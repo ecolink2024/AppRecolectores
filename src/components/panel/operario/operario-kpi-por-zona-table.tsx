@@ -48,7 +48,7 @@ export function OperarioKpiPorZonaTable({ filas }: Props) {
             <th className="px-4 py-3 font-medium text-center">{KPI_LABEL_SERVICIOS}</th>
             <th className="min-w-[10rem] px-4 py-3 font-medium">Tipo de servicio</th>
             <th className="min-w-[10rem] px-4 py-3 font-medium">Frecuencia</th>
-            <th className="px-4 py-3 font-medium text-center">Bolsas</th>
+            <th className="px-4 py-3 font-medium text-center">Bolsas llenas</th>
             <th className="px-4 py-3 font-medium text-right">Efectivo</th>
             <th className="px-4 py-3 font-medium text-right">Transferencia</th>
             <th className="px-4 py-3 font-medium text-right">QR</th>

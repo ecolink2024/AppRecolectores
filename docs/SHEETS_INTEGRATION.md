@@ -40,6 +40,22 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 | Tipo de servicio / Tipo de cliente | Reciclaje, Mixto, Organico, **Punto** (con Unidad **Empresa** → cobro especial en app). No usar **Puntos** aquí: es valor de **Unidad**, no de tipo |
 | Frecuencia | Mensual, Puntual, Semanal |
 
+### Qué se persiste en Supabase al importar
+
+Cada fila **Pendiente** enviada crea o actualiza una fila en `ruta_recolecciones`. Los encabezados de planilla se mapean así:
+
+| Columna planilla | Columna DB | Notas |
+|------------------|------------|--------|
+| Unidad | `unidad` | Canónico: `Hogar` \| `Empresa` \| `Puntos` |
+| Tipo de servicio / Tipo de cliente | `tipo_servicio` | Canónico: `Reciclaje` \| `Mixto` \| `Organico` \| `Punto` |
+| Precio | `precio` | TEXT (ej. `"15000"`) |
+| Observaciones | `observaciones` | Notas operario/planilla |
+| Recolector | (ruta) | Agrupa en `rutas.asignado_a` por email resuelto |
+
+Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo y se guardan en las mismas columnas de `ruta_recolecciones`.
+
+Ver detalle del modelo (incl. Empresa + Punto): [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md) § Almacenamiento en `ruta_recolecciones`.
+
 ### Estado (automático — no editar)
 
 | Estado | Significado |

@@ -5,6 +5,10 @@ import { useEffect } from "react";
 import { FirmaDigitalImage } from "@/components/panel/firma-digital-image";
 import {
   esFirmaDigitalImagen,
+  formatCantidadBiotachos,
+  formatCantidadBolsas,
+  formatCantidadBolsasNuevas,
+  formatHoraReal,
   formatMoney,
   formatRutaHorario,
   type RecoleccionOperarioRow,
@@ -25,13 +29,26 @@ type Props = {
   onClose: () => void;
 };
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({
+  label,
+  value,
+  suppressHydrationWarning,
+}: {
+  label: string;
+  value: string;
+  suppressHydrationWarning?: boolean;
+}) {
   return (
     <div className="grid gap-0.5 sm:grid-cols-[9rem_1fr]">
       <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
         {label}
       </dt>
-      <dd className="text-sm text-zinc-900 dark:text-zinc-100">{value || "—"}</dd>
+      <dd
+        className="text-sm text-zinc-900 dark:text-zinc-100"
+        suppressHydrationWarning={suppressHydrationWarning}
+      >
+        {value || "—"}
+      </dd>
     </div>
   );
 }
@@ -104,6 +121,21 @@ export function OperarioClienteDetalleModal({
             </p>
           )}
 
+          <section className="mb-6">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Info
+            </h3>
+            <dl className="mt-3 space-y-3">
+              <Row label="Horario programado" value={recoleccion.hora_programada} />
+              <Row
+                label="Hora real"
+                value={formatHoraReal(recoleccion.hora_real)}
+                suppressHydrationWarning
+              />
+              <Row label="Bolsas nuevas" value={formatCantidadBolsasNuevas(recoleccion)} />
+            </dl>
+          </section>
+
           <dl className="space-y-3">
             <Row label="Nombre" value={recoleccion.nombre} />
             <Row label="Dirección" value={recoleccion.direccion} />
@@ -115,7 +147,6 @@ export function OperarioClienteDetalleModal({
             <Row label="Tipo de servicio" value={recoleccion.tipo_servicio ?? ""} />
             <Row label="Frecuencia" value={recoleccion.frecuencia ?? ""} />
             <Row label="Día" value={recoleccion.dia ?? ""} />
-            <Row label="Horario programado" value={recoleccion.hora_programada} />
             <Row label="Precio planilla" value={recoleccion.precio_tarifa ?? ""} />
             <Row label="Deuda" value={recoleccion.deuda ?? ""} />
             <Row label="Nota encargado" value={recoleccion.nota_encargado ?? ""} />
@@ -144,6 +175,8 @@ export function OperarioClienteDetalleModal({
               Carga en campo
             </h3>
             <dl className="mt-3 space-y-3">
+              <Row label="Bolsas llenas" value={formatCantidadBolsas(recoleccion)} />
+              <Row label="Biotachos llenos" value={formatCantidadBiotachos(recoleccion)} />
               <Row
                 label="Precio total"
                 value={formatMoney(

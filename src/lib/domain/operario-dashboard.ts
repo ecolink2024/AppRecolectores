@@ -381,52 +381,47 @@ export function formatRutaHorario(fecha: string, turno: RutaTurno | null): strin
 
 export function formatCantidadBolsas(item: Pick<
   RecoleccionOperarioRow,
-  "bolsas_llenas" | "bolsas_nuevas"
+  "bolsas_llenas"
 >): string {
   const llenas = item.bolsas_llenas ?? 0;
-  const nuevas = item.bolsas_nuevas ?? 0;
-  if (llenas === 0 && nuevas === 0) return "—";
-  if (nuevas === 0) return String(llenas);
-  if (llenas === 0) return String(nuevas);
-  return `${llenas + nuevas}`;
+  if (llenas === 0) return "—";
+  return String(llenas);
 }
 
 export function formatCantidadBolsasDetalle(item: Pick<
   RecoleccionOperarioRow,
-  "bolsas_llenas" | "bolsas_nuevas"
+  "bolsas_llenas"
 >): string | undefined {
   const llenas = item.bolsas_llenas ?? 0;
+  if (llenas === 0) return undefined;
+  return `${llenas} llena(s)`;
+}
+
+export function formatCantidadBolsasNuevas(item: Pick<
+  RecoleccionOperarioRow,
+  "bolsas_nuevas"
+>): string {
   const nuevas = item.bolsas_nuevas ?? 0;
-  if (llenas === 0 && nuevas === 0) return undefined;
-  const parts: string[] = [];
-  if (llenas > 0) parts.push(`${llenas} llena(s)`);
-  if (nuevas > 0) parts.push(`${nuevas} nueva(s)`);
-  return parts.join(", ");
+  if (nuevas === 0) return "—";
+  return String(nuevas);
 }
 
 export function formatCantidadBiotachos(item: Pick<
   RecoleccionOperarioRow,
-  "biotachos_llenos" | "biotachos_nuevos"
+  "biotachos_llenos"
 >): string {
   const llenos = item.biotachos_llenos ?? 0;
-  const nuevos = item.biotachos_nuevos ?? 0;
-  if (llenos === 0 && nuevos === 0) return "—";
-  if (nuevos === 0) return String(llenos);
-  if (llenos === 0) return String(nuevos);
-  return `${llenos + nuevos}`;
+  if (llenos === 0) return "—";
+  return String(llenos);
 }
 
 export function formatCantidadBiotachosDetalle(item: Pick<
   RecoleccionOperarioRow,
-  "biotachos_llenos" | "biotachos_nuevos"
+  "biotachos_llenos"
 >): string | undefined {
   const llenos = item.biotachos_llenos ?? 0;
-  const nuevos = item.biotachos_nuevos ?? 0;
-  if (llenos === 0 && nuevos === 0) return undefined;
-  const parts: string[] = [];
-  if (llenos > 0) parts.push(`${llenos} lleno(s)`);
-  if (nuevos > 0) parts.push(`${nuevos} nuevo(s)`);
-  return parts.join(", ");
+  if (llenos === 0) return undefined;
+  return `${llenos} lleno(s)`;
 }
 
 export type RecoleccionOperarioDetalleCarga = {

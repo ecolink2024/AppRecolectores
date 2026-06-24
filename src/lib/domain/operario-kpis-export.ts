@@ -4,9 +4,10 @@ import {
   downloadCsvFile,
 } from "@/lib/domain/csv-download";
 import { formatRutaFecha } from "@/lib/domain/rutas";
-import type { OperarioKpis } from "@/lib/domain/operario-kpis";
+import type { KpiSerieMes, OperarioKpis } from "@/lib/domain/operario-kpis";
 import {
   formatKpiDuracion,
+  formatKpiMesLabel,
   formatKpiPercent,
 } from "@/lib/domain/operario-kpis";
 
@@ -20,7 +21,7 @@ function desgloseText(
   return items.map((i) => `${i.label}: ${i.count}`).join(" | ");
 }
 
-export function buildOperarioKpisCsv(kpis: OperarioKpis): string {
+export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieMes[]): string {
   const lines: string[] = [];
   const { periodo, rutas, recolecciones, finanzas, materiales, operacion } = kpis;
 
@@ -32,7 +33,8 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis): string {
 
   lines.push(...sectionTitle("RESUMEN"));
   lines.push(row(["Métrica", "Valor"]));
-  lines.push(row(["Recaudación total", finanzas.total]));
+  lines.push(row(["Monto total por servicios prestados", finanzas.totalPrecio]));
+  lines.push(row(["Monto real recaudado", finanzas.total]));
   lines.push(row(["Servicios exitosos", recolecciones.exitosas]));
   lines.push(row(["Índice de exitosas", formatKpiPercent(recolecciones.indiceExitosas)]));
   lines.push(row(["Rutas en el período", rutas.total]));
@@ -63,24 +65,27 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis): string {
   lines.push(row(["Omitidas", recolecciones.omitidas]));
   lines.push(row(["Pendientes", recolecciones.pendientes]));
 
-  lines.push(...sectionTitle("FINANZAS"));
+  lines.push(...sectionTitle("FINANZAS (período filtrado arriba: Desde/Hasta)"));
+  lines.push(
+    row([
+      "Monto real recaudado = efectivo + transferencia + QR en paradas visitadas del período.",
+    ]),
+  );
   lines.push(row(["Concepto", "Monto (ARS)"]));
+  lines.push(row(["Monto total por servicios prestados", finanzas.totalPrecio]));
   lines.push(row(["Efectivo", finanzas.efectivo]));
   lines.push(row(["Transferencia", finanzas.transferencia]));
   lines.push(row(["QR", finanzas.qr]));
-  lines.push(row(["Total recaudado", finanzas.total]));
+  lines.push(row(["Monto real recaudado", finanzas.total]));
   lines.push(row(["Gastos (rutas cerradas/realizadas)", finanzas.gastos]));
-  lines.push(row(["Neto rutas cerradas", finanzas.netoRutas]));
-  if (finanzas.promedioPorRutaCerrada != null) {
-    lines.push(row(["Promedio por ruta cerrada", finanzas.promedioPorRutaCerrada]));
-  }
+  lines.push(row(["Promedio por recolección", finanzas.promedioPorRecoleccion ?? ""]));
 
   lines.push(...sectionTitle("OPERACIÓN Y MATERIALES"));
   lines.push(row(["Métrica", "Valor"]));
   lines.push(row(["Km recorridos", operacion.kmRecorridos]));
   lines.push(row(["Rutas finalizadas (recolector)", operacion.rutasFinalizadasRecolector]));
   lines.push(row(["Duración promedio jornada", formatKpiDuracion(operacion.duracionPromedioMin)]));
-  lines.push(row(["Bolsas retiradas", materiales.bolsas]));
+  lines.push(row(["Bolsas llenas", materiales.bolsas]));
   lines.push(row(["Biotachos retirados", materiales.biotachos]));
 
   lines.push(...sectionTitle("POR ZONA"));
@@ -88,7 +93,7 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis): string {
     row([
       "Zona",
       "Recolecciones (servicios)",
-      "Bolsas",
+      "Bolsas llenas",
       "Efectivo",
       "Transferencia",
       "QR",
@@ -129,10 +134,27 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis): string {
     }
   }
 
-  lines.push(...sectionTitle("RECAUDACIÓN POR DÍA"));
-  lines.push(row(["Fecha", "Fecha (ISO)", "Rutas", "Recaudado (ARS)"]));
-  for (const d of kpis.serieDiaria) {
-    lines.push(row([formatRutaFecha(d.fecha), d.fecha, d.rutas, d.recaudado]));
+  lines.push(
+    ...sectionTitle(
+      "RECAUDACIÓN POR MES (48 meses; no usa el filtro Desde/Hasta de arriba)",
+    ),
+  );
+  lines.push(
+    row([
+      "Por mes de la ruta: monto total por servicios prestados y monto real recaudado en paradas visitadas.",
+    ]),
+  );
+  lines.push(
+    row([
+      "Mes",
+      "Mes (ISO)",
+      "Rutas en el mes",
+      "Monto total por servicios prestados (ARS)",
+      "Monto real recaudado (ARS)",
+    ]),
+  );
+  for (const m of serieMensual) {
+    lines.push(row([formatKpiMesLabel(m.mes), m.mes, m.rutas, m.totalPrecio, m.recaudado]));
   }
 
   lines.push(...sectionTitle("POR RECOLECTOR"));
@@ -153,9 +175,9 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis): string {
   return lines.join("\r\n");
 }
 
-export function downloadOperarioKpisCsv(kpis: OperarioKpis): void {
+export function downloadOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieMes[]): void {
   downloadCsvFile(
     `kpis_${kpis.periodo.desde}_${kpis.periodo.hasta}.csv`,
-    buildOperarioKpisCsv(kpis),
+    buildOperarioKpisCsv(kpis, serieMensual),
   );
 }

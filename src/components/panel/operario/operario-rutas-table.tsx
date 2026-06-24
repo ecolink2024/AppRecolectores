@@ -67,7 +67,7 @@ export function OperarioRutasTable({
             <th className="px-3 py-3 font-medium">Recolector</th>
             <th className="px-3 py-3 font-medium">Estado</th>
             <th className="px-3 py-3 font-medium">Turno</th>
-            <th className="px-3 py-3 font-medium text-center">Puntos</th>
+            <th className="px-3 py-3 font-medium text-center">Recolecciones</th>
             <th className="px-3 py-3 font-medium text-center">Exitosas</th>
             <th className="px-3 py-3 font-medium text-center">Bolsas recolectadas</th>
             <th className="px-3 py-3 font-medium text-center">Biotachos</th>

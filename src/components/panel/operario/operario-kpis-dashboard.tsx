@@ -14,12 +14,14 @@ import {
   KPI_LABEL_SERVICIOS,
   type KpiFiltroModo,
   type KpiPeriodo,
+  type KpiSerieMes,
   type OperarioKpis,
 } from "@/lib/domain/operario-kpis";
 import { downloadOperarioKpisCsv } from "@/lib/domain/operario-kpis-export";
 
 type Props = {
   kpis: OperarioKpis;
+  serieMensual: KpiSerieMes[];
   filtroModo: KpiFiltroModo;
   periodoPreset: KpiPeriodo | null;
 };
@@ -89,6 +91,7 @@ function Section({
 
 export function OperarioKpisDashboard({
   kpis,
+  serieMensual,
   filtroModo,
   periodoPreset,
 }: Props) {
@@ -97,7 +100,7 @@ export function OperarioKpisDashboard({
   function handleDescargar() {
     setDescargando(true);
     try {
-      downloadOperarioKpisCsv(kpis);
+      downloadOperarioKpisCsv(kpis, serieMensual);
     } finally {
       setDescargando(false);
     }
@@ -133,6 +136,13 @@ export function OperarioKpisDashboard({
         />
       </div>
 
+      <Section
+        title="Recaudación por mes"
+        subtitle="Monto total por servicios prestados y monto real recaudado, por mes de la ruta. Ignora el filtro Desde/Hasta; últimos 12 meses visibles."
+      >
+        <OperarioKpiRecaudacionChart serie={serieMensual} />
+      </Section>
+
       {kpis.rutas.total === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-10 text-center dark:border-zinc-700 dark:bg-zinc-900">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -147,11 +157,17 @@ export function OperarioKpisDashboard({
         </div>
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <KpiCard
-              label="Recaudación total"
+              label="Total precio"
+              value={formatMoney(kpis.finanzas.totalPrecio)}
+              hint="Monto total por servicios prestados"
+              accent="blue"
+            />
+            <KpiCard
+              label="Total recaudado"
               value={formatMoney(kpis.finanzas.total)}
-              hint={`${formatKpiNumber(kpis.recolecciones.exitosas)} servicios exitosos`}
+              hint="Monto real recaudado"
               accent="emerald"
             />
             <KpiCard
@@ -169,7 +185,7 @@ export function OperarioKpisDashboard({
             <KpiCard
               label="Rutas en el período"
               value={formatKpiNumber(kpis.rutas.total)}
-              hint={`${formatKpiNumber(kpis.rutas.cerradas)} cerradas · ${formatKpiNumber(kpis.rutas.realizadas)} realizadas`}
+              hint={`${formatKpiNumber(kpis.rutas.realizadas)} finalizadas por recolector · ${formatKpiNumber(kpis.rutas.cerradas)} con cierre operario`}
               accent="amber"
             />
           </div>
@@ -184,6 +200,7 @@ export function OperarioKpisDashboard({
               <KpiCard
                 label="Realizadas"
                 value={formatKpiNumber(kpis.rutas.realizadas)}
+                hint="Jornadas finalizadas por el recolector (incluye las ya cerradas)"
                 accent="zinc"
               />
               <KpiCard
@@ -283,7 +300,21 @@ export function OperarioKpisDashboard({
             </Section>
           )}
 
-          <Section title="Finanzas" subtitle="Montos registrados en servicios exitosos">
+          <Section title="Finanzas" subtitle="Montos en servicios exitosos del período">
+            <div className="mb-3 grid gap-3 sm:grid-cols-2">
+              <KpiCard
+                label="Total precio"
+                value={formatMoney(kpis.finanzas.totalPrecio)}
+                hint="Monto total por servicios prestados"
+                accent="blue"
+              />
+              <KpiCard
+                label="Total recaudado"
+                value={formatMoney(kpis.finanzas.total)}
+                hint="Monto real recaudado"
+                accent="emerald"
+              />
+            </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 label="Efectivo"
@@ -301,13 +332,13 @@ export function OperarioKpisDashboard({
                 accent="violet"
               />
               <KpiCard
-                label="Neto rutas cerradas"
-                value={formatMoney(kpis.finanzas.netoRutas)}
-                hint={
-                  kpis.finanzas.promedioPorRutaCerrada != null
-                    ? `Prom. ${formatMoney(kpis.finanzas.promedioPorRutaCerrada)} por ruta cerrada`
-                    : `Gastos: ${formatMoney(kpis.finanzas.gastos)}`
+                label="Promedio por recolección"
+                value={
+                  kpis.finanzas.promedioPorRecoleccion != null
+                    ? formatMoney(kpis.finanzas.promedioPorRecoleccion)
+                    : "—"
                 }
+                hint={`Total recaudado ÷ ${formatKpiNumber(kpis.recolecciones.exitosas)} exitosas`}
                 accent="amber"
               />
             </div>
@@ -327,7 +358,7 @@ export function OperarioKpisDashboard({
                 accent="zinc"
               />
               <KpiCard
-                label="Bolsas retiradas"
+                label="Bolsas llenas"
                 value={formatKpiNumber(kpis.materiales.bolsas)}
                 accent="zinc"
               />
@@ -337,13 +368,6 @@ export function OperarioKpisDashboard({
                 accent="zinc"
               />
             </div>
-          </Section>
-
-          <Section
-            title="Recaudación por día"
-            subtitle="Suma de ingresos en servicios exitosos, agrupado por fecha de ruta"
-          >
-            <OperarioKpiRecaudacionChart serie={kpis.serieDiaria} />
           </Section>
 
           {kpis.porRecolector.length > 0 && (

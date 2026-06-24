@@ -15,10 +15,7 @@ import {
 import {
   esFirmaDigitalImagen,
   formatCantidadBiotachos,
-  formatCantidadBiotachosDetalle,
   formatCantidadBolsas,
-  formatCantidadBolsasDetalle,
-  formatHoraReal,
   formatMoney,
   formatRutaHorario,
   type RecoleccionOperarioRow,
@@ -117,19 +114,15 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
             : `${recolecciones.length} parada${recolecciones.length === 1 ? "" : "s"}`
         }
       >
-        <table className="min-w-[2360px] w-full text-left text-sm">
+        <table className="min-w-[2100px] w-full text-left text-sm">
           <thead className={OPERARIO_TABLE_HEAD_STICKY}>
             <tr>
               <th className={TH}>Horario</th>
               <th className={TH}>Recolector</th>
               <th className={TH}>Nombre cliente</th>
-              <th className={TH}>Horario programado</th>
-              <th className={TH}>Hora real</th>
-              <th className={TH}>Unidad</th>
-              <th className={TH}>Tipo de cliente</th>
               <th className={TH}>Zona</th>
-              <th className={`${TH} text-center`}>Cant. biotachos</th>
-              <th className={`${TH} text-center`}>Cant. bolsas</th>
+              <th className={`${TH} text-center`}>Biotachos llenos</th>
+              <th className={`${TH} text-center`}>Bolsas llenas</th>
               <th className={`${TH} text-right`}>Precio total</th>
               <th className={`${TH} text-right`}>Monto efectivo</th>
               <th className={`${TH} text-right`}>Monto transferencia</th>
@@ -140,13 +133,12 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
               <th className={TH}>Detalle</th>
               <th className={TH}>Firma digital</th>
               <th className={TH}>Nombre firmante</th>
+              <th className={TH}>Unidad</th>
+              <th className={TH}>Tipo de cliente</th>
             </tr>
           </thead>
           <tbody>
             {recolecciones.map((item) => {
-              const bolsasDetalle = formatCantidadBolsasDetalle(item);
-              const biotachosDetalle = formatCantidadBiotachosDetalle(item);
-
               return (
                 <tr
                   key={item.id}
@@ -164,32 +156,15 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
                     <button
                       type="button"
                       onClick={() => setClienteRecoleccionId(item.id)}
-                      className="text-violet-800 underline decoration-violet-200 underline-offset-2 hover:text-violet-950 dark:text-violet-300"
-                    >
-                      {item.hora_programada}
-                    </button>
-                  </td>
-                  <td className={TD}>
-                    <span suppressHydrationWarning>{formatHoraReal(item.hora_real)}</span>
-                  </td>
-                  <TextCell value={item.unidad} maxWidth="100px" />
-                  <TextCell value={formatTipoClienteLabel(item.tipo_servicio)} maxWidth="120px" />
-                  <td className={TD}>
-                    <button
-                      type="button"
-                      onClick={() => setClienteRecoleccionId(item.id)}
                       className="inline-flex"
                     >
                       <ZonaBadge zona={item.zona} />
                     </button>
                   </td>
-                  <td
-                    className={`${TD} text-center`}
-                    title={biotachosDetalle}
-                  >
+                  <td className={`${TD} text-center`}>
                     {formatCantidadBiotachos(item)}
                   </td>
-                  <td className={`${TD} text-center`} title={bolsasDetalle}>
+                  <td className={`${TD} text-center`}>
                     {formatCantidadBolsas(item)}
                   </td>
                   <td className={`${TD} text-right`}>
@@ -227,6 +202,8 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
                     )}
                   </td>
                   <td className={TD}>{item.nombre_firmante || "—"}</td>
+                  <TextCell value={item.unidad} maxWidth="100px" />
+                  <TextCell value={formatTipoClienteLabel(item.tipo_servicio)} maxWidth="120px" />
                 </tr>
               );
             })}
