@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (junio 2026):** **Preparación de insumos** (operario, obligatoria antes del inicio); tabla de rutas con bolsas/biotachos/montos; **Ver detalle** de ruta y de parada (retiro con **cestos**, cobro, firma digital); **Obs. recolector** en tabla Operativo (aparte de obs. de planilla); tipo de cliente **Punto** en planilla y panel; mapa operario con **hora programada**; **tablas con scroll** en Operativo e Historial; recolector: **Maps** desde tu ubicación GPS, **Avisar** WhatsApp, **Tus observaciones** al cargar parada; cierre operario / reactivar; cobro Empresa/Mixto/estándar.
+**Novedades recientes (junio 2026):** **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs (**Monto a recaudar** / **Total recaudado**); gráfico **Recaudación por mes** (total precio vs recaudado); Historial con columnas de montos; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**; cierre operario / reactivar.
 
 ---
 
@@ -108,7 +108,8 @@ Tabla amplia con **scroll vertical** (altura acotada, encabezado fijo al bajar) 
 | **Ver insumos** | Popup con bolsas, kit, cestos, biotachos, ropa, celular al inicio |
 | Descarga, gastos | Combustible, descuento, otros |
 | Recolecciones / exitosos / pendientes / canceladas | Resumen de paradas |
-| **Total recaudado** | Efectivo + transferencia + QR de paradas **visitadas** (igual que Operativo) |
+| **Monto a recaudar** | Suma de precios cargados en paradas visitadas (*monto total por servicios prestados*) |
+| **Total recaudado** | Pagos reales cobrados en campo: efectivo + transferencia + QR (*monto real recaudado*) |
 | Después de gastos / Total efectivo | Efectivo neto tras combustible, descuento y otros gastos de cierre |
 
 Seleccioná una fila para ver sus servicios abajo.
@@ -138,15 +139,27 @@ Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
 **Secciones principales:**
 
-- Resumen: recaudación, servicios exitosos, índice de exitosas, cantidad de rutas
+- Resumen del período: **Monto total por servicios prestados** y **Monto real recaudado**, servicios exitosos, índice de exitosas, cantidad de rutas
 - **Rutas** por estado (en proceso, realizadas, cerradas, suspendidas…). **Realizadas** en KPIs = jornadas que el recolector finalizó (**Realizado** + **Cerrada**); **Cerradas** = solo las que ya tienen cierre operario.
 - **Recolecciones (servicios):** ingresadas, exitosas, canceladas, omitidas, pendientes, índice de exitosas
-- **Por zona:** servicios, tipo de servicio, frecuencia, **bolsas llenas**, efectivo, transferencia, QR, ingreso total
-- **Por recolector:** agendadas, realizadas, % éxito, ingresos
-- Finanzas, operación (km, duración, materiales)
-- Gráfico **Recaudación por mes** (últimos 12 meses visibles; independiente del filtro de fechas; podés recorrer meses anteriores o siguientes)
+- **Por zona:** servicios, tipo de servicio, frecuencia, **bolsas llenas** (solo llenas, sin contar nuevas), efectivo, transferencia, QR, ingreso total
+- **Por recolector:** agendadas, realizadas, % éxito, ingresos (monto real recaudado)
+- **Finanzas:** desglose por medio de pago + resumen de los dos montos + promedio por recolección exitosa
+- Operación (km, duración, materiales)
+- Gráfico **Recaudación por mes** (últimos 12 meses visibles; **no** usa el filtro Desde/Hasta de arriba; dos barras por mes: total precio vs recaudado; podés recorrer meses anteriores o siguientes)
 
-**Descargar:** **Descargar KPIs (CSV)** exporta todo el contenido del período activo.
+#### Los dos montos (rutas y KPIs)
+
+En tablas de rutas, resumen de KPIs y gráfico mensual se distinguen:
+
+| Nombre en KPIs | En tablas de rutas | Qué incluye |
+|----------------|-------------------|-------------|
+| **Monto total por servicios prestados** | **Monto a recaudar** | Suma de los precios calculados en cada parada **visitada** |
+| **Monto real recaudado** | **Total recaudado** | Suma de lo cobrado en campo: efectivo + transferencia + QR en visitadas |
+
+Si un cliente pagó de más o de menos respecto al precio, los dos montos pueden diferir.
+
+**Descargar:** **Descargar KPIs (CSV)** exporta el resumen del período filtrado y la serie mensual (48 meses) con ambos montos.
 
 > En toda esta sección, **Recolecciones (servicios)** = paradas de la planilla/campo (no confundir con otras entidades del negocio).
 
@@ -177,8 +190,8 @@ Cada fila incluye, entre otros:
 | **Ver insumos** | Popup con lo que declaró el recolector al iniciar (bolsas, kit, cestos, biotachos, ropa, celular) |
 | **Preparación** | Formulario obligatorio del operario antes del inicio (mismos tipos de insumo que el recolector). **Completar** (ámbar) hasta guardar; **Ver prep.** (verde) cuando ya está listo |
 | Cierre recolector / operario | Fechas de cierre |
-| **Monto a recaudar** | Suma de precios cargados en paradas visitadas |
-| **Total recaudado** | Efectivo + transferencia + QR de paradas visitadas |
+| **Monto a recaudar** | Monto total por servicios prestados (suma de precios en visitadas) |
+| **Total recaudado** | Monto real recaudado (efectivo + transferencia + QR en visitadas) |
 | Observaciones | Notas del operario |
 
 **Acciones por ruta:**
@@ -392,8 +405,8 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 
 ### 4.2 Historial y KPIs
 
-- **Historial:** consulta de jornadas cerradas; mismas tablas con **scroll interno** que en Operativo; **Descargar historial (CSV)** para exportar rutas + servicios
-- **KPIs:** indicadores del período; usá **Desde/Hasta** para el rango que necesites; **Descargar KPIs (CSV)**
+- **Historial:** consulta de jornadas cerradas; tablas con **Monto a recaudar** y **Total recaudado**; **Descargar historial (CSV)** incluye ambos montos por ruta
+- **KPIs:** indicadores del período; usá **Desde/Hasta** para el rango que necesites; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
 
@@ -823,6 +836,8 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Cierre del recolector** | Datos que el recolector completa al finalizar |
 | **Ruta suspendida** | Pausada por el operario; el recolector no puede operarla |
 | **KPIs** | Indicadores agregados por período (staff) |
+| **Monto a recaudar** | Monto total por servicios prestados (suma de precios en visitadas) |
+| **Total recaudado** | Monto real recaudado (pagos en campo: efectivo + transferencia + QR) |
 | **Unidad** | Hogar, Empresa o Puntos (planilla); en Empresa el cobro no varía por bolsas llenas |
 | **Tipo de cliente** | Reciclaje, Mixto, Orgánico o **Punto** (desplegable al editar). **Punto** con Unidad Empresa → cobro especial |
 | **Empresa + Punto** | En base: Unidad `Empresa` + Tipo `Punto`; retiro en campo con bolsas hogar / punto / vendidas |
