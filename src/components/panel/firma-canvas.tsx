@@ -18,6 +18,14 @@ type Props = {
   className?: string;
 };
 
+function setupContext(ctx: CanvasRenderingContext2D, ratio: number) {
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#111827";
+}
+
 export const FirmaCanvas = forwardRef<FirmaCanvasRef, Props>(function FirmaCanvas(
   { disabled = false, className = "" },
   ref,
@@ -43,23 +51,45 @@ export const FirmaCanvas = forwardRef<FirmaCanvasRef, Props>(function FirmaCanva
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const resize = () => {
+    const syncSize = () => {
       const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+
       const ratio = window.devicePixelRatio || 1;
-      canvas.width = Math.floor(rect.width * ratio);
-      canvas.height = Math.floor(rect.height * ratio);
+      const nextWidth = Math.floor(rect.width * ratio);
+      const nextHeight = Math.floor(rect.height * ratio);
+
+      // Asignar width/height al canvas lo borra siempre: evitar si no cambió el tamaño.
+      if (canvas.width === nextWidth && canvas.height === nextHeight) return;
+
+      const snapshot =
+        hasStrokeRef.current && canvas.width > 0 && canvas.height > 0
+          ? canvas.toDataURL("image/png")
+          : null;
+
+      canvas.width = nextWidth;
+      canvas.height = nextHeight;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "#111827";
+      setupContext(ctx, ratio);
+
+      if (!snapshot) return;
+
+      const img = new Image();
+      img.onload = () => {
+        const ctxAfter = canvas.getContext("2d");
+        if (!ctxAfter) return;
+        setupContext(ctxAfter, ratio);
+        ctxAfter.drawImage(img, 0, 0, rect.width, rect.height);
+        hasStrokeRef.current = true;
+      };
+      img.src = snapshot;
     };
 
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+    syncSize();
+    const observer = new ResizeObserver(syncSize);
+    observer.observe(canvas);
+    return () => observer.disconnect();
   }, []);
 
   function getPoint(e: React.PointerEvent<HTMLCanvasElement>) {
@@ -75,6 +105,7 @@ export const FirmaCanvas = forwardRef<FirmaCanvasRef, Props>(function FirmaCanva
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
+    e.preventDefault();
     drawingRef.current = true;
     canvas.setPointerCapture(e.pointerId);
     const { x, y } = getPoint(e);
@@ -96,7 +127,9 @@ export const FirmaCanvas = forwardRef<FirmaCanvasRef, Props>(function FirmaCanva
   function endStroke(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!drawingRef.current) return;
     drawingRef.current = false;
-    canvasRef.current?.releasePointerCapture(e.pointerId);
+    if (canvasRef.current?.hasPointerCapture(e.pointerId)) {
+      canvasRef.current.releasePointerCapture(e.pointerId);
+    }
   }
 
   return (

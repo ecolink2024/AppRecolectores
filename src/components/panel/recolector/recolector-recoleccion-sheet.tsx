@@ -6,7 +6,7 @@ import {
   formatRecolectorMoney,
   type RecolectorRecoleccionDetalle,
 } from "@/lib/domain/recolector-ruta";
-import { buildWhatsAppHrefRecoleccion } from "@/lib/whatsapp";
+import { buildWhatsAppHrefCliente } from "@/lib/whatsapp";
 
 import { RecolectorParadaDatosClienteRows } from "@/components/panel/recolector/recolector-parada-datos-cliente";
 
@@ -41,7 +41,7 @@ export function RecolectorRecoleccionSheet({
   if (!open || !recoleccion) return null;
 
   const telefono = recoleccion.telefonoNormalizado || recoleccion.telefono;
-  const whatsappHref = buildWhatsAppHrefRecoleccion(telefono, recolectorNombre);
+  const whatsappHref = buildWhatsAppHrefCliente(telefono);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">

@@ -17,6 +17,14 @@ import {
   type RecolectorRutaDetalle,
 } from "@/lib/domain/recolector-ruta";
 import { recoleccionCerradaParaRecolector } from "@/lib/domain/recolector-recoleccion-campo";
+import {
+  recoleccionCardActionHintClass,
+  recoleccionCardEstadoBadgeClass,
+  recoleccionCardOrdenClass,
+  recoleccionCardPressableClass,
+  recoleccionCardSecondaryButtonClass,
+  recoleccionCardShellClass,
+} from "@/lib/domain/recolector-recoleccion-card-styles";
 import { mensajeBloqueoSuspension } from "@/lib/domain/ruta-estado-transiciones";
 import {
   buildWhatsAppAvisosRecolecciones,
@@ -353,11 +361,11 @@ export function RecolectorRutaDetalle({
                 : recoleccionCerrada
                   ? "Ver carga →"
                   : "Cargar en campo →";
-              const cardShellClass =
-                "w-full rounded-2xl border border-zinc-200 bg-white text-left shadow-sm dark:border-zinc-800 dark:bg-zinc-900";
+              const cardShellClass = recoleccionCardShellClass(item.estado);
+              const pressableClass = recoleccionCardPressableClass(item.estado);
               const cardMain = (
                 <div className="flex gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  <span className={recoleccionCardOrdenClass(item.estado)}>
                     {item.orden}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -365,32 +373,30 @@ export function RecolectorRutaDetalle({
                       <p className="truncate font-semibold text-zinc-900 dark:text-zinc-50">
                         {item.nombre}
                       </p>
-                      <span className="shrink-0 text-xs text-zinc-500">{item.hora}</span>
+                      <span className="shrink-0 text-xs text-zinc-600 dark:text-zinc-400">
+                        {item.hora}
+                      </span>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    <p className="mt-1 line-clamp-2 text-sm text-zinc-700 dark:text-zinc-300">
                       {item.direccion}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          recoleccionCerrada
-                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                            : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                        }`}
-                      >
+                      <span className={recoleccionCardEstadoBadgeClass(item.estado)}>
                         {item.estadoLabel}
                       </span>
                       {item.zona && (
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                        <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs font-medium text-zinc-800 dark:bg-white/10 dark:text-zinc-200">
                           {item.zona}
                         </span>
                       )}
                       {puedeIrACarga ? (
-                        <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                        <span className={recoleccionCardActionHintClass(item.estado)}>
                           {labelCarga}
                         </span>
                       ) : (
-                        <span className="text-xs font-medium text-zinc-500">Ver detalle →</span>
+                        <span className={recoleccionCardActionHintClass(item.estado)}>
+                          Ver detalle →
+                        </span>
                       )}
                     </div>
                   </div>
@@ -403,7 +409,7 @@ export function RecolectorRutaDetalle({
                     <div className={cardShellClass}>
                       <Link
                         href={`/panel/mis-rutas/${ruta.id}/recolecciones/${item.id}`}
-                        className="block p-4 pb-2 active:scale-[0.99] active:bg-zinc-50 dark:active:bg-zinc-800"
+                        className={`block p-4 pb-2 active:scale-[0.99] ${pressableClass}`}
                       >
                         {cardMain}
                       </Link>
@@ -412,7 +418,7 @@ export function RecolectorRutaDetalle({
                         <button
                           type="button"
                           onClick={() => setSelectedId(item.id)}
-                          className="inline-flex min-h-[1.75rem] items-center rounded-full border border-zinc-200 bg-zinc-50 px-2.5 text-xs font-semibold text-zinc-700 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:active:bg-zinc-700"
+                          className={recoleccionCardSecondaryButtonClass(item.estado)}
                         >
                           Info
                         </button>
@@ -428,7 +434,7 @@ export function RecolectorRutaDetalle({
                     <button
                       type="button"
                       onClick={() => setSelectedId(item.id)}
-                      className="block w-full p-4 pb-2 text-left active:scale-[0.99] active:bg-zinc-50 dark:active:bg-zinc-800"
+                      className={`block w-full p-4 pb-2 text-left active:scale-[0.99] ${pressableClass}`}
                     >
                       {cardMain}
                     </button>

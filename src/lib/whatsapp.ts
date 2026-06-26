@@ -19,10 +19,20 @@ export function buildWhatsAppHrefRecoleccion(
   return buildWhatsAppUrl(phone, buildWhatsAppAvisoRecoleccion(recolectorNombre));
 }
 
-export function buildWhatsAppUrl(phone: string, text: string): string {
+/** Chat directo con el cliente, sin mensaje precargado. */
+export function buildWhatsAppHrefCliente(telefono: string | null | undefined): string {
+  const phone = telefono?.trim();
+  if (!phone) return "";
+  return buildWhatsAppUrl(phone);
+}
+
+export function buildWhatsAppUrl(phone: string, text?: string): string {
   const digits = phone.replace(/\D/g, "");
   if (!digits) return "";
-  return `https://wa.me/${digits}?${new URLSearchParams({ text }).toString()}`;
+  const base = `https://wa.me/${digits}`;
+  const trimmed = text?.trim();
+  if (!trimmed) return base;
+  return `${base}?${new URLSearchParams({ text: trimmed }).toString()}`;
 }
 
 export type WhatsAppAvisoRecoleccion = {

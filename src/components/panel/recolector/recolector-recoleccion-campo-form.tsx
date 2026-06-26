@@ -16,7 +16,7 @@ import {
   buildPrecioCobroDetalle,
   type PrecioCobroDetalle,
 } from "@/lib/domain/sistema-parametros";
-import { buildWhatsAppHrefRecoleccion } from "@/lib/whatsapp";
+import { buildWhatsAppHrefCliente } from "@/lib/whatsapp";
 
 type Props = {
   data: RecoleccionCampoFormData;
@@ -30,8 +30,8 @@ const inputClass =
 export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNombre }: Props) {
   const router = useRouter();
   const whatsappHref = useMemo(
-    () => buildWhatsAppHrefRecoleccion(data.telefono, recolectorNombre),
-    [data.telefono, recolectorNombre],
+    () => buildWhatsAppHrefCliente(data.telefono),
+    [data.telefono],
   );
   const soloLectura = data.soloLectura;
   const [motivoCancelacion, setMotivoCancelacion] = useState(data.motivoCancelacion);
