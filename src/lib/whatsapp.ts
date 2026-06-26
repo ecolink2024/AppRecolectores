@@ -9,7 +9,16 @@ export function buildWhatsAppAvisoRecoleccion(recolectorNombre: string): string 
   ].join("\n");
 }
 
-/** Abre WhatsApp (app o web) con texto precargado. `phone`: +54… o dígitos. */
+/** Enlace wa.me para avisar al cliente (mismo mensaje que «Avisar» en la ruta). */
+export function buildWhatsAppHrefRecoleccion(
+  telefono: string | null | undefined,
+  recolectorNombre: string,
+): string {
+  const phone = telefono?.trim();
+  if (!phone) return "";
+  return buildWhatsAppUrl(phone, buildWhatsAppAvisoRecoleccion(recolectorNombre));
+}
+
 export function buildWhatsAppUrl(phone: string, text: string): string {
   const digits = phone.replace(/\D/g, "");
   if (!digits) return "";

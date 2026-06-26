@@ -6,6 +6,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { FirmaCanvas, type FirmaCanvasRef } from "@/components/panel/firma-canvas";
 import { FirmaDigitalImage } from "@/components/panel/firma-digital-image";
+import { RecolectorParadaDatosClienteRows } from "@/components/panel/recolector/recolector-parada-datos-cliente";
 
 import {
   type RecoleccionCampoFormData,
@@ -15,17 +16,23 @@ import {
   buildPrecioCobroDetalle,
   type PrecioCobroDetalle,
 } from "@/lib/domain/sistema-parametros";
+import { buildWhatsAppHrefRecoleccion } from "@/lib/whatsapp";
 
 type Props = {
   data: RecoleccionCampoFormData;
   rutaNombre: string;
+  recolectorNombre: string;
 };
 
 const inputClass =
   "w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-900 outline-none focus:border-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50";
 
-export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
+export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNombre }: Props) {
   const router = useRouter();
+  const whatsappHref = useMemo(
+    () => buildWhatsAppHrefRecoleccion(data.telefono, recolectorNombre),
+    [data.telefono, recolectorNombre],
+  );
   const soloLectura = data.soloLectura;
   const [motivoCancelacion, setMotivoCancelacion] = useState(data.motivoCancelacion);
   const [bolsasLlenas, setBolsasLlenas] = useState(data.bolsasLlenas);
@@ -196,6 +203,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
           esCancelacion={esCancelacion}
           precioRetiroLabel={precioRetiroLabel}
           cobroDetalle={cobroDetalle}
+          whatsappHref={whatsappHref}
         />
       ) : (
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -209,14 +217,25 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre }: Props) {
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
             Datos del cliente
           </h2>
-          <dl className="mt-3 space-y-2 text-sm">
-            <ReadOnlyRow label="Dirección" value={data.direccion} />
-            <ReadOnlyRow label="Cliente" value={data.nombre} />
-            {data.unidad && <ReadOnlyRow label="Unidad" value={data.unidad} />}
-            {data.tipoServicio && (
-              <ReadOnlyRow label="Tipo de servicio" value={data.tipoServicio} />
-            )}
-            <ReadOnlyRow label="Hora programada" value={data.horaProgramada} />
+          <p className="mt-0.5 text-xs font-medium text-zinc-900 dark:text-zinc-50">{data.nombre}</p>
+          <RecolectorParadaDatosClienteRows
+            datos={{
+              direccion: data.direccion,
+              depto: data.depto,
+              barrio: data.barrio,
+              zona: data.zona,
+              horario: data.horaProgramada,
+              servicio: data.tipoServicio,
+              unidad: data.unidad,
+              frecuencia: data.frecuencia,
+              precio: data.precio,
+              deuda: data.deuda,
+              notaEncargado: data.notaEncargado,
+              telefono: data.telefono,
+            }}
+            whatsappHref={whatsappHref}
+          />
+          <dl className="mt-3 space-y-2 border-t border-zinc-200 pt-3 text-sm dark:border-zinc-700">
             <ReadOnlyRow label="Obs. operario" value={data.observaciones || "—"} />
           </dl>
         </section>
@@ -391,11 +410,13 @@ function RecoleccionCampoSoloLectura({
   esCancelacion,
   precioRetiroLabel,
   cobroDetalle,
+  whatsappHref,
 }: {
   data: RecoleccionCampoFormData;
   esCancelacion: boolean;
   precioRetiroLabel: string;
   cobroDetalle: ReturnType<typeof buildPrecioCobroDetalle>;
+  whatsappHref: string;
 }) {
   return (
     <div className="space-y-4">
@@ -403,10 +424,25 @@ function RecoleccionCampoSoloLectura({
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
           Datos del cliente
         </h2>
-        <dl className="mt-3 space-y-2 text-sm">
-          <ReadOnlyRow label="Dirección" value={data.direccion} />
-          <ReadOnlyRow label="Cliente" value={data.nombre} />
-          <ReadOnlyRow label="Hora programada" value={data.horaProgramada} />
+        <p className="mt-0.5 text-xs font-medium text-zinc-900 dark:text-zinc-50">{data.nombre}</p>
+        <RecolectorParadaDatosClienteRows
+          datos={{
+            direccion: data.direccion,
+            depto: data.depto,
+            barrio: data.barrio,
+            zona: data.zona,
+            horario: data.horaProgramada,
+            servicio: data.tipoServicio,
+            unidad: data.unidad,
+            frecuencia: data.frecuencia,
+            precio: data.precio,
+            deuda: data.deuda,
+            notaEncargado: data.notaEncargado,
+            telefono: data.telefono,
+          }}
+          whatsappHref={whatsappHref}
+        />
+        <dl className="mt-3 space-y-2 border-t border-zinc-200 pt-3 text-sm dark:border-zinc-700">
           <ReadOnlyRow label="Estado" value={data.estadoLabel} />
           <ReadOnlyRow label="Obs. operario" value={data.observaciones || "—"} />
         </dl>

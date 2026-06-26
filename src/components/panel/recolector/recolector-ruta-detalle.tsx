@@ -409,6 +409,13 @@ export function RecolectorRutaDetalle({
                       </Link>
                       <div className="flex flex-wrap items-center gap-2 px-4 pb-4 pl-[3.75rem]">
                         <RecoleccionMapsButton item={item} />
+                        <button
+                          type="button"
+                          onClick={() => setSelectedId(item.id)}
+                          className="inline-flex min-h-[1.75rem] items-center rounded-full border border-zinc-200 bg-zinc-50 px-2.5 text-xs font-semibold text-zinc-700 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:active:bg-zinc-700"
+                        >
+                          Info
+                        </button>
                       </div>
                     </div>
                   </li>

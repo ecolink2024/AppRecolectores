@@ -6,7 +6,9 @@ import {
   formatRecolectorMoney,
   type RecolectorRecoleccionDetalle,
 } from "@/lib/domain/recolector-ruta";
-import { buildWhatsAppAvisoRecoleccion, buildWhatsAppUrl } from "@/lib/whatsapp";
+import { buildWhatsAppHrefRecoleccion } from "@/lib/whatsapp";
+
+import { RecolectorParadaDatosClienteRows } from "@/components/panel/recolector/recolector-parada-datos-cliente";
 
 type Props = {
   open: boolean;
@@ -39,9 +41,7 @@ export function RecolectorRecoleccionSheet({
   if (!open || !recoleccion) return null;
 
   const telefono = recoleccion.telefonoNormalizado || recoleccion.telefono;
-  const whatsappHref = telefono
-    ? buildWhatsAppUrl(telefono, buildWhatsAppAvisoRecoleccion(recolectorNombre))
-    : "";
+  const whatsappHref = buildWhatsAppHrefRecoleccion(telefono, recolectorNombre);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
@@ -76,20 +76,26 @@ export function RecolectorRecoleccionSheet({
           </span>
         </div>
 
-        <dl className="mt-5 space-y-3 text-sm">
-          <DetailRow label="Dirección" value={recoleccion.direccion} />
-          {recoleccion.depto && <DetailRow label="Depto" value={recoleccion.depto} />}
-          {recoleccion.barrio && <DetailRow label="Barrio" value={recoleccion.barrio} />}
-          {recoleccion.zona && <DetailRow label="Zona" value={recoleccion.zona} />}
-          <DetailRow label="Horario" value={recoleccion.hora} />
-          {recoleccion.tipoServicio && (
-            <DetailRow label="Servicio" value={recoleccion.tipoServicio} />
-          )}
-          {recoleccion.unidad && <DetailRow label="Unidad" value={recoleccion.unidad} />}
-          {recoleccion.frecuencia && (
-            <DetailRow label="Frecuencia" value={recoleccion.frecuencia} />
-          )}
-          {recoleccion.precio && <DetailRow label="Precio" value={recoleccion.precio} />}
+        <RecolectorParadaDatosClienteRows
+          className="mt-5 space-y-3 text-sm"
+          datos={{
+            direccion: recoleccion.direccion,
+            depto: recoleccion.depto,
+            barrio: recoleccion.barrio,
+            zona: recoleccion.zona,
+            horario: recoleccion.hora,
+            servicio: recoleccion.tipoServicio,
+            unidad: recoleccion.unidad,
+            frecuencia: recoleccion.frecuencia,
+            precio: recoleccion.precio,
+            deuda: recoleccion.deuda,
+            notaEncargado: recoleccion.notaEncargado,
+            telefono: recoleccion.telefonoNormalizado || recoleccion.telefono,
+          }}
+          whatsappHref={whatsappHref}
+        />
+
+        <dl className="mt-4 space-y-3 text-sm">
           {(recoleccion.montoEfectivo != null || recoleccion.montoTransferencia != null) && (
             <>
               <DetailRow
@@ -105,21 +111,7 @@ export function RecolectorRecoleccionSheet({
           {recoleccion.observaciones && (
             <DetailRow label="Observaciones" value={recoleccion.observaciones} multiline />
           )}
-          {recoleccion.notaEncargado && (
-            <DetailRow label="Nota encargado" value={recoleccion.notaEncargado} multiline />
-          )}
         </dl>
-
-        {whatsappHref && (
-          <a
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 flex min-h-[3rem] items-center justify-center rounded-2xl bg-[#25D366] text-base font-semibold text-white active:bg-[#1da851]"
-          >
-            WhatsApp · {recoleccion.telefono}
-          </a>
-        )}
 
         <button
           type="button"

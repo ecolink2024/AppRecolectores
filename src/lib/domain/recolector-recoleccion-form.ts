@@ -19,8 +19,16 @@ export type RecoleccionCampoFormData = {
   orden: number;
   direccion: string;
   nombre: string;
+  depto: string | null;
+  barrio: string | null;
+  zona: string | null;
   unidad: string | null;
   tipoServicio: string | null;
+  frecuencia: string | null;
+  precio: string | null;
+  deuda: string | null;
+  notaEncargado: string | null;
+  telefono: string | null;
   esEmpresaPunto: boolean;
   horaProgramada: string;
   observaciones: string | null;
@@ -75,8 +83,16 @@ export function buildRecoleccionCampoFormData(
     orden: item.orden,
     direccion: item.direccion,
     nombre: item.nombre,
+    depto: item.depto,
+    barrio: item.barrio,
+    zona: item.zona,
     unidad: item.unidad,
     tipoServicio: item.tipo_servicio,
+    frecuencia: item.frecuencia,
+    precio: item.precio?.trim() || formatPrecioDisplay(precioRetiro),
+    deuda: item.deuda,
+    notaEncargado: item.nota_encargado,
+    telefono: item.telefono_normalizado?.trim() || item.telefono?.trim() || null,
     esEmpresaPunto,
     horaProgramada: String(item.hora).slice(0, 5),
     observaciones: item.observaciones,

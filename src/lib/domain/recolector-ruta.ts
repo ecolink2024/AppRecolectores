@@ -77,8 +77,9 @@ export type RecolectorRecoleccionDetalle = RecolectorRecoleccionPreview & {
   unidad: string | null;
   frecuencia: string | null;
   precio: string | null;
-  observaciones: string | null;
+  deuda: string | null;
   notaEncargado: string | null;
+  observaciones: string | null;
   montoEfectivo: number | null;
   montoTransferencia: number | null;
 };
@@ -227,6 +228,7 @@ export function buildRecolectorRecoleccionDetalle(
     unidad: item.unidad,
     frecuencia: item.frecuencia,
     precio: item.precio,
+    deuda: item.deuda,
     observaciones: item.observaciones,
     notaEncargado: item.nota_encargado,
     montoEfectivo: item.monto_efectivo != null ? num(item.monto_efectivo) : null,

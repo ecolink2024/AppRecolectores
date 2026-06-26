@@ -102,5 +102,11 @@ export default async function RecolectorRecoleccionCampoPage({ params }: Props) 
     ruta.estado,
   );
 
-  return <RecolectorRecoleccionCampoForm data={formData} rutaNombre={ruta.nombre} />;
+  return (
+    <RecolectorRecoleccionCampoForm
+      data={formData}
+      rutaNombre={ruta.nombre}
+      recolectorNombre={auth.profile.full_name ?? ""}
+    />
+  );
 }
