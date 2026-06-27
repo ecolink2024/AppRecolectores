@@ -60,7 +60,7 @@ Sistema interno para un **intermediario logístico** que conecta:
 ## Módulos actuales
 
 - **Auth:** superadmin, admin, recolector (`profiles` + Supabase Auth).
-- **Panel operario:** Operativo, Historial, KPIs y Parámetros (`/panel/*`); tablas de rutas/recolecciones con scroll acotado y encabezados fijos (ver [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md) § Tablas con scroll).
+- **Panel operario:** **Operativo** (`borrador`/`activa`/`en_curso`), **Historial** (`completada`/`cerrada`/`cancelada`), **KPIs** (solo historial) y **Parámetros** (`/panel/*`); tablas con scroll acotado (ver [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md) § Tablas con scroll).
 - **Panel recolector:** jornada mobile-first (inicio, carga por parada, Maps, WhatsApp).
 - **Import Sheets:** planilla Google → `rutas` + `ruta_recolecciones`.
 - **Organizaciones / recolecciones legacy:** tablas tempranas; el flujo operativo actual usa `rutas` + `ruta_recolecciones`.

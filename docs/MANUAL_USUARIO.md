@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (junio 2026):** **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs (**Monto a recaudar** / **Total recaudado**); gráfico **Recaudación por mes** (total precio vs recaudado); Historial con columnas de montos; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**; cierre operario / reactivar.
+**Novedades recientes (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
 
 ---
 
@@ -52,7 +52,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 | Ver **Historial** (rutas cerradas / canceladas) | ✅ | ✅ | ❌ |
 | Ver **KPIs** (indicadores y exportación) | ✅ | ✅ | ❌ |
 | Configurar **Parámetros** (precios del sistema) | ✅ | ✅ | ❌ |
-| Suspender / reactivar / cierre operario en rutas | ✅ | ✅ | ❌ |
+| Reactivar / cierre operario en rutas (Historial) | ✅ | ✅ | ❌ |
 | Descargar CSV (KPIs e Historial) | ✅ | ✅ | ❌ |
 | Crear usuarios **operario** | ✅ | ❌ | ❌ |
 | Crear usuarios **recolector** | ✅ | ✅ | ❌ |
@@ -75,7 +75,7 @@ El superadmin es la cuenta principal de administración (`somos@ecolink.com.ar`)
 |------|------|----------|
 | **Operativo** | `/panel` | Rutas pendientes o en proceso |
 | **KPIs** | `/panel/kpis` | Indicadores y exportación |
-| **Historial** | `/panel/historial` | Rutas finalizadas, cerradas o canceladas |
+| **Historial** | `/panel/historial` | Rutas realizadas (pendientes de cierre), cerradas o canceladas |
 | **Parámetros** | `/panel/parametros` | Precios globales con historial |
 | **Usuarios** | `/panel/usuarios` | Alta y gestión de cuentas |
 
@@ -89,7 +89,19 @@ Al ingresar llegás a **Operativo** (menú superior). Muestra rutas **pendientes
 
 Menú **Historial** → `/panel/historial`
 
-Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierre operario), **Cerradas** (con cierre operario) o **Canceladas**. En rutas **Realizado** podés **Editar**, **Reactivar** (vuelven a Operativo en En proceso) o aplicar **Cierre operario** (pasan a Cerrada). En rutas ya cerradas o canceladas podés **Editar** datos administrativos de la ruta.
+Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierre operario), **Cerradas** (con cierre operario) o **Canceladas**.
+
+**Acciones por ruta (columna Acciones):**
+
+| Estado | Botones disponibles |
+|--------|---------------------|
+| **Realizado** | **Editar**, **Reactivar**, **Cierre operario** |
+| **Cerrada** o **Cancelada** | **Editar** (datos administrativos de la ruta) |
+
+- **Reactivar** (solo Realizado): la ruta vuelve a **Operativo** en **En proceso**; se borran los datos de cierre del recolector para que pueda seguir operándola.
+- **Cierre operario** (solo Realizado): la ruta pasa a **Cerrada** (sigue en Historial).
+
+Las paradas de rutas en Historial son de **solo consulta**. Para modificar paradas de una ruta **Realizada**, primero **Reactivar** desde Historial.
 
 **Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta **todas** las rutas del historial y **todos** sus servicios en un archivo Excel-compatible.
 
@@ -111,6 +123,7 @@ Tabla amplia con **scroll vertical** (altura acotada, encabezado fijo al bajar) 
 | **Monto a recaudar** | Suma de precios cargados en paradas visitadas (*monto total por servicios prestados*) |
 | **Total recaudado** | Pagos reales cobrados en campo: efectivo + transferencia + QR (*monto real recaudado*) |
 | Después de gastos / Total efectivo | Efectivo neto tras combustible, descuento y otros gastos de cierre |
+| **Acciones** | Editar, Reactivar (Realizado), Cierre operario (Realizado) |
 
 Seleccioná una fila para ver sus servicios abajo.
 
@@ -130,6 +143,8 @@ Menú **KPIs** → `/panel/kpis`
 
 Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
+> **Alcance:** los KPIs incluyen **solo rutas del historial** (`Realizado`, `Cerrada` o `Cancelada`) cuya **fecha de ruta** cae en el rango elegido. Las rutas que siguen en **Operativo** (pendientes o en curso) **no** entran en estos números. Una ruta **Cancelada** cuenta aunque el recolector no la haya finalizado.
+
 **Filtros de fecha:**
 
 | Opción | Uso |
@@ -139,9 +154,9 @@ Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
 **Secciones principales:**
 
-- Resumen del período: **Monto total por servicios prestados** y **Monto real recaudado**, servicios exitosos, índice de exitosas, cantidad de rutas
-- **Rutas** por estado (en proceso, realizadas, cerradas, suspendidas…). **Realizadas** en KPIs = jornadas que el recolector finalizó (**Realizado** + **Cerrada**); **Cerradas** = solo las que ya tienen cierre operario.
-- **Recolecciones (servicios):** ingresadas, exitosas, canceladas, omitidas, pendientes, índice de exitosas
+- Resumen del período: **Monto total por servicios prestados** y **Monto real recaudado**, servicios exitosos, índice de exitosas, cantidad de rutas del historial
+- **Rutas** por estado en historial: **Pendiente cierre** (Realizado sin cierre operario), **Realizadas** (jornadas finalizadas por el recolector, incluye las ya cerradas), **Cerradas**, **Canceladas**
+- **Recolecciones (servicios):** ingresadas (todas las paradas de esas rutas), exitosas, canceladas, omitidas, pendientes, índice de exitosas
 - **Por zona:** servicios, tipo de servicio, frecuencia, **bolsas llenas** (solo llenas, sin contar nuevas), efectivo, transferencia, QR, ingreso total
 - **Por recolector:** agendadas, realizadas, % éxito, ingresos (monto real recaudado)
 - **Finanzas:** desglose por medio de pago + resumen de los dos montos + promedio por recolección exitosa
@@ -154,10 +169,12 @@ En tablas de rutas, resumen de KPIs y gráfico mensual se distinguen:
 
 | Nombre en KPIs | En tablas de rutas | Qué incluye |
 |----------------|-------------------|-------------|
-| **Monto total por servicios prestados** | **Monto a recaudar** | Suma de los precios calculados en cada parada **visitada** |
-| **Monto real recaudado** | **Total recaudado** | Suma de lo cobrado en campo: efectivo + transferencia + QR en visitadas |
+| **Monto total por servicios prestados** | **Monto a recaudar** | Suma de los precios calculados en cada parada **visitada** de rutas del historial en el período |
+| **Monto real recaudado** | **Total recaudado** | Suma de lo cobrado en campo: efectivo + transferencia + QR en paradas **visitadas** de esas rutas |
 
 Si un cliente pagó de más o de menos respecto al precio, los dos montos pueden diferir.
+
+> **Pendientes** en la sección de recolecciones = paradas aún no visitadas dentro de rutas del historial (no confundir con **Pendiente cierre**, que es una ruta Realizada esperando cierre operario).
 
 **Descargar:** **Descargar KPIs (CSV)** exporta el resumen del período filtrado y la serie mensual (48 meses) con ambos montos.
 
@@ -168,10 +185,9 @@ Si un cliente pagó de más o de menos respecto al precio, los dos montos pueden
 | Estado en app | Dónde se ve | Significado |
 |---------------|------------|-------------|
 | Pendiente / En proceso | Operativo | Aún no finalizada por el recolector, o en curso |
-| **Realizado** (`completada`) | Operativo | Recolector finalizó; falta **Cierre operario** del staff |
-| **Suspendida** | Operativo | Pausada por el operario |
+| **Realizado** (`completada`) | **Historial** | Recolector finalizó; falta **Cierre operario** del staff |
 | **Cerrada** | **Historial** | Cierre operario registrado |
-| Cancelada | Historial | Ruta cancelada |
+| Cancelada | Historial | Ruta cancelada (puede estar ahí sin finalización del recolector) |
 
 ### 3.5 Tabla de rutas (Operativo)
 
@@ -206,7 +222,7 @@ Cada fila incluye, entre otros:
 | **Editar** | Cambiar nombre, fecha, turno, estado, recolector, observaciones |
 | **Eliminar** | Borra la ruta y todas sus paradas |
 
-> **Reactivar**, **Cierre operario** y **Editar** de rutas finalizadas están en **Historial** (no en Operativo).
+> En **Operativo** solo **Editar** (más ver detalle, mapa, insumos, preparación). **Reactivar**, **Cierre operario** y **Editar** de rutas **Realizadas** están en **Historial**.
 
 #### Ver detalle de una ruta (popup)
 
@@ -266,15 +282,23 @@ Los campos **Unidad** y **Tipo de cliente** vienen de la planilla o del alta man
 
 ### 3.6 Cierre operario
 
-Cuando el recolector **finalizó** la ruta (estado **Realizado**):
+Cuando el recolector **finalizó** la ruta, esta aparece en **Historial** con estado **Realizado**:
 
-1. En **Operativo**, tocá **Cierre operario** en la fila de la ruta
+1. Menú **Historial** → en la fila de la ruta, tocá **Cierre operario**
 2. Confirmá en dos pasos
-3. La ruta pasa a **Cerrada** y desaparece de Operativo → queda en **Historial**
+3. La ruta pasa a **Cerrada** (sigue en Historial)
 
-Hasta ese momento la ruta sigue en Operativo aunque el recolector ya no pueda editarla.
+El recolector ya no puede editar paradas desde que finalizó; el staff cierra operariamente desde Historial.
 
-### 3.7 Mapa y reorden de paradas
+### 3.7 Reactivar una ruta (Historial)
+
+Si una ruta **Realizada** debe volver a operarse (corregir paradas, reabrir la jornada):
+
+1. Menú **Historial** → tocá **Reactivar** en la fila (solo visible en estado **Realizado**)
+2. Confirmá la acción
+3. La ruta vuelve a **Operativo** en **En proceso**; se borran los datos de cierre del recolector
+
+### 3.8 Mapa y reorden de paradas
 
 1. Seleccioná una ruta
 2. Tocá **Ver mapa**
@@ -283,28 +307,6 @@ Hasta ese momento la ruta sigue en Operativo aunque el recolector ya no pueda ed
 5. Al soltar, el nuevo orden se **guarda automáticamente**
 
 Los marcadores se colorean por **zona** cuando está disponible.
-
-### 3.8 Suspender y reactivar una ruta
-
-Usá **Suspender** cuando una ruta no debe ejecutarse temporalmente (clima, vehículo, cambio de planificación, etc.).
-
-**Suspender:**
-
-1. En la tabla de rutas, tocá **Suspender** (solo visible si la ruta está pendiente o en proceso)
-2. O abrí **Ver detalle** y tocá **Suspender ruta**
-3. Confirmá la acción
-
-**Qué pasa al suspender:**
-
-- La ruta pasa a estado **Suspendida**
-- El recolector la ve en la sección **Suspendidas** de Mis rutas
-- No puede iniciarla, abrir Maps, cargar paradas ni finalizarla
-
-**Reactivar** (Operativo — ruta **Realizado** o **Suspendida**):
-
-1. En **Operativo**, tocá **Reactivar** en la fila de la ruta o abrí **Ver detalle** → **Reactivar ruta**
-2. Confirmá la acción
-3. La ruta pasa a **En proceso**; el recolector puede operarla de nuevo (si estaba en Realizado, se anulan los datos de cierre del recolector)
 
 ### 3.9 Parámetros de sistema
 
@@ -395,30 +397,27 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 6. **Ver detalle** (parada): retiro y cobro cuando ya fue visitada o cancelada
 7. **Ver mapa** para reordenar paradas (cada fila muestra la hora programada)
 8. Seguí el avance cuando el recolector carga en campo
-9. Rutas **Realizadas** → **Cierre operario** cuando corresponda
-10. **Suspender** / **Reactivar** si hace falta
-11. **Historial** o **KPIs** para reportes; exportá CSV si necesitás Excel
-12. **Parámetros** cuando cambien precios
+9. Cuando finaliza, la ruta pasa a **Historial** → **Cierre operario** o **Reactivar** si hace falta
+10. **Historial** o **KPIs** para reportes; exportá CSV si necesitás Excel
+11. **Parámetros** cuando cambien precios
 
 ### 4.2 Historial y KPIs
 
-- **Historial:** consulta de jornadas cerradas; tablas con **Monto a recaudar** y **Total recaudado**; **Descargar historial (CSV)** incluye ambos montos por ruta
-- **KPIs:** indicadores del período; usá **Desde/Hasta** para el rango que necesites; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
+- **Historial:** rutas realizadas, cerradas o canceladas; **Cierre operario** y **Reactivar** en la tabla; **Descargar historial (CSV)** incluye ambos montos por ruta
+- **KPIs:** indicadores **solo del historial** en el período; usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
 
+Ambas acciones están en **Historial** (columna **Acciones**), no en Operativo:
+
 - **Cierre operario:** solo en rutas **Realizadas** (recolector ya finalizó)
-- **Reactivar:** en rutas **Realizadas** (antes del cierre operario) o **Suspendidas**; vuelven a **En proceso**. Si reactivás una Realizada, se borran los datos de cierre del recolector para que pueda volver a finalizar
+- **Reactivar:** solo en rutas **Realizadas**; vuelven a **En proceso** en Operativo. Se borran los datos de cierre del recolector para que pueda volver a finalizar
 
-### 4.4 Suspender una ruta
-
-Mismo flujo que superadmin (sección 3.8): botón **Suspender** en la tabla o en **Ver detalle**. Solo disponible en rutas pendientes o en proceso.
-
-### 4.5 Parámetros de precio
+### 4.4 Parámetros de precio
 
 Menú **Parámetros** → cuatro bloques independientes (cada uno con precio vigente, formulario de alta e historial). Actualizá cuando cambien valores de negocio; el recolector usa automáticamente los vigentes en el cobro (bolsa extra y retiro mixto).
 
-### 4.6 Editar una ruta
+### 4.5 Editar una ruta
 
 Desde **Editar** en la tabla de rutas podés modificar:
 
@@ -430,9 +429,7 @@ Desde **Editar** en la tabla de rutas podés modificar:
 - Observaciones del operario
 - Kilómetros recorridos (cuando corresponda)
 
-También podés cambiar el estado manualmente desde **Editar** (incluido **Suspendida**), aunque lo recomendado es usar el botón **Suspender** / **Reactivar**.
-
-### 4.7 Editar o agregar una recolección (servicio)
+### 4.6 Editar o agregar una recolección (servicio)
 
 Desde la tabla de recolecciones:
 
@@ -452,7 +449,7 @@ Al **crear** o **editar** una recolección manual, además de los datos básicos
 
 > **Rutas Realizadas o Cerradas:** no se pueden agregar recolecciones nuevas. El botón **+ Agregar recolección** queda deshabilitado y muestra el motivo.
 
-### 4.8 Gestión de usuarios (solo recolectores)
+### 4.7 Gestión de usuarios (solo recolectores)
 
 El operario puede:
 
@@ -475,8 +472,8 @@ Barra inferior con dos pestañas:
 
 | Pestaña | Contenido |
 |---------|-----------|
-| **Inicio** | Saludo + rutas de **hoy** (Activas / Completadas / Suspendidas) o, si no hay de hoy, la **Última jornada** |
-| **Mis rutas** | Todas tus rutas, agrupadas en **Activas**, **Completadas** y **Suspendidas** |
+| **Inicio** | Saludo + rutas de **hoy** (Activas / Completadas) o, si no hay de hoy, la **Última jornada** |
+| **Mis rutas** | Todas tus rutas, agrupadas en **Activas** y **Completadas** |
 
 Dentro de cada sección, las rutas se ordenan por fecha (más recientes arriba). En cada tarjeta ves fecha, turno y estado.
 
@@ -490,8 +487,6 @@ Dentro de cada sección, las rutas se ordenan por fecha (más recientes arriba).
    - Km iniciales e **Insumos declarados** (después de iniciar)
    - Botones **Maps** (recorrido), **Avisar** (WhatsApp, tras iniciar) e **Inicio de ruta**
    - Lista de **recolecciones** en orden (cada una con su botón **Maps**)
-
-Si la ruta está **Suspendida**, verás un aviso y no podrás operarla hasta que el operario la reactive.
 
 ### 5.3 Iniciar la ruta (obligatorio antes de cargar paradas)
 
@@ -591,7 +586,7 @@ Una vez que guardaste una parada como **Visitada** o **Cancelada**, la carga que
 
 #### Editar una parada (solo si aún no quedó cerrada)
 
-Mientras la ruta siga **en proceso**, no suspendida y la parada no fue guardada aún, podés cargar o corregir desde **Cargar en campo**.
+Mientras la ruta siga **en proceso** y la parada no fue guardada aún, podés cargar o corregir desde **Cargar en campo**.
 
 ### 5.6 Finalizar la ruta
 
@@ -619,14 +614,14 @@ Cuando terminaste todas las paradas del día:
 - La ruta pasa a **Realizado** (completada en sistema)
 - Ya no podés cargar ni editar paradas (solo consulta)
 - La app te lleva al **Inicio** (dashboard)
-- La ruta aparece en **Completadas** en Mis rutas y en **Operativo** del staff hasta que hagan **Cierre operario**
-- Después del cierre operario pasa a **Cerrada** en **Historial**
+- La ruta aparece en **Completadas** en Mis rutas y en **Historial** del staff (pendiente de **Cierre operario**)
+- Después del cierre operario pasa a **Cerrada** en Historial
 
 ### 5.7 Resumen del flujo del recolector
 
 ```
 Login
-  → Mis rutas (Activas / Completadas / Suspendidas)
+  → Mis rutas (Activas / Completadas)
     → Detalle de ruta
       → Inicio de ruta (km + insumos)     ← una vez por jornada
       → Maps (recorrido a paradas restantes)
@@ -706,18 +701,12 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### Soy recolector y no veo rutas
 
 - Las rutas deben estar **asignadas a tu email** en la planilla (columna Recolector) o en el panel operario
-- Verificá la **fecha** — en Inicio solo aparecen las **activas de hoy**; en Mis rutas están todas (Activas, Completadas, Suspendidas)
-
-### Mi ruta aparece como Suspendida
-
-- El operario la pausó desde el panel. No podés iniciarla ni cargar paradas
-- Contactá al operario para que la reactive desde Ver detalle
+- Verificá la **fecha** — en Inicio solo aparecen las **activas de hoy**; en Mis rutas están todas (Activas y Completadas)
 
 ### No aparece el botón Finalizar ruta / no puedo apretarlo
 
 - Todas las paradas deben estar **Visitadas** o **Canceladas**
 - La ruta debe estar **iniciada** (en proceso)
-- Si está **suspendida**, primero tiene que reactivarla el operario
 - Si el botón está deshabilitado, leé el **mensaje debajo** (ej: faltan paradas, ruta no iniciada)
 
 ### No puedo cargar gastos al finalizar
@@ -735,15 +724,15 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 - Si la ruta está **Realizada** o **Cerrada**, no se pueden agregar paradas nuevas
 - El botón **+ Agregar recolección** queda deshabilitado con el motivo visible
 
-### No veo el botón Reactivar
+### No veo el botón Reactivar o Cierre operario
 
-- Solo está en **Operativo**, no en Historial
-- Solo para rutas **Realizadas** o **Suspendidas**
+- Están en **Historial**, no en Operativo
+- **Reactivar** y **Cierre operario** solo para rutas **Realizadas**
 
 ### El CSV de KPIs o Historial está vacío o incompleto
 
 - Verificá el **rango de fechas** (KPIs) o que haya rutas en Historial
-- KPIs filtra por **fecha de la ruta**, no por fecha de carga de cada parada
+- KPIs filtra por **fecha de la ruta** y **solo incluye rutas del historial** (Realizado, Cerrada, Cancelada), no las que siguen en Operativo
 
 ### El total a cobrar no coincide con lo que esperaba (recolector / operario)
 
@@ -765,7 +754,6 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### No puedo cargar una parada
 
 - ¿Iniciaste la ruta? Sin inicio de ruta solo podés **ver** el detalle, no cargar
-- ¿La ruta está **suspendida**? Avisá al operario
 - Revisá que la suma de pagos **no sea menor** al total (puede ser mayor)
 - Si cancelás, solo necesitás motivo + firmante + firma
 
@@ -825,14 +813,14 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Obs. recolector** | Notas opcionales que escribe el recolector al cargar la parada |
 | **Obs. operario** | Notas de planilla o del operario al crear/editar la parada |
 | **Turno** | Mañana (**8:30–13:30**) o Tarde (**14:30–20:30**); define en qué ruta cae cada parada |
-| **Realizado** | Recolector finalizó; sigue en Operativo hasta cierre operario |
+| **Realizado** | Recolector finalizó; la ruta está en **Historial** hasta cierre operario |
 | **Cerrada** | Cierre operario hecho; la ruta está en Historial |
-| **Cierre operario** | Acción del staff que archiva una ruta Realizada |
+| **Cierre operario** | Acción del staff en Historial que archiva una ruta Realizada |
+| **Pendiente cierre** | KPI: ruta Realizada en historial sin cierre operario aún |
 | **Inicio de ruta** | Registro de km y insumos al comenzar la jornada |
 | **Finalizar ruta** | Cierre de la jornada con formulario (km finales, gastos, observaciones) |
 | **Cierre del recolector** | Datos que el recolector completa al finalizar |
-| **Ruta suspendida** | Pausada por el operario; el recolector no puede operarla |
-| **KPIs** | Indicadores agregados por período (staff) |
+| **KPIs** | Indicadores agregados por período (staff); solo rutas del historial |
 | **Monto a recaudar** | Monto total por servicios prestados (suma de precios en visitadas) |
 | **Total recaudado** | Monto real recaudado (pagos en campo: efectivo + transferencia + QR) |
 | **Unidad** | Hogar, Empresa o Puntos (planilla); en Empresa el cobro no varía por bolsas llenas |

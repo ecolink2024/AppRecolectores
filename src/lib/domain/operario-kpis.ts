@@ -210,7 +210,8 @@ export type OperarioKpis = {
     total: number;
     cerradas: number;
     realizadas: number;
-    enProceso: number;
+    /** Realizado sin cierre operario (`completada`). */
+    pendientesCierre: number;
     canceladas: number;
     porEstado: KpiEstadoRuta[];
   };
@@ -337,7 +338,7 @@ export function buildOperarioKpis(
 
   let cerradas = 0;
   let realizadas = 0;
-  let enProceso = 0;
+  let pendientesCierre = 0;
   let canceladas = 0;
   let kmRecorridos = 0;
   let rutasFinalizadasRecolector = 0;
@@ -352,7 +353,7 @@ export function buildOperarioKpis(
 
     if (ruta.estado === "cerrada") cerradas += 1;
     if (ruta.estado === "completada" || ruta.estado === "cerrada") realizadas += 1;
-    if (["borrador", "activa", "en_curso", "suspendida"].includes(ruta.estado)) enProceso += 1;
+    if (ruta.estado === "completada") pendientesCierre += 1;
     if (ruta.estado === "cancelada") canceladas += 1;
 
     kmRecorridos += kmRuta(ruta);
@@ -497,7 +498,7 @@ export function buildOperarioKpis(
       total: rutas.length,
       cerradas,
       realizadas,
-      enProceso,
+      pendientesCierre,
       canceladas,
       porEstado,
     },

@@ -6,6 +6,9 @@ import { requireAuth } from "@/lib/auth/session";
 import { isStaffRole } from "@/lib/domain/constants";
 import { isSupabaseAdminConfigured } from "@/lib/env";
 
+/** Siempre datos frescos: los KPIs dependen de rutas/recolecciones en Supabase. */
+export const dynamic = "force-dynamic";
+
 type Props = {
   searchParams: Promise<{ periodo?: string; desde?: string; hasta?: string }>;
 };

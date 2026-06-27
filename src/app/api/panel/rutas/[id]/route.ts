@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
@@ -88,6 +89,10 @@ export async function DELETE(_request: Request, { params }: Props) {
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
+
+  revalidatePath("/panel");
+  revalidatePath("/panel/historial");
+  revalidatePath("/panel/kpis");
 
   return NextResponse.json({ ok: true });
 }

@@ -117,6 +117,8 @@ export function OperarioKpisDashboard({
             <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
               {kpis.periodo.etiqueta} ·{" "}
               {formatRutaFecha(kpis.periodo.desde)} — {formatRutaFecha(kpis.periodo.hasta)}
+              {" · "}
+              Solo rutas del historial (finalizadas, cerradas o canceladas)
             </p>
           </div>
           <button
@@ -138,7 +140,7 @@ export function OperarioKpisDashboard({
 
       <Section
         title="Recaudación por mes"
-        subtitle="Monto total por servicios prestados y monto real recaudado, por mes de la ruta. Ignora el filtro Desde/Hasta; últimos 12 meses visibles."
+        subtitle="Monto total por servicios prestados y monto real recaudado, por mes de la ruta (solo historial). Ignora el filtro Desde/Hasta; últimos 12 meses visibles."
       >
         <OperarioKpiRecaudacionChart serie={serieMensual} />
       </Section>
@@ -146,13 +148,13 @@ export function OperarioKpisDashboard({
       {kpis.rutas.total === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-10 text-center dark:border-zinc-700 dark:bg-zinc-900">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            No hay rutas en el período seleccionado.
+            No hay rutas del historial en el período seleccionado.
           </p>
           <Link
-            href="/panel"
+            href="/panel/historial"
             className="mt-3 inline-block text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-400"
           >
-            Ir al panel operativo
+            Ir al historial
           </Link>
         </div>
       ) : (
@@ -190,11 +192,12 @@ export function OperarioKpisDashboard({
             />
           </div>
 
-          <Section title="Rutas" subtitle="Distribución por estado operativo">
+          <Section title="Rutas" subtitle="Estados en historial (mismo criterio que la pantalla Historial)">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <KpiCard
-                label="En proceso"
-                value={formatKpiNumber(kpis.rutas.enProceso)}
+                label="Pendiente cierre"
+                value={formatKpiNumber(kpis.rutas.pendientesCierre)}
+                hint="Realizado sin cierre operario"
                 accent="zinc"
               />
               <KpiCard

@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import { fetchSerieMensualRecaudacion } from "@/lib/data/operario-kpis-serie-mensual";
+import { RUTA_ESTADOS_HISTORIAL } from "@/lib/domain/ruta-estado-transiciones";
 import {
   buildOperarioKpis,
   buildSerieMensualRecaudacion,
@@ -53,6 +54,7 @@ export async function fetchOperarioKpisData(
   const { data: rutas, error: rutasError } = await admin
     .from("rutas")
     .select("*")
+    .in("estado", RUTA_ESTADOS_HISTORIAL)
     .gte("fecha", periodo.desde)
     .lte("fecha", periodo.hasta)
     .order("fecha", { ascending: true })

@@ -44,7 +44,7 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
   lines.push(...sectionTitle("RUTAS"));
   lines.push(row(["Métrica", "Cantidad"]));
   lines.push(row(["Total", rutas.total]));
-  lines.push(row(["En proceso", rutas.enProceso]));
+  lines.push(row(["Pendiente cierre operario", rutas.pendientesCierre]));
   lines.push(row(["Realizadas", rutas.realizadas]));
   lines.push(row(["Cerradas", rutas.cerradas]));
   lines.push(row(["Canceladas", rutas.canceladas]));
