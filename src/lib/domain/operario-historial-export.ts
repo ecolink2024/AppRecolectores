@@ -1,6 +1,6 @@
 import {
   RECOLECCION_OPERATIVA_LABELS,
-  RUTA_ESTADO_OPERARIO_LABELS,
+  rutaEstadoOperarioLabel,
 } from "@/lib/domain/constants";
 import {
   csvRow,
@@ -111,7 +111,7 @@ export function buildHistorialCsv(
           ruta.observaciones_recolector,
           ruta.observaciones_operario,
         ),
-        RUTA_ESTADO_OPERARIO_LABELS[ruta.estado] ?? ruta.estado,
+        rutaEstadoOperarioLabel(ruta.estado),
         d.descarga ? "Sí" : "No",
         d.combustible,
         d.descuento,

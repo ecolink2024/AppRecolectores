@@ -25,7 +25,6 @@ import {
   recoleccionCardSecondaryButtonClass,
   recoleccionCardShellClass,
 } from "@/lib/domain/recolector-recoleccion-card-styles";
-import { mensajeBloqueoSuspension } from "@/lib/domain/ruta-estado-transiciones";
 import {
   buildWhatsAppAvisosRecolecciones,
   type WhatsAppAvisoRecoleccion,
@@ -44,7 +43,6 @@ const ESTADO_BADGE: Record<string, string> = {
   "En proceso": "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300",
   Finalizada: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
   Cancelada: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
-  Suspendida: "bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-300",
 };
 
 export function RecolectorRutaDetalle({
@@ -76,20 +74,17 @@ export function RecolectorRutaDetalle({
   const selectedRecoleccion = recoleccionesDetalle.find((item) => item.id === selectedId) ?? null;
 
   const whatsappTodosDisabled =
-    ruta.rutaSuspendida ||
     !ruta.rutaIniciada ||
     ruta.rutaFinalizada ||
     avisosWhatsapp.length === 0;
 
-  const motivoWhatsappTodos = ruta.rutaSuspendida
-    ? mensajeBloqueoSuspension()
-    : !ruta.rutaIniciada
-      ? "Iniciá la ruta para avisar a los clientes"
-      : ruta.rutaFinalizada
-        ? "La ruta ya está finalizada"
-        : avisosWhatsapp.length === 0
-          ? "Ninguna parada tiene teléfono cargado"
-          : null;
+  const motivoWhatsappTodos = !ruta.rutaIniciada
+    ? "Iniciá la ruta para avisar a los clientes"
+    : ruta.rutaFinalizada
+      ? "La ruta ya está finalizada"
+      : avisosWhatsapp.length === 0
+        ? "Ninguna parada tiene teléfono cargado"
+        : null;
 
   async function handleMaps() {
     setError(null);
@@ -147,7 +142,7 @@ export function RecolectorRutaDetalle({
     router.push(`/panel/mis-rutas/${ruta.id}/finalizar`);
   }
 
-  const mostrarFinalizar = (ruta.rutaIniciada || ruta.rutaFinalizada) && !ruta.rutaSuspendida;
+  const mostrarFinalizar = ruta.rutaIniciada || ruta.rutaFinalizada;
   const finalizarDisabled = !ruta.puedeFinalizar || finalizando;
   const motivoFinalizar =
     finalizando
@@ -171,13 +166,7 @@ export function RecolectorRutaDetalle({
         </p>
       )}
 
-      {ruta.rutaSuspendida && (
-        <p className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-200">
-          {mensajeBloqueoSuspension()}
-        </p>
-      )}
-
-      {!ruta.rutaIniciada && !ruta.rutaSuspendida && !ruta.preparacionInsumosCompleta && (
+      {!ruta.rutaIniciada && !ruta.preparacionInsumosCompleta && (
         <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           El operario debe completar la preparación de insumos antes de que puedas iniciar la ruta.
         </p>
@@ -278,19 +267,17 @@ export function RecolectorRutaDetalle({
             disabled
             className="col-span-2 flex min-h-[3.25rem] flex-col items-center justify-center rounded-2xl bg-emerald-700 px-3 text-center text-sm font-semibold text-white opacity-50"
           >
-            {ruta.rutaSuspendida
-              ? "Ruta suspendida"
-              : !ruta.preparacionInsumosCompleta
-                ? "Falta preparación"
-              : ruta.rutaIniciada
+            {ruta.rutaIniciada
                 ? "Ruta iniciada"
-                : "Inicio de ruta"}
+                : !ruta.preparacionInsumosCompleta
+                  ? "Falta preparación"
+                  : "Inicio de ruta"}
           </button>
         )}
         <button
           type="button"
           onClick={handleMaps}
-          disabled={!mapsUrl || ruta.rutaSuspendida}
+          disabled={!mapsUrl}
           className="flex min-h-[3.25rem] flex-col items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 px-3 text-center text-sm font-semibold text-blue-800 active:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:active:bg-blue-900"
         >
           Maps
@@ -354,7 +341,6 @@ export function RecolectorRutaDetalle({
               const recoleccionCerrada = recoleccionCerradaParaRecolector(item.estado);
               const puedeIrACarga =
                 ruta.rutaIniciada &&
-                !ruta.rutaSuspendida &&
                 (ruta.rutaFinalizada || recoleccionCerrada || !recoleccionCerrada);
               const labelCarga = ruta.rutaFinalizada
                 ? "Ver carga →"

@@ -69,10 +69,6 @@ export default async function IniciarRutaPage({ params }: Props) {
     redirect(`/panel/mis-rutas/${id}`);
   }
 
-  if (ruta.estado === "suspendida") {
-    redirect(`/panel/mis-rutas/${id}`);
-  }
-
   if (!insumosOperarioCompletados(ruta.insumos_operario)) {
     return (
       <div className="space-y-4">

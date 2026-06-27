@@ -43,34 +43,41 @@ export function OperarioDashboard({
 }: Props) {
   const isHistorial = variant === "historial";
   const router = useRouter();
-  const defaultId = useMemo(() => pickDefaultRutaId(rutas), [rutas]);
+  const rutasVisibles = useMemo(() => {
+    if (!isHistorial) return rutas;
+    return [...rutas].sort((a, b) => {
+      const aPendiente = a.estado === "completada" ? 0 : 1;
+      const bPendiente = b.estado === "completada" ? 0 : 1;
+      if (aPendiente !== bPendiente) return aPendiente - bPendiente;
+      if (a.fecha !== b.fecha) return b.fecha.localeCompare(a.fecha);
+      return (a.nombre ?? "").localeCompare(b.nombre ?? "");
+    });
+  }, [rutas, isHistorial]);
+  const defaultId = useMemo(() => pickDefaultRutaId(rutasVisibles), [rutasVisibles]);
   const [selectedRutaId, setSelectedRutaId] = useState<string | null>(defaultId);
   const [detalleRutaId, setDetalleRutaId] = useState<string | null>(null);
   const [mapaRutaId, setMapaRutaId] = useState<string | null>(null);
   const [editRutaId, setEditRutaId] = useState<string | null>(null);
   const [editRecoleccionId, setEditRecoleccionId] = useState<string | null>(null);
   const [creatingRecoleccion, setCreatingRecoleccion] = useState(false);
-  const [suspenderRutaId, setSuspenderRutaId] = useState<string | null>(null);
   const [reactivarRutaId, setReactivarRutaId] = useState<string | null>(null);
   const [insumosRutaId, setInsumosRutaId] = useState<string | null>(null);
   const [preparacionInsumosRutaId, setPreparacionInsumosRutaId] = useState<string | null>(null);
   const [cierreOperarioRutaId, setCierreOperarioRutaId] = useState<string | null>(null);
   const [cierreOperarioPaso, setCierreOperarioPaso] = useState<1 | 2>(1);
-  const [suspendiendo, setSuspendiendo] = useState(false);
   const [reactivando, setReactivando] = useState(false);
   const [cerrandoOperario, setCerrandoOperario] = useState(false);
-  const [suspendError, setSuspendError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [descargandoHistorial, setDescargandoHistorial] = useState(false);
 
-  const selectedRuta = rutas.find((r) => r.id === selectedRutaId) ?? null;
-  const detalleRuta = rutas.find((r) => r.id === detalleRutaId) ?? null;
-  const rutaASuspender = rutas.find((r) => r.id === suspenderRutaId) ?? null;
-  const rutaAReactivar = rutas.find((r) => r.id === reactivarRutaId) ?? null;
-  const rutaACierreOperario = rutas.find((r) => r.id === cierreOperarioRutaId) ?? null;
-  const rutaInsumos = rutas.find((r) => r.id === insumosRutaId) ?? null;
-  const rutaPreparacionInsumos = rutas.find((r) => r.id === preparacionInsumosRutaId) ?? null;
-  const mapaRuta = rutas.find((r) => r.id === mapaRutaId) ?? null;
-  const editRuta = rutas.find((r) => r.id === editRutaId) ?? null;
+  const selectedRuta = rutasVisibles.find((r) => r.id === selectedRutaId) ?? null;
+  const detalleRuta = rutasVisibles.find((r) => r.id === detalleRutaId) ?? null;
+  const rutaAReactivar = rutasVisibles.find((r) => r.id === reactivarRutaId) ?? null;
+  const rutaACierreOperario = rutasVisibles.find((r) => r.id === cierreOperarioRutaId) ?? null;
+  const rutaInsumos = rutasVisibles.find((r) => r.id === insumosRutaId) ?? null;
+  const rutaPreparacionInsumos = rutasVisibles.find((r) => r.id === preparacionInsumosRutaId) ?? null;
+  const mapaRuta = rutasVisibles.find((r) => r.id === mapaRutaId) ?? null;
+  const editRuta = rutasVisibles.find((r) => r.id === editRutaId) ?? null;
   const editRecoleccion = recolecciones.find((r) => r.id === editRecoleccionId) ?? null;
   const recoleccionesRuta = useMemo(
     () => recolecciones.filter((r) => r.ruta_id === selectedRutaId),
@@ -98,10 +105,10 @@ export function OperarioDashboard({
     if (!reactivarRutaId) return;
 
     setReactivando(true);
-    setSuspendError(null);
+    setActionError(null);
 
     try {
-      const response = await fetch(`/api/panel/rutas/${reactivarRutaId}/suspender`, {
+      const response = await fetch(`/api/panel/rutas/${reactivarRutaId}/reactivar`, {
         method: "DELETE",
       });
       const body = (await response.json()) as { ok?: boolean; error?: string };
@@ -111,9 +118,10 @@ export function OperarioDashboard({
       }
 
       setReactivarRutaId(null);
+      if (selectedRutaId === reactivarRutaId) setSelectedRutaId(null);
       refreshData();
     } catch (err) {
-      setSuspendError(err instanceof Error ? err.message : "Error al reactivar la ruta");
+      setActionError(err instanceof Error ? err.message : "Error al reactivar la ruta");
     } finally {
       setReactivando(false);
     }
@@ -123,7 +131,7 @@ export function OperarioDashboard({
     if (!cierreOperarioRutaId) return;
 
     setCerrandoOperario(true);
-    setSuspendError(null);
+    setActionError(null);
 
     try {
       const response = await fetch(
@@ -141,7 +149,7 @@ export function OperarioDashboard({
       setCierreOperarioPaso(1);
       refreshData();
     } catch (err) {
-      setSuspendError(
+      setActionError(
         err instanceof Error ? err.message : "Error al registrar el cierre operario",
       );
     } finally {
@@ -152,38 +160,13 @@ export function OperarioDashboard({
   function abrirCierreOperario(rutaId: string) {
     setCierreOperarioRutaId(rutaId);
     setCierreOperarioPaso(1);
-    setSuspendError(null);
-  }
-
-  async function handleConfirmSuspender() {
-    if (!suspenderRutaId) return;
-
-    setSuspendiendo(true);
-    setSuspendError(null);
-
-    try {
-      const response = await fetch(`/api/panel/rutas/${suspenderRutaId}/suspender`, {
-        method: "POST",
-      });
-      const body = (await response.json()) as { ok?: boolean; error?: string };
-
-      if (!response.ok || !body.ok) {
-        throw new Error(body.error ?? "No se pudo suspender la ruta");
-      }
-
-      setSuspenderRutaId(null);
-      refreshData();
-    } catch (err) {
-      setSuspendError(err instanceof Error ? err.message : "Error al suspender la ruta");
-    } finally {
-      setSuspendiendo(false);
-    }
+    setActionError(null);
   }
 
   function handleDescargarHistorial() {
     setDescargandoHistorial(true);
     try {
-      downloadHistorialCsv(rutas, recolecciones);
+      downloadHistorialCsv(rutasVisibles, recolecciones);
     } finally {
       setDescargandoHistorial(false);
     }
@@ -198,8 +181,8 @@ export function OperarioDashboard({
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
             {isHistorial
-              ? "Rutas cerradas (cierre operario) o canceladas. Solo consulta."
-              : "Rutas activas, suspendidas y realizadas. En realizadas podés reactivar (vuelven a En proceso) o aplicar cierre operario."}
+              ? "Rutas finalizadas por el recolector, cerradas operariamente o canceladas. En Realizado podés editar, reactivar o aplicar cierre operario."
+              : "Rutas pendientes o en proceso. Prepará insumos, editá paradas y seguí el avance del recolector."}
           </p>
         </div>
         {isHistorial && rutas.length > 0 && (
@@ -219,18 +202,21 @@ export function OperarioDashboard({
       <section className="space-y-3">
         <SectionTitle
           title="Ruta"
-          subtitle={`${rutas.length} ruta${rutas.length === 1 ? "" : "s"} · Seleccioná una fila para ver sus recolecciones`}
+          subtitle={`${rutasVisibles.length} ruta${rutasVisibles.length === 1 ? "" : "s"} · Seleccioná una fila para ver sus recolecciones`}
         />
         {isHistorial ? (
           <OperarioHistorialRutasTable
-            rutas={rutas}
+            rutas={rutasVisibles}
             selectedRutaId={selectedRutaId}
             onSelect={setSelectedRutaId}
             onVerInsumos={setInsumosRutaId}
+            onEditar={setEditRutaId}
+            onCierreOperario={abrirCierreOperario}
+            onReactivar={setReactivarRutaId}
           />
         ) : (
           <OperarioRutasTable
-            rutas={rutas}
+            rutas={rutasVisibles}
             selectedRutaId={selectedRutaId}
             onSelect={setSelectedRutaId}
             onVerDetalle={setDetalleRutaId}
@@ -241,17 +227,14 @@ export function OperarioDashboard({
             onVerInsumos={setInsumosRutaId}
             onPrepararInsumos={setPreparacionInsumosRutaId}
             onEditar={setEditRutaId}
-            onSuspender={setSuspenderRutaId}
-            onCierreOperario={abrirCierreOperario}
-            onReactivar={setReactivarRutaId}
             mapsDisponible={!!mapsApiKey}
           />
         )}
       </section>
 
-      {suspendError && (
+      {actionError && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-          {suspendError}
+          {actionError}
         </p>
       )}
 
@@ -269,24 +252,16 @@ export function OperarioDashboard({
             <button
               type="button"
               onClick={() => setCreatingRecoleccion(true)}
-              disabled={
-                selectedRuta.estado === "completada" ||
-                selectedRuta.estado === "cerrada"
-              }
-              title={
-                selectedRuta.estado === "completada" ||
-                selectedRuta.estado === "cerrada"
-                  ? "No se pueden agregar recolecciones a una ruta cerrada"
-                  : undefined
-              }
-              className="rounded-lg bg-emerald-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg bg-emerald-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800"
             >
               + Agregar recolección
             </button>
           )}
           {selectedRuta && isHistorial && (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Vista de solo lectura para recolecciones en rutas del historial.
+              {selectedRuta.estado === "completada"
+                ? "Consultá las recolecciones. Para modificar paradas, reactivá la ruta desde Operativo."
+                : "Vista de solo lectura para recolecciones en rutas del historial."}
             </p>
           )}
         </div>
@@ -336,7 +311,7 @@ export function OperarioDashboard({
       />
 
       <OperarioRutaFormModal
-        open={!isHistorial && editRutaId !== null}
+        open={editRutaId !== null}
         ruta={editRuta}
         recolectores={recolectores}
         onClose={() => setEditRutaId(null)}
@@ -368,7 +343,7 @@ export function OperarioDashboard({
         onDeleted={refreshData}
       />
 
-      {!isHistorial && (
+      {isHistorial && (
         <>
           <OperarioConfirmDialog
             open={cierreOperarioRutaId !== null && cierreOperarioPaso === 1}
@@ -384,7 +359,7 @@ export function OperarioDashboard({
             onCancel={() => {
               setCierreOperarioRutaId(null);
               setCierreOperarioPaso(1);
-              setSuspendError(null);
+              setActionError(null);
             }}
           />
           <OperarioConfirmDialog
@@ -392,8 +367,8 @@ export function OperarioDashboard({
             title="Confirmar cierre operario"
             message={
               rutaACierreOperario
-                ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada y se moverá al Historial. Esta acción confirma el cierre administrativo.`
-                : "La ruta pasará a Cerrada y se moverá al Historial."
+                ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Esta acción confirma el cierre administrativo.`
+                : "La ruta pasará a Cerrada."
             }
             confirmLabel="Confirmar cierre"
             destructive
@@ -402,41 +377,19 @@ export function OperarioDashboard({
             onCancel={() => {
               setCierreOperarioRutaId(null);
               setCierreOperarioPaso(1);
-              setSuspendError(null);
+              setActionError(null);
             }}
           />
         </>
       )}
 
-      {!isHistorial && (
-        <OperarioConfirmDialog
-          open={suspenderRutaId !== null}
-          title="Suspender ruta"
-          message={
-            rutaASuspender
-              ? `¿Suspender "${rutaASuspender.nombre}"? El recolector no podrá operarla hasta que la reactives.`
-              : "¿Suspender esta ruta?"
-          }
-          confirmLabel="Suspender"
-          destructive
-          loading={suspendiendo}
-          onConfirm={() => void handleConfirmSuspender()}
-          onCancel={() => {
-            setSuspenderRutaId(null);
-            setSuspendError(null);
-          }}
-        />
-      )}
-
-      {!isHistorial && (
+      {isHistorial && (
         <OperarioConfirmDialog
           open={reactivarRutaId !== null}
           title="Reactivar ruta"
           message={
             rutaAReactivar
-              ? rutaAReactivar.estado === "completada"
-                ? `¿Reactivar "${rutaAReactivar.nombre}"? Volverá a En proceso y el recolector podrá seguir operándola. Se borrarán los datos de cierre del recolector.`
-                : `¿Reactivar "${rutaAReactivar.nombre}"? Volverá a En proceso en el panel operativo.`
+              ? `¿Reactivar "${rutaAReactivar.nombre}"? Volverá a En proceso en el panel operativo y el recolector podrá seguir operándola. Se borrarán los datos de cierre del recolector.`
               : "¿Reactivar esta ruta?"
           }
           confirmLabel="Reactivar"
@@ -444,7 +397,7 @@ export function OperarioDashboard({
           onConfirm={() => void handleConfirmReactivar()}
           onCancel={() => {
             setReactivarRutaId(null);
-            setSuspendError(null);
+            setActionError(null);
           }}
         />
       )}

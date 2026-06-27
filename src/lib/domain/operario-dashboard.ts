@@ -1,10 +1,9 @@
 import { esFirmaDigitalImagen as esFirmaDigitalImagenFromDomain } from "@/lib/domain/firma-digital";
 import { horaInicioTurnoForSort } from "@/lib/domain/ruta-turno";
-import type { Database, RecoleccionOperativaEstado, RutaTurno } from "@/types/database";
+import type { Database, RecoleccionOperativaEstado, RutaEstado, RutaTurno } from "@/types/database";
 import {
-  RUTA_ESTADO_OPERARIO_LABELS,
+  rutaEstadoOperarioLabel,
   RUTA_TURNO_LABELS,
-  type RutaEstado,
 } from "@/lib/domain/constants";
 
 type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
@@ -568,7 +567,7 @@ export function buildRutaDetalle(
     fecha: ruta.fecha,
     turno: ruta.turno,
     estado: ruta.estado,
-    estado_label: RUTA_ESTADO_OPERARIO_LABELS[ruta.estado],
+    estado_label: rutaEstadoOperarioLabel(ruta.estado),
     recolector_nombre: ruta.recolector_nombre,
     recolecciones_exitosas: ruta.recolecciones_exitosas,
     exitosas_por_unidad_tipo: buildExitosasPorUnidadTipo(recolecciones),

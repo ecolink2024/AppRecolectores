@@ -386,8 +386,8 @@ Doc: [SHEETS_INTEGRATION.md](./SHEETS_INTEGRATION.md)
 
 **Operativo** (`/panel`) y **Historial** (`/panel/historial`) comparten `operario-dashboard.tsx` con distinto conjunto de rutas:
 
-- Operativo: `esRutaOperativa(estado)` — incluye `completada` (Realizado) y `suspendida`
-- Historial: `RUTA_ESTADOS_HISTORIAL` = `cerrada`, `cancelada` (`ruta-estado-transiciones.ts`)
+- Operativo: `esRutaOperativa(estado)` — `borrador`, `activa`, `en_curso`
+- Historial: `RUTA_ESTADOS_HISTORIAL` = `completada`, `cerrada`, `cancelada` (`ruta-estado-transiciones.ts`)
 
 Componentes en `src/components/panel/operario/`:
 
@@ -595,20 +595,21 @@ Componentes en `src/components/panel/recolector/`:
 
 Dominio: `src/lib/domain/recolector-ruta.ts`, `recolector-recoleccion-form.ts`, `recolector-rutas-list.ts`, `ruta-estado-transiciones.ts`
 
-**Estados de ruta:** `borrador`, `activa`, `en_curso`, `completada` (UI: Realizado), `cerrada` (Historial), `cancelada`, `suspendida`
+**Estados de ruta:** `borrador`, `activa`, `en_curso`, `completada` (UI: Realizado), `cerrada`, `cancelada`
 
 ```
 Operativo                          Historial
 ─────────                          ─────────
-borrador, activa, en_curso    →    cerrada (POST cierre-operario desde completada)
-completada, suspendida             cancelada
+borrador, activa, en_curso    →    completada (recolector finaliza)
+                                   cerrada (POST cierre-operario)
+                                   cancelada
 ```
 
-Transiciones staff: `src/lib/domain/ruta-estado-transiciones.ts` (`puedeSuspenderRuta`, `puedeReactivarRuta`, `puedeCierreOperario`, `limpiezaTrasReactivar`).
+Transiciones staff: `src/lib/domain/ruta-estado-transiciones.ts` (`puedeReactivarRuta`, `puedeCierreOperario`, `limpiezaTrasReactivar`).
 
 **Estados de parada:** `pendiente`, `en_camino`, `visitada`, `omitida`, `cancelada`
 
-**Bloqueos recolector:** no editar carga si parada ya `visitada`/`cancelada`; no PATCH campo si ruta `completada`, `cerrada`, `cancelada` o `suspendida` (API + UI read-only).
+**Bloqueos recolector:** no editar carga si parada ya `visitada`/`cancelada`; no PATCH campo si ruta `completada`, `cerrada` o `cancelada` (API + UI read-only).
 
 #### Finalizar ruta (recolector)
 

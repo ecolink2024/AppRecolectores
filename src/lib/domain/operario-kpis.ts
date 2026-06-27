@@ -1,10 +1,7 @@
-import {
-  RUTA_ESTADO_OPERARIO_LABELS,
-  type RutaEstado,
-} from "@/lib/domain/constants";
+import { rutaEstadoOperarioLabel } from "@/lib/domain/constants";
 import { calcDuracionJornadaMinutos } from "@/lib/domain/operario-historial-ruta";
 import { getInicioJornadaAt } from "@/lib/domain/recolector-ruta";
-import type { Database, RecoleccionOperativaEstado } from "@/types/database";
+import type { Database, RecoleccionOperativaEstado, RutaEstado } from "@/types/database";
 
 type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
 type RecoleccionRow = Database["public"]["Tables"]["ruta_recolecciones"]["Row"];
@@ -214,7 +211,6 @@ export type OperarioKpis = {
     cerradas: number;
     realizadas: number;
     enProceso: number;
-    suspendidas: number;
     canceladas: number;
     porEstado: KpiEstadoRuta[];
   };
@@ -338,14 +334,10 @@ export function buildOperarioKpis(
 ): OperarioKpis {
 
   const estadoCounts = new Map<RutaEstado, number>();
-  for (const estado of Object.keys(RUTA_ESTADO_OPERARIO_LABELS) as RutaEstado[]) {
-    estadoCounts.set(estado, 0);
-  }
 
   let cerradas = 0;
   let realizadas = 0;
   let enProceso = 0;
-  let suspendidas = 0;
   let canceladas = 0;
   let kmRecorridos = 0;
   let rutasFinalizadasRecolector = 0;
@@ -360,8 +352,7 @@ export function buildOperarioKpis(
 
     if (ruta.estado === "cerrada") cerradas += 1;
     if (ruta.estado === "completada" || ruta.estado === "cerrada") realizadas += 1;
-    if (["borrador", "activa", "en_curso"].includes(ruta.estado)) enProceso += 1;
-    if (ruta.estado === "suspendida") suspendidas += 1;
+    if (["borrador", "activa", "en_curso", "suspendida"].includes(ruta.estado)) enProceso += 1;
     if (ruta.estado === "cancelada") canceladas += 1;
 
     kmRecorridos += kmRuta(ruta);
@@ -381,13 +372,11 @@ export function buildOperarioKpis(
     }
   }
 
-  const porEstado: KpiEstadoRuta[] = (
-    Object.keys(RUTA_ESTADO_OPERARIO_LABELS) as RutaEstado[]
-  )
-    .map((estado) => ({
+  const porEstado: KpiEstadoRuta[] = Array.from(estadoCounts.entries())
+    .map(([estado, count]) => ({
       estado,
-      label: RUTA_ESTADO_OPERARIO_LABELS[estado],
-      count: estadoCounts.get(estado) ?? 0,
+      label: rutaEstadoOperarioLabel(estado),
+      count,
     }))
     .filter((row) => row.count > 0)
     .sort((a, b) => b.count - a.count);
@@ -509,7 +498,6 @@ export function buildOperarioKpis(
       cerradas,
       realizadas,
       enProceso,
-      suspendidas,
       canceladas,
       porEstado,
     },

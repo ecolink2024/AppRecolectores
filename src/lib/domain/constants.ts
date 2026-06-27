@@ -1,4 +1,5 @@
 import type { UserRole } from "@/lib/auth/constants";
+import type { RutaEstado as DbRutaEstado } from "@/types/database";
 
 export const ORGANIZACION_TIPOS = ["generador", "empresa", "cooperativa"] as const;
 export type OrganizacionTipo = (typeof ORGANIZACION_TIPOS)[number];
@@ -51,7 +52,6 @@ export const RUTA_ESTADOS = [
   "completada",
   "cerrada",
   "cancelada",
-  "suspendida",
 ] as const;
 
 export type RutaEstado = (typeof RUTA_ESTADOS)[number];
@@ -63,7 +63,6 @@ export const RUTA_ESTADO_LABELS: Record<RutaEstado, string> = {
   completada: "Completada",
   cerrada: "Cerrada",
   cancelada: "Cancelada",
-  suspendida: "Suspendida",
 };
 
 /** Etiquetas para la vista operaria del panel */
@@ -74,8 +73,12 @@ export const RUTA_ESTADO_OPERARIO_LABELS: Record<RutaEstado, string> = {
   completada: "Realizado",
   cerrada: "Cerrada",
   cancelada: "Cancelada",
-  suspendida: "Suspendida",
 };
+
+export function rutaEstadoOperarioLabel(estado: DbRutaEstado): string {
+  if (estado === "suspendida") return "Suspendida";
+  return RUTA_ESTADO_OPERARIO_LABELS[estado];
+}
 
 export const RUTA_TURNOS = ["manana", "tarde"] as const;
 

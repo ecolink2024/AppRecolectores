@@ -191,7 +191,7 @@ export function OperarioKpisDashboard({
           </div>
 
           <Section title="Rutas" subtitle="Distribución por estado operativo">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 label="En proceso"
                 value={formatKpiNumber(kpis.rutas.enProceso)}
@@ -206,11 +206,6 @@ export function OperarioKpisDashboard({
               <KpiCard
                 label="Cerradas"
                 value={formatKpiNumber(kpis.rutas.cerradas)}
-                accent="zinc"
-              />
-              <KpiCard
-                label="Suspendidas"
-                value={formatKpiNumber(kpis.rutas.suspendidas)}
                 accent="zinc"
               />
               <KpiCard

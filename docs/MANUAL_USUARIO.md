@@ -73,15 +73,15 @@ El superadmin es la cuenta principal de administración (`somos@ecolink.com.ar`)
 
 | Menú | Ruta | Para qué |
 |------|------|----------|
-| **Operativo** | `/panel` | Rutas en curso, realizadas, suspendidas |
+| **Operativo** | `/panel` | Rutas pendientes o en proceso |
 | **KPIs** | `/panel/kpis` | Indicadores y exportación |
-| **Historial** | `/panel/historial` | Rutas cerradas o canceladas |
+| **Historial** | `/panel/historial` | Rutas finalizadas, cerradas o canceladas |
 | **Parámetros** | `/panel/parametros` | Precios globales con historial |
 | **Usuarios** | `/panel/usuarios` | Alta y gestión de cuentas |
 
 ### 3.1 Panel operativo
 
-Al ingresar llegás a **Operativo** (menú superior). Muestra rutas **activas** (pendientes o en proceso), **suspendidas** y **realizadas** (completadas por el recolector, pendientes de cierre operario). Desde acá podés suspender, reactivar suspendidas y aplicar **Cierre operario** a las realizadas.
+Al ingresar llegás a **Operativo** (menú superior). Muestra rutas **pendientes** o **en proceso**. Desde acá preparás insumos, editás rutas y paradas, y seguís el avance del recolector. Cuando el recolector **finaliza** la jornada, la ruta pasa automáticamente a **Historial**.
 
 **Navegación en pantalla:** la tabla de **Rutas** y la de **Recolecciones (servicios)** (abajo, al seleccionar una ruta) tienen **altura fija con scroll interno**. Los encabezados de columna quedan visibles al bajar; al pie de cada tabla ves cuántas filas hay. Así podés ver rutas y paradas a la vez sin que la página crezca sin límite hacia abajo.
 
@@ -89,7 +89,7 @@ Al ingresar llegás a **Operativo** (menú superior). Muestra rutas **activas** 
 
 Menú **Historial** → `/panel/historial`
 
-Incluye rutas en estado **Cerrada** (después del **Cierre operario** en Operativo) o **Cancelada**. Es **solo consulta**: no se editan rutas ni servicios, y no hay botones de suspender/reactivar.
+Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierre operario), **Cerradas** (con cierre operario) o **Canceladas**. En rutas **Realizado** podés **Editar**, **Reactivar** (vuelven a Operativo en En proceso) o aplicar **Cierre operario** (pasan a Cerrada). En rutas ya cerradas o canceladas podés **Editar** datos administrativos de la ruta.
 
 **Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta **todas** las rutas del historial y **todos** sus servicios en un archivo Excel-compatible.
 
@@ -204,12 +204,9 @@ Cada fila incluye, entre otros:
 | **Ver insumos** | Insumos de inicio de jornada |
 | **Completar** / **Ver prep.** | Preparación de insumos (obligatoria antes del inicio del recolector) |
 | **Editar** | Cambiar nombre, fecha, turno, estado, recolector, observaciones |
-| **Suspender** | Pausa la ruta (solo rutas activas) |
-| **Reactivar** | Reabre una ruta **Realizado** o **Suspendida** → **En proceso** |
-| **Cierre operario** | Pasa una ruta **Realizado** a **Cerrada** (Historial) |
 | **Eliminar** | Borra la ruta y todas sus paradas |
 
-> En **Historial** no aparecen Editar, Suspender, Reactivar ni Cierre operario.
+> **Reactivar**, **Cierre operario** y **Editar** de rutas finalizadas están en **Historial** (no en Operativo).
 
 #### Ver detalle de una ruta (popup)
 
@@ -221,7 +218,7 @@ Al tocar **Ver detalle** en la tabla de rutas:
 4. **Recolecciones canceladas** — mismo desglose (canceladas u omitidas)
 5. **Recaudación** — monto a recaudar, efectivo, transferencia, QR y total
 
-Desde el mismo popup podés **Suspender** o **Reactivar** la ruta si corresponde.
+Desde el popup solo consultás el resumen; las acciones sobre la ruta están en la columna **Acciones** de la tabla.
 
 #### Preparación de insumos (operario, obligatoria)
 

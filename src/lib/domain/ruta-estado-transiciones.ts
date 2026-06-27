@@ -2,8 +2,9 @@ import type { Database, RutaEstado } from "@/types/database";
 
 type RutaUpdate = Database["public"]["Tables"]["rutas"]["Update"];
 
-/** Rutas en Historial (cierre operario o canceladas). Suspendidas quedan en Operativo. */
+/** Rutas en Historial (finalizadas por recolector, cerradas operariamente o canceladas). */
 export const RUTA_ESTADOS_HISTORIAL: RutaEstado[] = [
+  "completada",
   "cerrada",
   "cancelada",
 ];
@@ -16,15 +17,9 @@ export function esRutaOperativa(estado: RutaEstado): boolean {
   return !esRutaHistorial(estado);
 }
 
-const ESTADOS_SUSPENDIBLES: RutaEstado[] = ["borrador", "activa", "en_curso"];
-
-export function puedeSuspenderRuta(estado: RutaEstado): boolean {
-  return ESTADOS_SUSPENDIBLES.includes(estado);
-}
-
-/** Rutas en Operativo que el operario puede reabrir (antes del cierre operario o suspendidas). */
+/** Rutas en Historial que el operario puede reabrir (antes del cierre operario). */
 export function puedeReactivarRuta(estado: RutaEstado): boolean {
-  return estado === "completada" || estado === "suspendida";
+  return estado === "completada";
 }
 
 /** Campos a limpiar al reactivar, según el estado previo. */
@@ -55,11 +50,6 @@ export function puedeCierreOperario(estado: RutaEstado): boolean {
   return estado === "completada";
 }
 
-/** Estado al reabrir una ruta suspendida desde Operativo. */
 export function estadoTrasReactivar(): "en_curso" {
   return "en_curso";
-}
-
-export function mensajeBloqueoSuspension(): string {
-  return "Esta ruta fue suspendida por el operario. Contactá al admin para más información.";
 }

@@ -39,20 +39,6 @@ export default async function RecolectorRecoleccionCampoPage({ params }: Props) 
 
   if (ruta.estado === "completada" || ruta.estado === "cerrada" || ruta.estado === "cancelada") {
     // Solo consulta: la ruta ya está cerrada
-  } else if (ruta.estado === "suspendida") {
-    return (
-      <div className="space-y-4">
-        <p className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-200">
-          Esta ruta está suspendida. Contactá al operario.
-        </p>
-        <Link
-          href={`/panel/mis-rutas/${rutaId}`}
-          className="inline-flex min-h-[3rem] items-center text-sm font-medium text-emerald-700 dark:text-emerald-400"
-        >
-          ← Volver a la ruta
-        </Link>
-      </div>
-    );
   }
 
   const inicioJornadaAt = getInicioJornadaAt(ruta);

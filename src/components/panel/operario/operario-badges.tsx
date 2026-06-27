@@ -1,6 +1,6 @@
 import {
   RECOLECCION_OPERATIVA_LABELS,
-  RUTA_ESTADO_OPERARIO_LABELS,
+  rutaEstadoOperarioLabel,
 } from "@/lib/domain/constants";
 import type { RecoleccionOperativaEstado, RutaEstado } from "@/types/database";
 
@@ -88,7 +88,7 @@ function Badge({ className, children }: BadgeProps) {
 export function RutaEstadoBadge({ estado }: { estado: RutaEstado }) {
   return (
     <Badge className={RUTA_ESTADO_STYLES[estado]}>
-      {RUTA_ESTADO_OPERARIO_LABELS[estado]}
+      {rutaEstadoOperarioLabel(estado)}
     </Badge>
   );
 }

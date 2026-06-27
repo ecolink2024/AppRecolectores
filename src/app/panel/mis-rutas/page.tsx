@@ -29,7 +29,7 @@ export default async function MisRutasPage() {
           Mis rutas
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Activas, completadas y suspendidas.
+          Activas y completadas.
         </p>
       </div>
 

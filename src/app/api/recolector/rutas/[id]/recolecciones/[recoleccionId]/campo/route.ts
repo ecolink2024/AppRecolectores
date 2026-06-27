@@ -62,13 +62,6 @@ export async function PATCH(request: Request, { params }: Props) {
     return NextResponse.json({ ok: false, error: "Ruta no encontrada" }, { status: 404 });
   }
 
-  if (ruta.estado === "suspendida") {
-    return NextResponse.json(
-      { ok: false, error: "Esta ruta está suspendida" },
-      { status: 403 },
-    );
-  }
-
   if (ruta.estado === "completada" || ruta.estado === "cerrada" || ruta.estado === "cancelada") {
     return NextResponse.json(
       { ok: false, error: "No se puede cargar una ruta finalizada o cancelada" },

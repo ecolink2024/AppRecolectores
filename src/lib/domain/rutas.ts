@@ -1,4 +1,4 @@
-import type { Database, RutaTurno } from "@/types/database";
+import type { Database, RutaEstado as DbRutaEstado, RutaTurno } from "@/types/database";
 import { RUTA_ESTADO_LABELS, RUTA_TURNO_LABELS, type RutaEstado } from "@/lib/domain/constants";
 
 type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
@@ -27,8 +27,9 @@ export function enrichRutas(
   }));
 }
 
-export function formatRutaEstado(estado: RutaEstado): string {
-  return RUTA_ESTADO_LABELS[estado] ?? estado;
+export function formatRutaEstado(estado: DbRutaEstado): string {
+  if (estado === "suspendida") return "Suspendida";
+  return RUTA_ESTADO_LABELS[estado as RutaEstado] ?? estado;
 }
 
 export function formatRutaFecha(fecha: string): string {

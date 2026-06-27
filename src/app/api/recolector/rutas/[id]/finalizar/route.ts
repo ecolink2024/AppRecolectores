@@ -55,13 +55,6 @@ export async function POST(request: Request, { params }: Props) {
     return NextResponse.json({ ok: false, error: "La ruta ya fue finalizada" }, { status: 409 });
   }
 
-  if (ruta.estado === "suspendida") {
-    return NextResponse.json(
-      { ok: false, error: "No se puede finalizar una ruta suspendida" },
-      { status: 403 },
-    );
-  }
-
   if (ruta.estado !== "en_curso") {
     return NextResponse.json(
       { ok: false, error: "La ruta debe estar en curso para finalizarla" },

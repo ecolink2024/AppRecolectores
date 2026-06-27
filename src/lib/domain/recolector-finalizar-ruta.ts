@@ -37,15 +37,6 @@ export function evaluarFinalizarRuta(
     };
   }
 
-  if (rutaEstado === "suspendida") {
-    return {
-      puedeFinalizar: false,
-      recoleccionesPendientes,
-      recoleccionesTotal,
-      mensajeBloqueo: "La ruta está suspendida",
-    };
-  }
-
   if (!rutaIniciada || rutaEstado !== "en_curso") {
     return {
       puedeFinalizar: false,

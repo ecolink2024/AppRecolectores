@@ -69,13 +69,6 @@ export async function POST(request: Request, { params }: Props) {
     );
   }
 
-  if (ruta.estado === "suspendida") {
-    return NextResponse.json(
-      { ok: false, error: "Esta ruta está suspendida. Contactá al operario." },
-      { status: 403 },
-    );
-  }
-
   if (!insumosOperarioCompletados(ruta.insumos_operario)) {
     return NextResponse.json(
       {

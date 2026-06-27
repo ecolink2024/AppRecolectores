@@ -12,12 +12,19 @@ import {
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
 import { formatObservacionesHistorial } from "@/lib/domain/operario-historial-ruta";
+import {
+  puedeCierreOperario,
+  puedeReactivarRuta,
+} from "@/lib/domain/ruta-estado-transiciones";
 
 type Props = {
   rutas: RutaOperarioRow[];
   selectedRutaId: string | null;
   onSelect: (id: string) => void;
   onVerInsumos: (id: string) => void;
+  onEditar: (id: string) => void;
+  onCierreOperario?: (id: string) => void;
+  onReactivar?: (id: string) => void;
 };
 
 /** Primera columna fija al scroll horizontal */
@@ -47,11 +54,14 @@ export function OperarioHistorialRutasTable({
   selectedRutaId,
   onSelect,
   onVerInsumos,
+  onEditar,
+  onCierreOperario,
+  onReactivar,
 }: Props) {
   if (rutas.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900">
-        No hay rutas cerradas ni canceladas en el historial.
+        No hay rutas en el historial. Las rutas aparecen acá cuando el recolector las finaliza.
       </div>
     );
   }
@@ -65,7 +75,7 @@ export function OperarioHistorialRutasTable({
           : `${rutas.length} ruta${rutas.length === 1 ? "" : "s"} en historial`
       }
     >
-      <table className="min-w-[3200px] w-full text-left text-sm">
+      <table className="min-w-[3400px] w-full text-left text-sm">
         <thead className={TH_HEAD}>
           <tr>
             <th className={`${TD_STICKY_HEAD} ${STICKY_1}`}>Fecha</th>
@@ -94,6 +104,7 @@ export function OperarioHistorialRutasTable({
             <th className={`${TH} text-right`}>Total recaudado</th>
             <th className={`${TH} text-right`}>Después de gastos</th>
             <th className={`${TH} text-right`}>Total efectivo</th>
+            <th className={`${TH} text-center`}>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -190,6 +201,44 @@ export function OperarioHistorialRutasTable({
                 </td>
                 <td className={`${TD} text-right font-medium text-emerald-700 dark:text-emerald-400`}>
                   {formatMoney(d.totalEfectivo)}
+                </td>
+                <td className={`${TD} text-center`}>
+                  <div className="flex flex-wrap items-center justify-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditar(ruta.id);
+                      }}
+                      className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                    >
+                      Editar
+                    </button>
+                    {onReactivar && puedeReactivarRuta(ruta.estado) && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onReactivar(ruta.id);
+                        }}
+                        className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900"
+                      >
+                        Reactivar
+                      </button>
+                    )}
+                    {onCierreOperario && puedeCierreOperario(ruta.estado) && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onCierreOperario(ruta.id);
+                        }}
+                        className="rounded-lg border border-zinc-400 bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-900 hover:bg-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                      >
+                        Cierre operario
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             );

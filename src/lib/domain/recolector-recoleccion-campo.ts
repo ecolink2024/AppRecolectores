@@ -25,7 +25,6 @@ export function recolectorPuedeEditarRecoleccion(
   estadoRuta: RutaEstado,
 ): boolean {
   if (estadoRuta === "completada" || estadoRuta === "cerrada" || estadoRuta === "cancelada") return false;
-  if (estadoRuta === "suspendida") return false;
   return !recoleccionCerradaParaRecolector(estadoRecoleccion);
 }
 

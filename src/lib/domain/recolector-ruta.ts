@@ -49,7 +49,6 @@ export type RecolectorRutaDetalle = {
   puedeIniciar: boolean;
   rutaIniciada: boolean;
   rutaFinalizada: boolean;
-  rutaSuspendida: boolean;
   puedeFinalizar: boolean;
   recoleccionesPendientes: number;
   mensajeFinalizar: string | null;
@@ -149,11 +148,9 @@ export function buildRecolectorRutaDetalle(
 
   const inicioJornadaAt = getInicioJornadaAt(ruta);
   const rutaIniciada = inicioJornadaAt != null || ruta.estado === "en_curso";
-  const rutaSuspendida = ruta.estado === "suspendida";
   const preparacionInsumosCompleta = insumosOperarioCompletados(ruta.insumos_operario);
   const puedeIniciar =
     !rutaIniciada &&
-    !rutaSuspendida &&
     ruta.estado !== "completada" &&
     ruta.estado !== "cerrada" &&
     ruta.estado !== "cancelada" &&
@@ -191,7 +188,6 @@ export function buildRecolectorRutaDetalle(
     puedeIniciar,
     rutaIniciada,
     rutaFinalizada,
-    rutaSuspendida,
     puedeFinalizar: finalizar.puedeFinalizar,
     recoleccionesPendientes: finalizar.recoleccionesPendientes,
     mensajeFinalizar: finalizar.mensajeBloqueo,
