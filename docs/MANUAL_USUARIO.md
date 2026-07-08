@@ -243,7 +243,7 @@ Desde el popup solo consultás el resumen; las acciones sobre la ruta están en 
 Antes de que el recolector pueda **Inicio de ruta**, el operario debe:
 
 1. Tocar **Completar** en la columna **Preparación** de la ruta
-2. Agregar insumos (mismo desplegable que al iniciar: Cesto, Biotacho, KitPuntos, Ropa, Celular, Bolsa punto, Bolsa nueva, Biotachos nuevos)
+2. Agregar insumos (mismo desplegable que al iniciar: Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa)
 3. Tocar **Guardar preparación**
 
 Hasta que no se guarde, el recolector ve un aviso y el botón **Inicio de ruta** queda deshabilitado. Una vez guardada, en el detalle de ruta del recolector aparece **Insumos asignados** con el listado.
@@ -498,7 +498,7 @@ Dentro de cada sección, las rutas se ordenan por fecha (más recientes arriba).
 2. Completá:
    - **Kilómetros iniciales** del odómetro (número mayor a 0)
    - **Insumos** que llevás (al menos uno):
-     - Tipos disponibles: Cesto, Biotacho, KitPuntos, Ropa, Celular, Bolsa punto, Bolsa nueva, Biotachos nuevos
+     - Tipos disponibles: Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa
      - Elegí tipo + cantidad → **Agregar** (podés agregar hasta 20 ítems)
 3. Tocá **Confirmar inicio de ruta**
 4. Volvés al detalle con la ruta en estado **En proceso**

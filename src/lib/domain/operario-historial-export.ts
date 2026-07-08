@@ -17,6 +17,7 @@ import {
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
 import { formatObservacionesHistorial } from "@/lib/domain/operario-historial-ruta";
+import { INSUMO_TIPOS } from "@/lib/domain/ruta-insumos";
 import { formatRutaFecha } from "@/lib/domain/rutas";
 
 function firmaExport(firma: string | null): string {
@@ -81,12 +82,7 @@ export function buildHistorialCsv(
       "Total recaudado",
       "Después de gastos",
       "Total efectivo",
-      "Insumos bolsas",
-      "Insumos kit puntos",
-      "Insumos cestos",
-      "Insumos biotachos",
-      "Insumos ropa",
-      "Insumos celular",
+      ...INSUMO_TIPOS.map((tipo) => `Insumos ${tipo}`),
     ]),
   );
 
@@ -124,12 +120,7 @@ export function buildHistorialCsv(
         ruta.total_recaudado,
         d.recaudadoDespuesGastos,
         d.totalEfectivo ?? "",
-        d.bolsas,
-        d.kitPuntos,
-        d.cestos,
-        d.biotachos,
-        d.ropa,
-        d.celular,
+        ...INSUMO_TIPOS.map((tipo) => d.insumosPorTipo[tipo] ?? 0),
       ]),
     );
   }

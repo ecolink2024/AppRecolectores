@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import type { RutaOperarioRow } from "@/lib/domain/operario-dashboard";
+import { INSUMO_TIPOS } from "@/lib/domain/ruta-insumos";
 
 type Props = {
   open: boolean;
@@ -30,14 +31,10 @@ export function OperarioRutaInsumosModal({ open, ruta, onClose }: Props) {
 
   const d = ruta.insumos_detalle;
 
-  const rows: { label: string; value: string }[] = [
-    { label: "Bolsas", value: String(d.bolsas) },
-    { label: "Kit puntos", value: String(d.kitPuntos) },
-    { label: "Cestos", value: String(d.cestos) },
-    { label: "Biotachos", value: String(d.biotachos) },
-    { label: "Ropa", value: String(d.ropa) },
-    { label: "Celular", value: String(d.celular) },
-  ];
+  const rows: { label: string; value: string }[] = INSUMO_TIPOS.map((tipo) => ({
+    label: tipo,
+    value: String(d.insumosPorTipo[tipo] ?? 0),
+  }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

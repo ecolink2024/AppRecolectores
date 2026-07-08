@@ -1,17 +1,13 @@
-import type { InsumoInicio } from "@/lib/domain/ruta-insumos";
-import { parseInsumosFromJson } from "@/lib/domain/ruta-insumos";
+import type { InsumoInicio, InsumoTipo } from "@/lib/domain/ruta-insumos";
+import { INSUMO_TIPOS, parseInsumosFromJson } from "@/lib/domain/ruta-insumos";
 import { calcTotalEfectivo } from "@/lib/domain/recolector-cierre-ruta";
 import type { Database } from "@/types/database";
 
 type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
 
 export type InsumosHistorialDetalle = {
-  bolsas: number;
-  kitPuntos: number;
-  cestos: number;
-  biotachos: number;
-  ropa: number;
-  celular: number;
+  /** Cantidad de cada insumo declarado al iniciar, por tipo (ver INSUMO_TIPOS). */
+  insumosPorTipo: Record<InsumoTipo, number>;
   descarga: boolean;
   combustible: number;
   descuento: number;
@@ -36,42 +32,18 @@ function parseInsumosInicio(value: unknown): InsumoInicio[] {
   return parseInsumosFromJson(value);
 }
 
-export function contarInsumosInicio(insumos: InsumoInicio[]) {
-  let bolsas = 0;
-  let kitPuntos = 0;
-  let cestos = 0;
-  let biotachos = 0;
-  let ropa = 0;
-  let celular = 0;
+export function contarInsumosInicio(insumos: InsumoInicio[]): Record<InsumoTipo, number> {
+  const porTipo = Object.fromEntries(
+    INSUMO_TIPOS.map((tipo) => [tipo, 0]),
+  ) as Record<InsumoTipo, number>;
 
   for (const item of insumos) {
-    switch (item.tipo) {
-      case "Bolsa punto":
-      case "Bolsa nueva":
-        bolsas += item.cantidad;
-        break;
-      case "KitPuntos":
-        kitPuntos += item.cantidad;
-        break;
-      case "Cesto":
-        cestos += item.cantidad;
-        break;
-      case "Biotacho":
-      case "Biotachos nuevos":
-        biotachos += item.cantidad;
-        break;
-      case "Ropa":
-        ropa += item.cantidad;
-        break;
-      case "Celular":
-        celular += item.cantidad;
-        break;
-      default:
-        break;
+    if (item.tipo in porTipo) {
+      porTipo[item.tipo] += item.cantidad;
     }
   }
 
-  return { bolsas, kitPuntos, cestos, biotachos, ropa, celular };
+  return porTipo;
 }
 
 export function calcDuracionJornadaMinutos(
@@ -107,7 +79,7 @@ export function buildInsumosHistorialDetalle(
     efectivoRecolecciones: number;
   },
 ): InsumosHistorialDetalle {
-  const insumos = contarInsumosInicio(parseInsumosInicio(ruta.insumos_inicio));
+  const insumosPorTipo = contarInsumosInicio(parseInsumosInicio(ruta.insumos_inicio));
   const kmInicial = ruta.km_inicial != null ? num(ruta.km_inicial) : null;
   const kmFinal = ruta.km_final != null ? num(ruta.km_final) : null;
   const kmRecorridos =
@@ -135,7 +107,7 @@ export function buildInsumosHistorialDetalle(
     ruta.total_efectivo != null ? num(ruta.total_efectivo) : recaudadoDespuesGastos;
 
   return {
-    ...insumos,
+    insumosPorTipo,
     descarga: Boolean(ruta.descarga),
     combustible,
     descuento,

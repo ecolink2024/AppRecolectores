@@ -1,12 +1,11 @@
 export const INSUMO_TIPOS = [
+  "Bolsa Nueva",
   "Cesto",
   "Biotacho",
-  "KitPuntos",
-  "Ropa",
-  "Celular",
-  "Bolsa punto",
-  "Bolsa nueva",
-  "Biotachos nuevos",
+  "Bolsa de Punto",
+  "Planilla Empresas",
+  "Planilla de Punto",
+  "Cartel Empresa",
 ] as const;
 
 export type InsumoTipo = (typeof INSUMO_TIPOS)[number];
