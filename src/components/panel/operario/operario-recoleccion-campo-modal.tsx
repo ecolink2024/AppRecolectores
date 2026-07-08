@@ -271,12 +271,14 @@ export function OperarioRecoleccionCampoModal({
                   Retiro
                 </legend>
                 <div className="grid grid-cols-2 gap-3">
-                  <NumberField
-                    label={esEmpresaPunto ? "Bolsas llenas hogar" : "Bolsas llenas"}
-                    value={bolsasLlenas}
-                    onChange={setBolsasLlenas}
-                    required={contadoresRules.bolsasLlenasRequired}
-                  />
+                  {contadoresRules.bolsasLlenasRequired && (
+                    <NumberField
+                      label={esEmpresaPunto ? "Bolsas llenas hogar" : "Bolsas llenas"}
+                      value={bolsasLlenas}
+                      onChange={setBolsasLlenas}
+                      required={contadoresRules.bolsasLlenasRequired}
+                    />
+                  )}
                   {esEmpresaPunto && (
                     <>
                       <NumberField
@@ -293,25 +295,33 @@ export function OperarioRecoleccionCampoModal({
                       />
                     </>
                   )}
-                  <NumberField
-                    label="Biotachos llenos"
-                    value={biotachosLlenos}
-                    onChange={setBiotachosLlenos}
-                    required={contadoresRules.biotachosLlenosRequired}
-                  />
-                  <NumberField
-                    label="Bolsas nuevas"
-                    value={bolsasNuevas}
-                    onChange={setBolsasNuevas}
-                    required={contadoresRules.bolsasNuevasRequired}
-                  />
-                  <NumberField
-                    label="Biotachos nuevos"
-                    value={biotachosNuevos}
-                    onChange={setBiotachosNuevos}
-                    required={contadoresRules.biotachosNuevosRequired}
-                  />
-                  <NumberField label="Cestos" value={cestos} onChange={setCestos} required />
+                  {contadoresRules.biotachosLlenosRequired && (
+                    <NumberField
+                      label="Biotachos llenos"
+                      value={biotachosLlenos}
+                      onChange={setBiotachosLlenos}
+                      required={contadoresRules.biotachosLlenosRequired}
+                    />
+                  )}
+                  {contadoresRules.bolsasNuevasRequired && (
+                    <NumberField
+                      label="Bolsas nuevas"
+                      value={bolsasNuevas}
+                      onChange={setBolsasNuevas}
+                      required={contadoresRules.bolsasNuevasRequired}
+                    />
+                  )}
+                  {contadoresRules.biotachosNuevosRequired && (
+                    <NumberField
+                      label="Biotachos nuevos"
+                      value={biotachosNuevos}
+                      onChange={setBiotachosNuevos}
+                      required={contadoresRules.biotachosNuevosRequired}
+                    />
+                  )}
+                  {contadoresRules.cestosRequired && (
+                    <NumberField label="Cestos" value={cestos} onChange={setCestos} required />
+                  )}
                 </div>
               </fieldset>
 

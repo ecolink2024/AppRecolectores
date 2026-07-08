@@ -68,25 +68,39 @@ export function isTipoServicioReciclaje(tipoServicio: string | null | undefined)
   return normalizeTipoServicio(tipoServicio).toLowerCase() === "reciclaje";
 }
 
+export function isTipoServicioOrganico(tipoServicio: string | null | undefined): boolean {
+  return normalizeTipoServicio(tipoServicio).toLowerCase() === "organico";
+}
+
+/**
+ * Reglas de visibilidad/obligatoriedad de los contadores de retiro según el
+ * tipo de servicio del cliente:
+ * - Reciclaje: no aplica biotachos (llenos ni nuevos).
+ * - Orgánico: no aplica bolsas (llenas ni nuevas) ni cestos.
+ * - Mixto y el resto (p. ej. Punto): aplican todos.
+ * Cuando un contador no aplica, no se muestra en el formulario ni es obligatorio.
+ */
 export type RecoleccionCampoContadoresRules = {
   bolsasLlenasRequired: boolean;
   bolsasNuevasRequired: boolean;
   biotachosLlenosRequired: boolean;
   biotachosNuevosRequired: boolean;
+  cestosRequired: boolean;
 };
 
 export function getRecoleccionCampoContadoresRules(
-  unidad: string | null | undefined,
+  _unidad: string | null | undefined,
   tipoServicio: string | null | undefined,
 ): RecoleccionCampoContadoresRules {
-  const hogarOrganico = isHogarOrganico(unidad, tipoServicio);
+  const organico = isTipoServicioOrganico(tipoServicio);
   const reciclaje = isTipoServicioReciclaje(tipoServicio);
 
   return {
-    bolsasLlenasRequired: !hogarOrganico,
-    bolsasNuevasRequired: !hogarOrganico,
+    bolsasLlenasRequired: !organico,
+    bolsasNuevasRequired: !organico,
     biotachosLlenosRequired: !reciclaje,
     biotachosNuevosRequired: !reciclaje,
+    cestosRequired: !organico,
   };
 }
 
@@ -176,7 +190,7 @@ export function parseRecoleccionCampoBody(
   if (contadoresRules.biotachosNuevosRequired && biotachos_nuevos === null) {
     faltantes.push("biotachos nuevos");
   }
-  if (cestos === null) {
+  if (contadoresRules.cestosRequired && cestos === null) {
     faltantes.push("cestos");
   }
 
@@ -225,13 +239,13 @@ export function parseRecoleccionCampoBody(
     data: {
       motivo_cancelacion: null,
       observaciones_recolector,
-      bolsas_llenas,
+      bolsas_llenas: contadoresRules.bolsasLlenasRequired ? bolsas_llenas : null,
       bolsas_llenas_punto: empresaPunto ? bolsas_llenas_punto : null,
       bolsas_nuevas_vendidas: empresaPunto ? bolsas_nuevas_vendidas : null,
-      biotachos_llenos,
-      bolsas_nuevas,
-      biotachos_nuevos,
-      cestos,
+      biotachos_llenos: contadoresRules.biotachosLlenosRequired ? biotachos_llenos : null,
+      bolsas_nuevas: contadoresRules.bolsasNuevasRequired ? bolsas_nuevas : null,
+      biotachos_nuevos: contadoresRules.biotachosNuevosRequired ? biotachos_nuevos : null,
+      cestos: contadoresRules.cestosRequired ? cestos : null,
       precio_total,
       monto_efectivo,
       monto_transferencia,

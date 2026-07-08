@@ -268,12 +268,14 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
                 </p>
               )}
               <div className="grid grid-cols-2 gap-3">
-                <Field
-                  label={data.esEmpresaPunto ? "Bolsas llenas hogar" : "Bolsas llenas"}
-                  value={bolsasLlenas}
-                  onChange={setBolsasLlenas}
-                  required={contadoresRules.bolsasLlenasRequired}
-                />
+                {contadoresRules.bolsasLlenasRequired && (
+                  <Field
+                    label={data.esEmpresaPunto ? "Bolsas llenas hogar" : "Bolsas llenas"}
+                    value={bolsasLlenas}
+                    onChange={setBolsasLlenas}
+                    required={contadoresRules.bolsasLlenasRequired}
+                  />
+                )}
                 {data.esEmpresaPunto && (
                   <>
                     <Field
@@ -290,25 +292,33 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
                     />
                   </>
                 )}
-                <Field
-                  label="Biotachos llenos"
-                  value={biotachosLlenos}
-                  onChange={setBiotachosLlenos}
-                  required={contadoresRules.biotachosLlenosRequired}
-                />
-                <Field
-                  label="Bolsas nuevas"
-                  value={bolsasNuevas}
-                  onChange={setBolsasNuevas}
-                  required={contadoresRules.bolsasNuevasRequired}
-                />
-                <Field
-                  label="Biotachos nuevos"
-                  value={biotachosNuevos}
-                  onChange={setBiotachosNuevos}
-                  required={contadoresRules.biotachosNuevosRequired}
-                />
-                <Field label="Cestos" value={cestos} onChange={setCestos} required />
+                {contadoresRules.biotachosLlenosRequired && (
+                  <Field
+                    label="Biotachos llenos"
+                    value={biotachosLlenos}
+                    onChange={setBiotachosLlenos}
+                    required={contadoresRules.biotachosLlenosRequired}
+                  />
+                )}
+                {contadoresRules.bolsasNuevasRequired && (
+                  <Field
+                    label="Bolsas nuevas"
+                    value={bolsasNuevas}
+                    onChange={setBolsasNuevas}
+                    required={contadoresRules.bolsasNuevasRequired}
+                  />
+                )}
+                {contadoresRules.biotachosNuevosRequired && (
+                  <Field
+                    label="Biotachos nuevos"
+                    value={biotachosNuevos}
+                    onChange={setBiotachosNuevos}
+                    required={contadoresRules.biotachosNuevosRequired}
+                  />
+                )}
+                {contadoresRules.cestosRequired && (
+                  <Field label="Cestos" value={cestos} onChange={setCestos} required />
+                )}
               </div>
             </section>
 
