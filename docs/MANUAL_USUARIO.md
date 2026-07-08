@@ -97,13 +97,15 @@ Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierr
 
 | Estado | Botones disponibles |
 |--------|---------------------|
-| **Realizado** | **Editar**, **Reactivar**, **Cierre operario** |
+| **Realizado** | **Editar** (incluye datos de la jornada), **Reactivar**, **Cierre operario** |
 | **Cerrada** o **Cancelada** | **Editar** (datos administrativos de la ruta) |
 
 - **Reactivar** (solo Realizado): la ruta vuelve a **Operativo** en **En proceso**; se borran los datos de cierre del recolector para que pueda seguir operándola.
 - **Cierre operario** (solo Realizado): la ruta pasa a **Cerrada** (sigue en Historial).
 
-En rutas **Realizadas** podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar, se recalcula el total y se actualizan Historial y KPIs. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial.
+En rutas **Realizadas**, el botón **Editar** de la ruta suma una sección **Datos de la jornada del recolector** donde podés corregir, sin reactivar: **Kilómetros iniciales**, **Insumos**, **Kilómetros finales**, **Descarga realizada**, **Combustible** y **Otros gastos**. Al guardar se **recalcula el total efectivo** (con el efectivo recaudado en campo y el descuento vigente) y se actualizan Historial y KPIs. Esta sección aparece solo en Realizadas (antes del Cierre operario); en Cerradas/Canceladas, **Editar** cambia solo datos administrativos.
+
+En rutas **Realizadas** también podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar, se recalcula el total y se actualizan Historial y KPIs. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial.
 
 **Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta **todas** las rutas del historial y **todos** sus servicios en un archivo Excel-compatible.
 
@@ -119,7 +121,7 @@ Tabla amplia con **scroll vertical** (altura acotada, encabezado fijo al bajar) 
 | Km iniciales / finales / recorridos | Kilometraje |
 | Observaciones | Recolector + operario |
 | Estado | Cerrada, Cancelada, etc. |
-| **Ver insumos** | Popup con bolsas, kit, cestos, biotachos, ropa, celular al inicio |
+| **Ver insumos** | Popup con la cantidad de cada insumo declarado al inicio (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) |
 | Descarga, gastos | Combustible, descuento, otros |
 | Recolecciones / exitosos / pendientes / canceladas | Resumen de paradas |
 | **Monto a recaudar** | Suma de precios cargados en paradas visitadas (*monto total por servicios prestados*) |
@@ -135,7 +137,7 @@ Misma ruta seleccionada arriba. Mismo criterio de **scroll vertical** (encabezad
 
 Horario · Recolector · Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · Observaciones · Detalle · Firma · Firmante · **Unidad** · **Tipo de servicio** · **Editar carga** (solo en rutas Realizadas)
 
-> **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), motivo de cancelación, observaciones y firma. La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
+> **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), motivo de cancelación, observaciones y firma. Los contadores de retiro que se muestran **dependen del tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo). La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
 
 **Horario programado**, **hora real** y **bolsas nuevas** de cada parada están en el popup **Info** (junto al nombre del cliente).
 
@@ -207,7 +209,7 @@ Cada fila incluye, entre otros:
 | **Bolsas recolectadas** | Total de bolsas (llenas + nuevas) en paradas visitadas; pasá el mouse para ver el detalle |
 | **Biotachos** | Total de biotachos (llenos + nuevos) en visitadas; tooltip con detalle |
 | Km, Inicio jornada | Kilometraje e inicio del recolector |
-| **Ver insumos** | Popup con lo que declaró el recolector al iniciar (bolsas, kit, cestos, biotachos, ropa, celular) |
+| **Ver insumos** | Popup con lo que declaró el recolector al iniciar (cantidad de cada insumo: Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) |
 | **Preparación** | Formulario obligatorio del operario antes del inicio (mismos tipos de insumo que el recolector). **Completar** (ámbar) hasta guardar; **Ver prep.** (verde) cuando ya está listo |
 | Cierre recolector / operario | Fechas de cierre |
 | **Monto a recaudar** | Monto total por servicios prestados (suma de precios en visitadas) |
@@ -564,12 +566,13 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
 
 **B) Recolección normal**
 
-1. Completá los contadores de **Retiro** (podés poner **0** en cada uno):
-   - Bolsas llenas (y, si aplica Empresa + Punto: bolsas llenas hogar, bolsas llenas punto, bolsas nuevas vendidas)
-   - Biotachos llenos
-   - Bolsas nuevas
-   - Biotachos nuevos
-   - **Cestos**
+1. Completá los contadores de **Retiro** (podés poner **0** en cada uno). **Los campos que ves dependen del tipo de cliente:**
+   - **Reciclaje:** Bolsas llenas, Bolsas nuevas y Cestos (los **biotachos no aparecen**)
+   - **Orgánico:** Biotachos llenos y Biotachos nuevos (las **bolsas y los cestos no aparecen**)
+   - **Mixto:** aparecen **todos** los contadores
+   - **Punto** y otros: sin cambios (aparece todo; con Empresa + Punto se agregan bolsas llenas hogar, bolsas llenas punto y bolsas nuevas vendidas)
+
+   Contadores posibles: Bolsas llenas · Biotachos llenos · Bolsas nuevas · Biotachos nuevos · **Cestos** (solo se muestran los que aplican al tipo de cliente).
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):
    - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, bolsa extra (Parámetros)
    - **Empresa + Punto:** el total mínimo sale de **bolsas llenas hogar** y **bolsas nuevas vendidas** (Parámetros). **Bolsas llenas punto** es solo cantidad; el monto en punto lo cargás en los pagos

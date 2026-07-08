@@ -52,7 +52,7 @@ Cada fila **Pendiente** enviada crea o actualiza una fila en `ruta_recolecciones
 | Observaciones | `observaciones` | Notas operario/planilla |
 | Recolector | (ruta) | Agrupa en `rutas.asignado_a` por email resuelto |
 
-Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo y se guardan en las mismas columnas de `ruta_recolecciones`.
+Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo y se guardan en las mismas columnas de `ruta_recolecciones`. Qué contadores se muestran/piden depende del **tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo).
 
 Ver detalle del modelo (incl. Empresa + Punto): [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md) § Almacenamiento en `ruta_recolecciones`.
 
