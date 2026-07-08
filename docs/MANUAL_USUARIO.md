@@ -18,7 +18,9 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; **editar la carga del recolector** desde Historial en rutas Realizadas (antes del cierre operario); KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
+**Novedades recientes (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa).
+
+**Novedades previas (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; **editar la carga del recolector** desde Historial en rutas Realizadas (antes del cierre operario); KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
 
 ---
 
