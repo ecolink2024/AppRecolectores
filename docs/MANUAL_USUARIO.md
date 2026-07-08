@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
+**Novedades recientes (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; **editar la carga del recolector** desde Historial en rutas Realizadas (antes del cierre operario); KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
 
 ---
 
@@ -101,7 +101,7 @@ Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierr
 - **Reactivar** (solo Realizado): la ruta vuelve a **Operativo** en **En proceso**; se borran los datos de cierre del recolector para que pueda seguir operándola.
 - **Cierre operario** (solo Realizado): la ruta pasa a **Cerrada** (sigue en Historial).
 
-Las paradas de rutas en Historial son de **solo consulta**. Para modificar paradas de una ruta **Realizada**, primero **Reactivar** desde Historial.
+En rutas **Realizadas** podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar, se recalcula el total y se actualizan Historial y KPIs. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial.
 
 **Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta **todas** las rutas del historial y **todos** sus servicios en un archivo Excel-compatible.
 
@@ -131,7 +131,9 @@ Seleccioná una fila para ver sus servicios abajo.
 
 Misma ruta seleccionada arriba. Mismo criterio de **scroll vertical** (encabezado fijo) y horizontal que la tabla de rutas. Columnas (en este orden):
 
-Horario · Recolector · Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · Observaciones · Detalle · Firma · Firmante · **Unidad** · **Tipo de servicio**
+Horario · Recolector · Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · Observaciones · Detalle · Firma · Firmante · **Unidad** · **Tipo de servicio** · **Editar carga** (solo en rutas Realizadas)
+
+> **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), motivo de cancelación, observaciones y firma. La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
 
 **Horario programado**, **hora real** y **bolsas nuevas** de cada parada están en el popup **Info** (junto al nombre del cliente).
 

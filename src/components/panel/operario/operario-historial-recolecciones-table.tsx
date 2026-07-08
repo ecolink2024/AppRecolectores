@@ -22,10 +22,12 @@ import {
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
 import { formatTipoClienteLabel } from "@/lib/domain/constants";
+import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
 
 type Props = {
   recolecciones: RecoleccionOperarioRow[];
   ruta: RutaOperarioRow | null;
+  onEditarCarga?: (id: string) => void;
 };
 
 const TH = "whitespace-nowrap px-3 py-3 font-medium";
@@ -79,11 +81,16 @@ function TextCell({
   );
 }
 
-export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Props) {
+export function OperarioHistorialRecoleccionesTable({
+  recolecciones,
+  ruta,
+  onEditarCarga,
+}: Props) {
   const [clienteRecoleccionId, setClienteRecoleccionId] = useState<string | null>(null);
 
   const clienteRecoleccion =
     recolecciones.find((r) => r.id === clienteRecoleccionId) ?? null;
+  const editableCarga = !!onEditarCarga && !!ruta && puedeEditarCargaStaff(ruta.estado);
 
   if (!ruta) {
     return (
@@ -135,6 +142,13 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
               <th className={TH}>Nombre firmante</th>
               <th className={TH}>Unidad</th>
               <th className={TH}>Tipo de cliente</th>
+              {editableCarga && (
+                <th
+                  className={`${TH} sticky right-0 z-20 bg-zinc-50 text-center dark:bg-zinc-950`}
+                >
+                  Editar carga
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -204,6 +218,19 @@ export function OperarioHistorialRecoleccionesTable({ recolecciones, ruta }: Pro
                   <td className={TD}>{item.nombre_firmante || "—"}</td>
                   <TextCell value={item.unidad} maxWidth="100px" />
                   <TextCell value={formatTipoClienteLabel(item.tipo_servicio)} maxWidth="120px" />
+                  {editableCarga && (
+                    <td
+                      className={`${TD} sticky right-0 z-10 bg-white text-center dark:bg-zinc-900`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => onEditarCarga?.(item.id)}
+                        className="rounded-lg bg-emerald-700 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-800"
+                      >
+                        Editar carga
+                      </button>
+                    </td>
+                  )}
                 </tr>
               );
             })}

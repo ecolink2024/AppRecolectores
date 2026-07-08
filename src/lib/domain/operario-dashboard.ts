@@ -67,6 +67,8 @@ export type RutaOperarioRow = {
   insumos_operario_completado: boolean;
   insumos_operario_at: string | null;
   puede_editar_insumos_operario: boolean;
+  /** Insumos declarados por el recolector al iniciar la jornada */
+  insumos_inicio: InsumoInicio[];
 };
 
 export type RecoleccionOperarioRow = {
@@ -98,6 +100,8 @@ export type RecoleccionOperarioRow = {
   monto_qr: number | null;
   motivo_cancelacion: string | null;
   bolsas_llenas: number | null;
+  bolsas_llenas_punto: number | null;
+  bolsas_nuevas_vendidas: number | null;
   biotachos_llenos: number | null;
   bolsas_nuevas: number | null;
   biotachos_nuevos: number | null;
@@ -316,6 +320,7 @@ export function buildRutaOperarioRows(
         ruta.estado !== "completada" &&
         ruta.estado !== "cerrada" &&
         ruta.estado !== "cancelada",
+      insumos_inicio: parseInsumosFromJson(ruta.insumos_inicio),
     };
   });
 }
@@ -361,6 +366,8 @@ export function buildRecoleccionOperarioRows(
       monto_qr: item.monto_qr != null ? num(item.monto_qr) : null,
       motivo_cancelacion: item.motivo_cancelacion,
       bolsas_llenas: item.bolsas_llenas,
+      bolsas_llenas_punto: item.bolsas_llenas_punto,
+      bolsas_nuevas_vendidas: item.bolsas_nuevas_vendidas,
       biotachos_llenos: item.biotachos_llenos,
       bolsas_nuevas: item.bolsas_nuevas,
       biotachos_nuevos: item.biotachos_nuevos,

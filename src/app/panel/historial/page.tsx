@@ -2,6 +2,12 @@ import { redirect } from "next/navigation";
 
 import { OperarioDashboard } from "@/components/panel/operario/operario-dashboard";
 import { fetchOperarioDashboardData } from "@/lib/data/operario-dashboard";
+import {
+  fetchPrecioBolsaExtraActivo,
+  fetchPrecioBolsaLlenaPuntoActivo,
+  fetchPrecioBolsaPuntoActivo,
+  fetchPrecioRetiroReciclableMixtoActivo,
+} from "@/lib/data/sistema-parametros";
 import { requireAuth } from "@/lib/auth/session";
 import { isStaffRole } from "@/lib/domain/constants";
 import { getGoogleMapsPublicKey, isSupabaseAdminConfigured } from "@/lib/env";
@@ -26,6 +32,12 @@ export default async function PanelHistorialPage() {
 
   const { rutas, recolecciones, recolectores, error } =
     await fetchOperarioDashboardData("historial");
+  const [bolsaExtra, retiroReciclableMixto, bolsaPunto, bolsaLlenaPunto] = await Promise.all([
+    fetchPrecioBolsaExtraActivo(),
+    fetchPrecioRetiroReciclableMixtoActivo(),
+    fetchPrecioBolsaPuntoActivo(),
+    fetchPrecioBolsaLlenaPuntoActivo(),
+  ]);
   const operarioNombre =
     auth.profile.full_name || auth.profile.email || auth.user.email || "Operario";
 
@@ -43,6 +55,7 @@ export default async function PanelHistorialPage() {
         recolectores={recolectores}
         operarioNombre={operarioNombre}
         mapsApiKey={getGoogleMapsPublicKey() ?? null}
+        preciosCampo={{ bolsaExtra, retiroReciclableMixto, bolsaPunto, bolsaLlenaPunto }}
       />
     </div>
   );

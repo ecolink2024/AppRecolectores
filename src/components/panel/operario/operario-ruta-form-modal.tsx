@@ -7,6 +7,7 @@ import {
   Field,
   inputClass,
 } from "@/components/panel/operario/operario-confirm-dialog";
+import { InsumosListaEditor } from "@/components/panel/insumos-lista-editor";
 import {
   RUTA_ESTADO_LABELS,
   RUTA_ESTADOS,
@@ -14,6 +15,8 @@ import {
   RUTA_TURNOS,
 } from "@/lib/domain/constants";
 import type { RecolectorOption, RutaOperarioRow } from "@/lib/domain/operario-dashboard";
+import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
+import type { InsumoInicio } from "@/lib/domain/ruta-insumos";
 
 type Props = {
   open: boolean;
@@ -39,10 +42,18 @@ export function OperarioRutaFormModal({
   const [asignadoA, setAsignadoA] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const [kmRecorridos, setKmRecorridos] = useState("");
+  const [kmInicial, setKmInicial] = useState("");
+  const [kmFinal, setKmFinal] = useState("");
+  const [descarga, setDescarga] = useState(false);
+  const [combustible, setCombustible] = useState("");
+  const [otrosGastos, setOtrosGastos] = useState("");
+  const [insumosInicio, setInsumosInicio] = useState<InsumoInicio[]>([]);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const editaJornada = ruta != null && puedeEditarCargaStaff(ruta.estado);
 
   useEffect(() => {
     if (!open || !ruta) return;
@@ -53,6 +64,16 @@ export function OperarioRutaFormModal({
     setAsignadoA(ruta.asignado_a ?? "");
     setObservaciones(ruta.observaciones_operario ?? "");
     setKmRecorridos(ruta.km_recorridos != null ? String(ruta.km_recorridos) : "");
+    setKmInicial(ruta.km_inicial != null ? String(ruta.km_inicial) : "");
+    setKmFinal(ruta.km_final != null ? String(ruta.km_final) : "");
+    setDescarga(Boolean(ruta.insumos_detalle?.descarga));
+    setCombustible(
+      ruta.insumos_detalle?.combustible ? String(ruta.insumos_detalle.combustible) : "",
+    );
+    setOtrosGastos(
+      ruta.insumos_detalle?.otrosGastos ? String(ruta.insumos_detalle.otrosGastos) : "",
+    );
+    setInsumosInicio(ruta.insumos_inicio ?? []);
     setError(null);
     setConfirmDelete(false);
   }, [open, ruta]);
@@ -97,6 +118,25 @@ export function OperarioRutaFormModal({
 
       if (!response.ok || !body.ok) {
         throw new Error(body.error ?? "No se pudo guardar la ruta");
+      }
+
+      if (editaJornada) {
+        const jornadaRes = await fetch(`/api/panel/rutas/${ruta.id}/jornada`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            km_inicial: kmInicial.trim() === "" ? null : Number(kmInicial),
+            insumos: insumosInicio,
+            km_final: kmFinal.trim() === "" ? null : Number(kmFinal),
+            descarga,
+            combustible: combustible.trim() === "" ? 0 : Number(combustible),
+            otros_gastos: otrosGastos.trim() === "" ? 0 : Number(otrosGastos),
+          }),
+        });
+        const jornadaBody = (await jornadaRes.json()) as { ok?: boolean; error?: string };
+        if (!jornadaRes.ok || !jornadaBody.ok) {
+          throw new Error(jornadaBody.error ?? "No se pudieron guardar los datos de la jornada");
+        }
       }
 
       onSaved();
@@ -253,6 +293,81 @@ export function OperarioRutaFormModal({
                 onChange={(e) => setObservaciones(e.target.value)}
               />
             </Field>
+
+            {editaJornada && (
+              <div className="space-y-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                  Datos de la jornada del recolector
+                </p>
+                <p className="text-xs text-zinc-500">
+                  Podés corregir la carga que hizo el recolector mientras la ruta esté Realizada
+                  (antes del cierre operario). Al guardar se recalcula el total efectivo.
+                </p>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Kilómetros iniciales *">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      className={inputClass}
+                      value={kmInicial}
+                      onChange={(e) => setKmInicial(e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Kilómetros finales *">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      className={inputClass}
+                      value={kmFinal}
+                      onChange={(e) => setKmFinal(e.target.value)}
+                    />
+                  </Field>
+                </div>
+
+                <InsumosListaEditor
+                  insumos={insumosInicio}
+                  onChange={setInsumosInicio}
+                  variant="compact"
+                  emptyMessage="El recolector no declaró insumos."
+                />
+
+                <label className="flex items-center gap-2 text-sm text-zinc-800 dark:text-zinc-200">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                    checked={descarga}
+                    onChange={(e) => setDescarga(e.target.checked)}
+                  />
+                  Descarga realizada
+                </label>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Combustible">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className={inputClass}
+                      value={combustible}
+                      onChange={(e) => setCombustible(e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Otros gastos">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className={inputClass}
+                      value={otrosGastos}
+                      onChange={(e) => setOtrosGastos(e.target.value)}
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
               <button

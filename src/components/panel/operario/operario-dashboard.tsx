@@ -7,6 +7,10 @@ import { OperarioHistorialRutasTable } from "@/components/panel/operario/operari
 import { OperarioRutaPreparacionInsumosModal } from "@/components/panel/operario/operario-ruta-preparacion-insumos-modal";
 import { OperarioRutaInsumosModal } from "@/components/panel/operario/operario-ruta-insumos-modal";
 import { OperarioRecoleccionFormModal } from "@/components/panel/operario/operario-recoleccion-form-modal";
+import {
+  OperarioRecoleccionCampoModal,
+  type PreciosCampoActivos,
+} from "@/components/panel/operario/operario-recoleccion-campo-modal";
 import { OperarioHistorialRecoleccionesTable } from "@/components/panel/operario/operario-historial-recolecciones-table";
 import { OperarioRecoleccionesTable } from "@/components/panel/operario/operario-recolecciones-table";
 import { OperarioConfirmDialog } from "@/components/panel/operario/operario-confirm-dialog";
@@ -31,6 +35,7 @@ type Props = {
   operarioNombre: string;
   mapsApiKey: string | null;
   variant?: "operativo" | "historial";
+  preciosCampo?: PreciosCampoActivos;
 };
 
 export function OperarioDashboard({
@@ -40,6 +45,7 @@ export function OperarioDashboard({
   operarioNombre,
   mapsApiKey,
   variant = "operativo",
+  preciosCampo,
 }: Props) {
   const isHistorial = variant === "historial";
   const router = useRouter();
@@ -59,6 +65,7 @@ export function OperarioDashboard({
   const [mapaRutaId, setMapaRutaId] = useState<string | null>(null);
   const [editRutaId, setEditRutaId] = useState<string | null>(null);
   const [editRecoleccionId, setEditRecoleccionId] = useState<string | null>(null);
+  const [editCargaRecoleccionId, setEditCargaRecoleccionId] = useState<string | null>(null);
   const [creatingRecoleccion, setCreatingRecoleccion] = useState(false);
   const [reactivarRutaId, setReactivarRutaId] = useState<string | null>(null);
   const [insumosRutaId, setInsumosRutaId] = useState<string | null>(null);
@@ -79,6 +86,8 @@ export function OperarioDashboard({
   const mapaRuta = rutasVisibles.find((r) => r.id === mapaRutaId) ?? null;
   const editRuta = rutasVisibles.find((r) => r.id === editRutaId) ?? null;
   const editRecoleccion = recolecciones.find((r) => r.id === editRecoleccionId) ?? null;
+  const editCargaRecoleccion =
+    recolecciones.find((r) => r.id === editCargaRecoleccionId) ?? null;
   const recoleccionesRuta = useMemo(
     () => recolecciones.filter((r) => r.ruta_id === selectedRutaId),
     [recolecciones, selectedRutaId],
@@ -260,7 +269,7 @@ export function OperarioDashboard({
           {selectedRuta && isHistorial && (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               {selectedRuta.estado === "completada"
-                ? "Consultá las recolecciones. Para modificar paradas, reactivá la ruta desde Operativo."
+                ? "Editá la carga del recolector de cada parada. Para agregar o quitar paradas, reactivá la ruta desde Operativo."
                 : "Vista de solo lectura para recolecciones en rutas del historial."}
             </p>
           )}
@@ -269,6 +278,7 @@ export function OperarioDashboard({
           <OperarioHistorialRecoleccionesTable
             recolecciones={recoleccionesRuta}
             ruta={selectedRuta}
+            onEditarCarga={preciosCampo ? setEditCargaRecoleccionId : undefined}
           />
         ) : (
           <OperarioRecoleccionesTable
@@ -342,6 +352,17 @@ export function OperarioDashboard({
         onSaved={refreshData}
         onDeleted={refreshData}
       />
+
+      {preciosCampo && (
+        <OperarioRecoleccionCampoModal
+          open={editCargaRecoleccionId !== null}
+          rutaId={editCargaRecoleccion?.ruta_id ?? null}
+          recoleccion={editCargaRecoleccion}
+          precios={preciosCampo}
+          onClose={() => setEditCargaRecoleccionId(null)}
+          onSaved={refreshData}
+        />
+      )}
 
       {isHistorial && (
         <>
