@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa); **renombre de parámetros** (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos de ayuda** en el cobro del recolector.
+**Novedades recientes (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa); **renombre de parámetros** (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos de ayuda** en el cobro del recolector; **Maps por tramos** (máx. 8 paradas por enlace, cartel **Siguiente tramo**) para que Google no saltee direcciones.
 
 **Novedades previas (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; **editar la carga del recolector** desde Historial en rutas Realizadas (antes del cierre operario); KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
 
@@ -640,7 +640,7 @@ Login
   → Mis rutas (Activas / Completadas)
     → Detalle de ruta
       → Inicio de ruta (km + insumos)     ← una vez por jornada
-      → Maps (recorrido a paradas restantes)
+      → Maps (recorrido a paradas restantes; si hay más de 8, por tramos con Siguiente tramo)
       → Avisar (WhatsApp a clientes)      ← después de iniciar
       → Por cada parada:
           → Maps (solo esa parada)
