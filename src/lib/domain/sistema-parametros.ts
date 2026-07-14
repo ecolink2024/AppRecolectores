@@ -34,16 +34,16 @@ export const PARAMETRO_PRECIO_UI: Record<
   { titulo: string; descripcion: string; inputLabel: string }
 > = {
   "bolsa-extra": {
-    titulo: "Precio de bolsa extra",
+    titulo: "Precio bolsa extra - Hogar",
     descripcion:
       "Se suma por cada bolsa llena a partir de la 3.ª en el cobro en campo. Solo podés agregar un nuevo precio; el anterior se cierra automáticamente.",
-    inputLabel: "Nuevo precio de bolsa extra *",
+    inputLabel: "Nuevo precio bolsa extra - Hogar *",
   },
   "retiro-reciclable-mixto": {
-    titulo: "Retiro reciclable mixto",
+    titulo: "Retiro reciclables - Hogar Mixto",
     descripcion:
       "Cobro en campo para tipo de servicio Mixto (incluye hasta 2 bolsas llenas). Solo podés agregar un nuevo precio; el anterior se cierra automáticamente.",
-    inputLabel: "Nuevo precio de retiro reciclable mixto *",
+    inputLabel: "Nuevo precio retiro reciclables - Hogar Mixto *",
   },
   "bolsa-punto": {
     titulo: "Precio bolsa punto",
@@ -355,7 +355,7 @@ export function buildPrecioCobroDetalle(input: PrecioCobroInput): PrecioCobroDet
       ayudaCobro:
         bolsasLlenas === 0
           ? "Mixto sin bolsas llenas: se usa el precio de retiro de la planilla."
-          : "Mixto: Retiro reciclable mixto incluye hasta 2 bolsas llenas (mismo total con 1 o 2). Desde la 3.ª, bolsa extra.",
+          : "Se debe aplicar solo cuando un hogar con tipo de servicio mixto entrega 1 o 2 bolsas de reciclables",
     };
   }
 
@@ -387,7 +387,7 @@ export function buildPrecioCobroDetalle(input: PrecioCobroInput): PrecioCobroDet
     retiroMixtoDetalleLabel: null,
     ...baseDetalle,
     ayudaCobro:
-      "Las 2 primeras bolsas llenas están incluidas en el precio de retiro. Desde la 3.ª se suma bolsa extra.",
+      "Se debe aplicar solo cuando un hogar con tipo de servicio reciclaje o mixto entrega una tercera bolsa o mas",
   };
 }
 

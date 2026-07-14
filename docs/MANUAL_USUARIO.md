@@ -322,8 +322,8 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 
 | Parámetro | Uso actual |
 |-----------|------------|
-| **Precio de bolsa extra** | Cobro en campo (regla estándar): a partir de la **3.ª bolsa llena** se suma por cada bolsa adicional |
-| **Retiro reciclable mixto** | Cobro en campo **Mixto**: un solo precio que **incluye hasta 2 bolsas llenas** (1 o 2 → mismo total); desde la **3.ª**, bolsa extra |
+| **Precio bolsa extra - Hogar** | Cobro en campo (regla estándar): a partir de la **3.ª bolsa llena** se suma por cada bolsa adicional |
+| **Retiro reciclables - Hogar Mixto** | Cobro en campo **Mixto**: un solo precio que **incluye hasta 2 bolsas llenas** (1 o 2 → mismo total); desde la **3.ª**, bolsa extra |
 | **Precio bolsa punto** | Cobro **Empresa + Punto**: × **bolsas nuevas vendidas** |
 | **Precio bolsa llena hogar** (clave `bolsa_llena_punto`) | Cobro **Empresa + Punto**: × **bolsas llenas hogar** |
 
@@ -333,7 +333,7 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 |---------------|---------------------------|
 | **Empresa** + tipo **Punto** | **(bolsas llenas hogar × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. **Bolsas llenas punto**: solo cantidad; el cobro en punto va en efectivo/transferencia/QR. Biotachos: registro |
 | **Empresa** (otro tipo) | Siempre el **precio de retiro** de la planilla |
-| **Mixto** (`tipo de servicio`) | **0 bolsas:** retiro de planilla · **1 o 2 bolsas:** precio **Retiro reciclable mixto** (mismo total con 1 o 2) · **3+:** ese precio + **bolsa extra** por cada bolsa desde la 3.ª |
+| **Mixto** (`tipo de servicio`) | **0 bolsas:** retiro de planilla · **1 o 2 bolsas:** precio **Retiro reciclables - Hogar Mixto** (mismo total con 1 o 2) · **3+:** ese precio + **bolsa extra** por cada bolsa desde la 3.ª |
 | **Resto** (Hogar, Puntos, etc.) | Retiro de planilla; las **2 primeras** bolsas llenas incluidas; desde la **3.ª**, **bolsa extra** por bolsa |
 
 En **todos** los parámetros de precio:
@@ -577,7 +577,7 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, bolsa extra (Parámetros)
    - **Empresa + Punto:** el total mínimo sale de **bolsas llenas hogar** y **bolsas nuevas vendidas** (Parámetros). **Bolsas llenas punto** es solo cantidad; el monto en punto lo cargás en los pagos
    - **Empresa** (sin Punto): siempre el precio de retiro de la planilla
-   - **Mixto:** con 0 bolsas, precio de retiro de la planilla; con **1 o 2** bolsas, **Retiro reciclable mixto** (mismo monto); desde la **3.ª**, se suma bolsa extra
+   - **Mixto:** con 0 bolsas, precio de retiro de la planilla; con **1 o 2** bolsas, **Retiro reciclables - Hogar Mixto** (mismo monto); desde la **3.ª**, se suma bolsa extra
 3. Completá los **tres montos** (todos obligatorios; efectivo, transferencia y QR pueden ser **0**):
    - Monto efectivo
    - Monto transferencia
@@ -744,7 +744,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### El total a cobrar no coincide con lo que esperaba (recolector / operario)
 
 - Revisá **Unidad** (Empresa = precio fijo de planilla) y **Tipo de servicio** (Mixto = regla especial)
-- Verificá que en **Parámetros** estén cargados los precios vigentes (bolsa extra, retiro reciclable mixto)
+- Verificá que en **Parámetros** estén cargados los precios vigentes (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto)
 - Con **1 o 2 bolsas** en Mixto el total es el mismo; con **3+** se suma bolsa extra
 
 ### No puedo iniciar la ruta (recolector)
@@ -836,8 +836,8 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Obs. operario** | Columna `observaciones` — planilla o panel operario |
 | **Obs. recolector** | Columna `observaciones_recolector` — al guardar carga en campo |
 | **Cestos** | Columna `cestos` — cantidad retirada en campo |
-| **Bolsa extra** | Precio en Parámetros; desde la 3.ª bolsa llena (regla estándar o Mixto con 3+) |
-| **Retiro reciclable mixto** | Precio en Parámetros; base del cobro Mixto con 1–2 bolsas llenas |
+| **Bolsa extra - Hogar** | Precio en Parámetros; desde la 3.ª bolsa llena (regla estándar o Mixto con 3+) |
+| **Retiro reciclables - Hogar Mixto** | Precio en Parámetros; base del cobro Mixto con 1–2 bolsas llenas |
 | **Bolsa punto / bolsa llena punto** | Precios en Parámetros (configurables; uso en app según se habilite) |
 | **Carga en campo** | Datos que el recolector carga en cada parada |
 | **Operario** | Persona de backoffice que supervisa y edita rutas |

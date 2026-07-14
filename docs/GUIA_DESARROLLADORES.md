@@ -546,12 +546,12 @@ Historial (`operario-historial-rutas-table.tsx`) incluye las mismas columnas de 
 
 Ruta `/panel/parametros` (staff). Tabla `sistema_precio_historial` (migración `20260525120000`); una fila activa por `clave` (`vigencia_hasta IS NULL`).
 
-| Slug API | Clave DB | Uso en app |
-|----------|----------|------------|
-| `bolsa-extra` | `bolsa_extra` | Cobro estándar y Mixto 3+ bolsas |
-| `retiro-reciclable-mixto` | `retiro_reciclable_mixto` | Cobro Mixto (1–2 bolsas incluidas en un solo monto) |
-| `bolsa-punto` | `bolsa_punto` | Cobro **Empresa + Punto**: × `bolsas_nuevas_vendidas` |
-| `bolsa-llena-punto` | `bolsa_llena_punto` | Cobro **Empresa + Punto**: × `bolsas_llenas` (hogar) |
+| Slug API | Clave DB | Título en UI | Uso en app |
+|----------|----------|--------------|------------|
+| `bolsa-extra` | `bolsa_extra` | Precio bolsa extra - Hogar | Cobro estándar y Mixto 3+ bolsas |
+| `retiro-reciclable-mixto` | `retiro_reciclable_mixto` | Retiro reciclables - Hogar Mixto | Cobro Mixto (1–2 bolsas incluidas en un solo monto) |
+| `bolsa-punto` | `bolsa_punto` | Precio bolsa punto | Cobro **Empresa + Punto**: × `bolsas_nuevas_vendidas` |
+| `bolsa-llena-punto` | `bolsa_llena_punto` | Precio bolsa llena hogar (Empresa + Punto) | Cobro **Empresa + Punto**: × `bolsas_llenas` (hogar) |
 
 Constantes y UI: `PARAMETRO_PRECIO_SLUGS`, `PARAMETRO_PRECIO_ORDEN`, `PARAMETRO_PRECIO_UI` en `sistema-parametros.ts`.
 

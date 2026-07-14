@@ -337,7 +337,7 @@ export function OperarioRecoleccionCampoModal({
                 </p>
                 <p className="mb-3 text-xs text-zinc-500">
                   La suma de los tres montos no puede ser menor al total (puede ser mayor).
-                  Referencia: bolsa extra {formatParametroMoney(precios.bolsaExtra)}.
+                  Referencia: Precio bolsa extra - Hogar {formatParametroMoney(precios.bolsaExtra)}.
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   <NumberField label="Efectivo" value={montoEfectivo} onChange={setMontoEfectivo} money />

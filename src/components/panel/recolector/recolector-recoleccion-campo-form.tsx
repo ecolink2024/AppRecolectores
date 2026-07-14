@@ -586,7 +586,7 @@ function CobroDetalleRows({
           ) : (
             <>
               <ReadOnlyRow
-                label="Retiro reciclable mixto"
+                label="Retiro reciclables - Hogar Mixto"
                 value={cobroDetalle.montoRetiroMixtoLabel}
               />
               <ReadOnlyRow
@@ -595,9 +595,9 @@ function CobroDetalleRows({
               />
               {cobroDetalle.bolsasExtra > 0 && (
                 <>
-                  <ReadOnlyRow label="Bolsa extra" value={precioBolsaExtraLabel} />
+                  <ReadOnlyRow label="Precio bolsa extra - Hogar" value={precioBolsaExtraLabel} />
                   <ReadOnlyRow
-                    label="Cargo bolsa extra"
+                    label="Cargo bolsa extra - Hogar"
                     value={`${cobroDetalle.bolsaExtraDetalleLabel} = ${cobroDetalle.montoBolsaExtraLabel}`}
                   />
                 </>
@@ -610,9 +610,9 @@ function CobroDetalleRows({
           <ReadOnlyRow label="Precio de retiro" value={precioRetiroLabel} />
           {cobroDetalle.bolsasExtra > 0 && (
             <>
-              <ReadOnlyRow label="Bolsa extra" value={precioBolsaExtraLabel} />
+              <ReadOnlyRow label="Precio bolsa extra - Hogar" value={precioBolsaExtraLabel} />
               <ReadOnlyRow
-                label="Cargo bolsa extra"
+                label="Cargo bolsa extra - Hogar"
                 value={`${cobroDetalle.bolsaExtraDetalleLabel} = ${cobroDetalle.montoBolsaExtraLabel}`}
               />
             </>
