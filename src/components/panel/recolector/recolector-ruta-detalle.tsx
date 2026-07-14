@@ -366,15 +366,11 @@ export function RecolectorRutaDetalle({
                     <p className="mt-1 line-clamp-2 text-sm text-zinc-700 dark:text-zinc-300">
                       {item.direccion}
                     </p>
+                    <RecoleccionCardMeta item={item} />
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span className={recoleccionCardEstadoBadgeClass(item.estado)}>
                         {item.estadoLabel}
                       </span>
-                      {item.zona && (
-                        <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs font-medium text-zinc-800 dark:bg-white/10 dark:text-zinc-200">
-                          {item.zona}
-                        </span>
-                      )}
                       {puedeIrACarga ? (
                         <span className={recoleccionCardActionHintClass(item.estado)}>
                           {labelCarga}
@@ -467,6 +463,27 @@ export function RecolectorRutaDetalle({
         onClose={() => setSelectedId(null)}
       />
     </div>
+  );
+}
+
+function RecoleccionCardMeta({ item }: { item: RecolectorRecoleccionPreview }) {
+  const rows = [
+    item.barrio ? { label: "Barrio", value: item.barrio } : null,
+    item.tipoCliente ? { label: "Tipo de cliente", value: item.tipoCliente } : null,
+    item.unidad ? { label: "Tipo de servicio", value: item.unidad } : null,
+  ].filter((row): row is { label: string; value: string } => row !== null);
+
+  if (rows.length === 0) return null;
+
+  return (
+    <dl className="mt-2 space-y-0.5 text-xs">
+      {rows.map((row) => (
+        <div key={row.label} className="flex gap-1.5">
+          <dt className="shrink-0 font-medium text-zinc-500">{row.label}:</dt>
+          <dd className="min-w-0 truncate text-zinc-700 dark:text-zinc-300">{row.value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 

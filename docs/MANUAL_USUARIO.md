@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa).
+**Novedades recientes (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa); **renombre de parámetros** (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos de ayuda** en el cobro del recolector.
 
 **Novedades previas (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; **editar la carga del recolector** desde Historial en rutas Realizadas (antes del cierre operario); KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
 
@@ -322,8 +322,8 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 
 | Parámetro | Uso actual |
 |-----------|------------|
-| **Precio bolsa extra - Hogar** | Cobro en campo (regla estándar): a partir de la **3.ª bolsa llena** se suma por cada bolsa adicional |
-| **Retiro reciclables - Hogar Mixto** | Cobro en campo **Mixto**: un solo precio que **incluye hasta 2 bolsas llenas** (1 o 2 → mismo total); desde la **3.ª**, bolsa extra |
+| **Precio bolsa extra - Hogar** | Hogar con tipo **Reciclaje** o **Mixto**: se suma a partir de la **3.ª bolsa llena** (cuando entrega tercera bolsa o más) |
+| **Retiro reciclables - Hogar Mixto** | Hogar con tipo **Mixto**: precio fijo con **1 o 2 bolsas** de reciclables; desde la **3.ª**, se suma **Precio bolsa extra - Hogar** |
 | **Precio bolsa punto** | Cobro **Empresa + Punto**: × **bolsas nuevas vendidas** |
 | **Precio bolsa llena hogar** (clave `bolsa_llena_punto`) | Cobro **Empresa + Punto**: × **bolsas llenas hogar** |
 
@@ -333,8 +333,8 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 |---------------|---------------------------|
 | **Empresa** + tipo **Punto** | **(bolsas llenas hogar × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. **Bolsas llenas punto**: solo cantidad; el cobro en punto va en efectivo/transferencia/QR. Biotachos: registro |
 | **Empresa** (otro tipo) | Siempre el **precio de retiro** de la planilla |
-| **Mixto** (`tipo de servicio`) | **0 bolsas:** retiro de planilla · **1 o 2 bolsas:** precio **Retiro reciclables - Hogar Mixto** (mismo total con 1 o 2) · **3+:** ese precio + **bolsa extra** por cada bolsa desde la 3.ª |
-| **Resto** (Hogar, Puntos, etc.) | Retiro de planilla; las **2 primeras** bolsas llenas incluidas; desde la **3.ª**, **bolsa extra** por bolsa |
+| **Mixto** (`tipo de servicio`) | **0 bolsas:** retiro de planilla · **1 o 2 bolsas:** **Retiro reciclables - Hogar Mixto** · **3+:** ese precio + **Precio bolsa extra - Hogar** por cada bolsa desde la 3.ª |
+| **Resto** (Hogar Reciclaje, Puntos, etc.) | Retiro de planilla; las **2 primeras** bolsas llenas incluidas; desde la **3.ª**, **Precio bolsa extra - Hogar** por bolsa |
 
 En **todos** los parámetros de precio:
 
@@ -385,7 +385,7 @@ Estas tareas las hace normalmente el superadmin o alguien técnico al inicio:
 | Configurar planilla Google Sheets | Ver sección 6 |
 | Configurar mapas de Google | Documentación técnica interna |
 | Crear operarios y recolectores | Usuarios en la app |
-| Definir precios del sistema | Parámetros en la app (bolsa extra, mixto, bolsa punto, etc.) |
+| Definir precios del sistema | Parámetros en la app (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto, bolsa punto, etc.) |
 
 ---
 
@@ -421,7 +421,7 @@ Ambas acciones están en **Historial** (columna **Acciones**), no en Operativo:
 
 ### 4.4 Parámetros de precio
 
-Menú **Parámetros** → cuatro bloques independientes (cada uno con precio vigente, formulario de alta e historial). Actualizá cuando cambien valores de negocio; el recolector usa automáticamente los vigentes en el cobro (bolsa extra y retiro mixto).
+Menú **Parámetros** → cuatro bloques independientes (cada uno con precio vigente, formulario de alta e historial). Actualizá cuando cambien valores de negocio; el recolector usa automáticamente los vigentes en el cobro (**Precio bolsa extra - Hogar** y **Retiro reciclables - Hogar Mixto**).
 
 ### 4.5 Editar una ruta
 
@@ -434,6 +434,8 @@ Desde **Editar** en la tabla de rutas podés modificar:
 - Recolector asignado
 - Observaciones del operario
 - Kilómetros recorridos (cuando corresponda)
+
+En rutas **Realizadas** del **Historial**, el mismo botón **Editar** incluye además la sección **Datos de la jornada del recolector**: kilómetros iniciales/finales, insumos, descarga, combustible y otros gastos (ver [Historial](#historial)).
 
 ### 4.6 Editar o agregar una recolección (servicio)
 
@@ -574,10 +576,15 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
 
    Contadores posibles: Bolsas llenas · Biotachos llenos · Bolsas nuevas · Biotachos nuevos · **Cestos** (solo se muestran los que aplican al tipo de cliente).
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):
-   - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, bolsa extra (Parámetros)
+   - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, **Precio bolsa extra - Hogar** (Parámetros)
    - **Empresa + Punto:** el total mínimo sale de **bolsas llenas hogar** y **bolsas nuevas vendidas** (Parámetros). **Bolsas llenas punto** es solo cantidad; el monto en punto lo cargás en los pagos
    - **Empresa** (sin Punto): siempre el precio de retiro de la planilla
-   - **Mixto:** con 0 bolsas, precio de retiro de la planilla; con **1 o 2** bolsas, **Retiro reciclables - Hogar Mixto** (mismo monto); desde la **3.ª**, se suma bolsa extra
+   - **Mixto:** con 0 bolsas, precio de retiro de la planilla; con **1 o 2** bolsas, **Retiro reciclables - Hogar Mixto**; desde la **3.ª**, se suma **Precio bolsa extra - Hogar**
+
+   Debajo del desglose, la app muestra un **texto de ayuda** según el caso:
+   - Mixto con **1 o 2 bolsas:** *"Se debe aplicar solo cuando un hogar con tipo de servicio mixto entrega 1 o 2 bolsas de reciclables"*
+   - Reciclaje o Mixto con **3+ bolsas** (cargo extra): *"Se debe aplicar solo cuando un hogar con tipo de servicio reciclaje o mixto entrega una tercera bolsa o mas"*
+   - Mixto con **0 bolsas:** *"Mixto sin bolsas llenas: se usa el precio de retiro de la planilla."*
 3. Completá los **tres montos** (todos obligatorios; efectivo, transferencia y QR pueden ser **0**):
    - Monto efectivo
    - Monto transferencia
@@ -745,7 +752,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 
 - Revisá **Unidad** (Empresa = precio fijo de planilla) y **Tipo de servicio** (Mixto = regla especial)
 - Verificá que en **Parámetros** estén cargados los precios vigentes (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto)
-- Con **1 o 2 bolsas** en Mixto el total es el mismo; con **3+** se suma bolsa extra
+- Con **1 o 2 bolsas** en Mixto el total es el mismo; con **3+** se suma **Precio bolsa extra - Hogar**
 
 ### No puedo iniciar la ruta (recolector)
 

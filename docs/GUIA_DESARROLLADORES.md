@@ -5,7 +5,7 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 **Manual de uso (no técnico):** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
-**Cambios recientes (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`.
+**Cambios recientes (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`; **renombre UI de parámetros** (`PARAMETRO_PRECIO_UI`: Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos `ayudaCobro`** actualizados en `buildPrecioCobroDetalle`.
 
 **Cambios previos (jun 2026):** **Operativo vs Historial** (`completada` en historial al finalizar recolector); **reactivar** (`DELETE .../reactivar`) y **cierre operario** solo en Historial; **editar carga del recolector** desde el panel en rutas Realizadas (`PATCH .../campo`, `puedeEditarCargaStaff`); eliminación de **suspendida** (`20260608120000`); KPIs **solo historial** (`RUTA_ESTADOS_HISTORIAL`, `pendientesCierre`); **Preparación de insumos**; tablas operario con scroll; **Ver detalle**; **Obs. recolector** y **cestos**; tipo **Punto**; Maps con GPS; firmas en Storage; WhatsApp **Avisar**; **dos montos** en rutas/KPIs; gráfico mensual dual; `force-dynamic` en `/panel/kpis`; `revalidatePath` al eliminar ruta.
 
@@ -575,6 +575,14 @@ Resolución de regla (`resolvePrecioCobroRegla`): **Empresa** gana sobre Mixto s
 Columnas DB (`20260603120000_recoleccion_empresa_punto_campos.sql`): `bolsas_llenas_punto` (solo registro), `bolsas_nuevas_vendidas`. Cobro automático usa `bolsas_llenas` (hogar).
 
 Implementación: `calcPrecioTotalCobrarConReglas`, `buildPrecioCobroDetalle` en `sistema-parametros.ts`.
+
+**Mensajes `ayudaCobro`** (debajo del desglose en `recolector-recoleccion-campo-form.tsx`):
+
+| Regla | Condición | Texto |
+|-------|-----------|-------|
+| `mixto` | 0 bolsas llenas | *Mixto sin bolsas llenas: se usa el precio de retiro de la planilla.* |
+| `mixto` | 1–2 bolsas llenas | *Se debe aplicar solo cuando un hogar con tipo de servicio mixto entrega 1 o 2 bolsas de reciclables* |
+| `estandar` | 3+ bolsas (cargo extra) | *Se debe aplicar solo cuando un hogar con tipo de servicio reciclaje o mixto entrega una tercera bolsa o mas* |
 
 Consumidores:
 

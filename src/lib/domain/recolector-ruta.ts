@@ -2,6 +2,7 @@ import { formatInsumosResumen, insumosOperarioCompletados, parseInsumosFromJson,
 import {
   RECOLECCION_OPERATIVA_LABELS,
   RUTA_TURNO_LABELS,
+  formatTipoClienteLabel,
 } from "@/lib/domain/constants";
 import { formatRutaFecha } from "@/lib/domain/rutas";
 import { evaluarFinalizarRuta } from "@/lib/domain/recolector-finalizar-ruta";
@@ -64,16 +65,20 @@ export type RecolectorRecoleccionPreview = {
   hora: string;
   estadoLabel: string;
   estado: RecoleccionRow["estado_operativo"];
-  zona: string | null;
+  barrio: string | null;
+  /** `tipo_servicio` (Reciclaje, Mixto, etc.) */
+  tipoCliente: string | null;
+  /** `unidad` (Hogar, Empresa, Puntos) — etiqueta «Tipo de servicio» en cards */
+  unidad: string | null;
 };
 
 export type RecolectorRecoleccionDetalle = RecolectorRecoleccionPreview & {
-  barrio: string | null;
+  zona: string | null;
   depto: string | null;
   telefono: string | null;
   telefonoNormalizado: string | null;
+  /** Valor crudo de `tipo_servicio` (p. ej. cobro, sheet Info) */
   tipoServicio: string | null;
-  unidad: string | null;
   frecuencia: string | null;
   precio: string | null;
   deuda: string | null;
@@ -207,7 +212,9 @@ export function buildRecolectorRecoleccionPreview(
     hora: String(item.hora).slice(0, 5),
     estado: item.estado_operativo,
     estadoLabel: RECOLECCION_OPERATIVA_LABELS[item.estado_operativo],
-    zona: item.zona,
+    barrio: item.barrio,
+    tipoCliente: item.tipo_servicio ? formatTipoClienteLabel(item.tipo_servicio) : null,
+    unidad: item.unidad,
   };
 }
 
@@ -216,12 +223,11 @@ export function buildRecolectorRecoleccionDetalle(
 ): RecolectorRecoleccionDetalle {
   return {
     ...buildRecolectorRecoleccionPreview(item),
-    barrio: item.barrio,
+    zona: item.zona,
     depto: item.depto,
     telefono: item.telefono,
     telefonoNormalizado: item.telefono_normalizado,
     tipoServicio: item.tipo_servicio,
-    unidad: item.unidad,
     frecuencia: item.frecuencia,
     precio: item.precio,
     deuda: item.deuda,
