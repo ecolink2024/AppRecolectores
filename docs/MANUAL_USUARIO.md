@@ -521,6 +521,8 @@ Google Maps pedirá permiso de ubicación si aún no lo diste; el primer punto d
 
 Solo entran paradas **pendientes** o **en camino**. Las visitadas, canceladas u omitidas no se incluyen. Si visitaste paradas fuera de orden (por ejemplo la 1, 2 y 7), Maps sigue mostrando las que faltan en medio (3, 4, 5, 6) y cualquier otra abierta que venga después.
 
+**Importante — límite de Google:** Maps solo admite **hasta 8 paradas por enlace**. Si la ruta tiene más, la app abre el **primer tramo** (1–8) y muestra un cartel **Maps · Tramo X de Y** con **Siguiente tramo**, igual que cuando avisás por WhatsApp a varios clientes. Así no se “saltean” direcciones del medio. Si reabrís Maps y a veces aparecen paradas que faltaban, suele ser por ese límite (Google ignora waypoints de más), no porque la app no lea la dirección.
+
 Si no queda ninguna parada abierta, el botón Maps queda deshabilitado.
 
 No requiere configuración extra: usa la app de Maps del teléfono.
@@ -779,8 +781,11 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 
 ### Maps me salta paradas que no visité (recolector)
 
+- Google Maps **no acepta más de ~8 paradas** en un solo enlace; las de más las ignora (a veces del medio). Por eso, si hay más de 8 abiertas, la app abre **por tramos** y el cartel **Siguiente tramo**
+- Completá todos los tramos antes de dar por cerrada la navegación
 - El recorrido incluye **todas** las paradas abiertas en el **orden de la ruta**, aunque hayas visitado otras más adelante
-- Si falta una parada, recargá el detalle de la ruta (la lista se arma al abrir la pantalla)
+- Si una parada no tiene **dirección** cargada, no entra al recorrido (usá el **Maps** de esa card o pedí corregir la dirección)
+- Si falta una parada y ya terminaste los tramos, recargá el detalle de la ruta
 
 ### No veo todas las rutas o paradas en pantalla (operario)
 

@@ -9,9 +9,11 @@ import { openGoogleMapsUrl } from "@/lib/client/google-maps-open";
 import {
   buildGoogleMapsDirectionsUrl,
   buildGoogleMapsRecoleccionUrl,
+  chunkDireccionesForMaps,
   formatInicioJornada,
   formatKm,
   formatRecolectorMoney,
+  MAPS_MAX_PARADAS_POR_TRAMO,
   type RecolectorRecoleccionDetalle,
   type RecolectorRecoleccionPreview,
   type RecolectorRutaDetalle,
@@ -60,6 +62,10 @@ export function RecolectorRutaDetalle({
     items: WhatsAppAvisoRecoleccion[];
     index: number;
   } | null>(null);
+  const [tramoMaps, setTramoMaps] = useState<{
+    chunks: string[][];
+    index: number;
+  } | null>(null);
 
   const mapsUrl = useMemo(
     () => buildGoogleMapsDirectionsUrl(direccionesMaps),
@@ -86,14 +92,59 @@ export function RecolectorRutaDetalle({
         ? "Ninguna parada tiene teléfono cargado"
         : null;
 
+  async function openMapsChunk(addresses: string[]) {
+    return openGoogleMapsUrl((origin) =>
+      buildGoogleMapsDirectionsUrl(addresses, { origin }),
+    );
+  }
+
   async function handleMaps() {
     setError(null);
-    const opened = await openGoogleMapsUrl((origin) =>
-      buildGoogleMapsDirectionsUrl(direccionesMaps, { origin }),
-    );
-    if (!opened) {
+    setAvisoWhatsapp(null);
+
+    const chunks = chunkDireccionesForMaps(direccionesMaps);
+    if (chunks.length === 0) {
       setError("No hay paradas pendientes para abrir en Maps");
+      return;
     }
+
+    if (chunks.length === 1) {
+      setTramoMaps(null);
+      const opened = await openMapsChunk(chunks[0]);
+      if (!opened) {
+        setError("No hay paradas pendientes para abrir en Maps");
+      }
+      return;
+    }
+
+    // Más de 8: abrimos por tramos para que Google no saltee direcciones.
+    setTramoMaps({ chunks, index: 0 });
+    const opened = await openMapsChunk(chunks[0]);
+    if (!opened) {
+      setTramoMaps(null);
+      setError("No se pudo abrir Maps");
+    }
+  }
+
+  async function handleSiguienteTramoMaps() {
+    if (!tramoMaps) return;
+
+    const nextIndex = tramoMaps.index + 1;
+    if (nextIndex >= tramoMaps.chunks.length) {
+      setTramoMaps(null);
+      return;
+    }
+
+    setError(null);
+    setTramoMaps({ chunks: tramoMaps.chunks, index: nextIndex });
+    const opened = await openMapsChunk(tramoMaps.chunks[nextIndex]);
+    if (!opened) {
+      setError("No se pudo abrir el siguiente tramo en Maps");
+    }
+  }
+
+  function handleCancelarTramoMaps() {
+    setTramoMaps(null);
   }
 
   function openWhatsAppAviso(url: string) {
@@ -292,6 +343,39 @@ export function RecolectorRutaDetalle({
           Avisar
         </button>
       </div>
+
+      {tramoMaps && (
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/40">
+          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            Maps · Tramo {tramoMaps.index + 1} de {tramoMaps.chunks.length}
+          </p>
+          <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+            Hay {direccionesMaps.length} paradas abiertas. Google Maps solo acepta hasta{" "}
+            {MAPS_MAX_PARADAS_POR_TRAMO} por vez; si mandamos todas, se salta algunas.
+            Seguimos en orden: este tramo tiene {tramoMaps.chunks[tramoMaps.index].length}{" "}
+            dirección(es). Cuando termines, tocá{" "}
+            <span className="font-semibold">Siguiente tramo</span>.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handleCancelarTramoMaps}
+              className="min-h-[2.75rem] rounded-xl border border-zinc-200 bg-white text-sm font-medium text-zinc-700 active:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:active:bg-zinc-800"
+            >
+              Terminar
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSiguienteTramoMaps()}
+              className="min-h-[2.75rem] rounded-xl bg-blue-700 text-sm font-semibold text-white active:bg-blue-800"
+            >
+              {tramoMaps.index + 1 >= tramoMaps.chunks.length
+                ? "Listo"
+                : "Siguiente tramo"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {avisoWhatsapp && (
         <div className="rounded-2xl border border-[#25D366]/40 bg-[#25D366]/10 p-4 dark:border-[#25D366]/30 dark:bg-[#25D366]/15">

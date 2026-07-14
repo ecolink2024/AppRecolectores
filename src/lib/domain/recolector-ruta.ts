@@ -252,6 +252,28 @@ export function buildDireccionesMapsActivas(
     .filter(Boolean);
 }
 
+/**
+ * Tope por enlace de Maps URLs (`api=1`): en mobile los waypoints extras se ignoran
+ * (docs: hasta 3 en browser mobile, máx. 9 en otros). Usamos 8 paradas por tramo
+ * (7 waypoints + destino) para que no se salteen direcciones del medio.
+ */
+export const MAPS_MAX_PARADAS_POR_TRAMO = 8;
+
+/** Parte la lista de direcciones en tramos que Google Maps puede mostrar completos. */
+export function chunkDireccionesForMaps(
+  addresses: string[],
+  maxParadas = MAPS_MAX_PARADAS_POR_TRAMO,
+): string[][] {
+  const cleaned = addresses.map((a) => a.trim()).filter(Boolean);
+  if (cleaned.length === 0) return [];
+  const size = Math.max(1, maxParadas);
+  const chunks: string[][] = [];
+  for (let i = 0; i < cleaned.length; i += size) {
+    chunks.push(cleaned.slice(i, i + size));
+  }
+  return chunks;
+}
+
 function buildGoogleMapsDirUrl(params: {
   destination: string;
   waypoints?: string[];
