@@ -421,6 +421,15 @@ export function formatCantidadBiotachos(item: Pick<
   return String(llenos);
 }
 
+export function formatCantidadCestos(item: Pick<
+  RecoleccionOperarioRow,
+  "cestos"
+>): string {
+  const n = item.cestos ?? 0;
+  if (n === 0) return "—";
+  return String(n);
+}
+
 export function formatCantidadBiotachosDetalle(item: Pick<
   RecoleccionOperarioRow,
   "biotachos_llenos"

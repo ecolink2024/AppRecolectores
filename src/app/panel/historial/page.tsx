@@ -10,9 +10,17 @@ import {
 } from "@/lib/data/sistema-parametros";
 import { requireAuth } from "@/lib/auth/session";
 import { isStaffRole } from "@/lib/domain/constants";
+import { resolveKpiFiltroFechas } from "@/lib/domain/operario-kpis";
 import { getGoogleMapsPublicKey, isSupabaseAdminConfigured } from "@/lib/env";
 
-export default async function PanelHistorialPage() {
+/** Filtro por query (`periodo` | `desde`+`hasta`): datos frescos. */
+export const dynamic = "force-dynamic";
+
+type Props = {
+  searchParams: Promise<{ periodo?: string; desde?: string; hasta?: string }>;
+};
+
+export default async function PanelHistorialPage({ searchParams }: Props) {
   const auth = await requireAuth();
   if (!auth.ok) {
     redirect("/login?next=/panel/historial");
@@ -30,8 +38,13 @@ export default async function PanelHistorialPage() {
     );
   }
 
+  const params = await searchParams;
+  const filtroFechas = resolveKpiFiltroFechas(params);
+
   const { rutas, recolecciones, recolectores, error } =
-    await fetchOperarioDashboardData("historial");
+    await fetchOperarioDashboardData("historial", {
+      fechas: { desde: filtroFechas.desde, hasta: filtroFechas.hasta },
+    });
   const [bolsaExtra, retiroReciclableMixto, bolsaPunto, bolsaLlenaPunto] = await Promise.all([
     fetchPrecioBolsaExtraActivo(),
     fetchPrecioRetiroReciclableMixtoActivo(),
@@ -56,6 +69,7 @@ export default async function PanelHistorialPage() {
         operarioNombre={operarioNombre}
         mapsApiKey={getGoogleMapsPublicKey() ?? null}
         preciosCampo={{ bolsaExtra, retiroReciclableMixto, bolsaPunto, bolsaLlenaPunto }}
+        filtroFechas={filtroFechas}
       />
     </div>
   );

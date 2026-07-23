@@ -8,24 +8,45 @@ import {
 import {
   esRutaHistorial,
   esRutaOperativa,
+  RUTA_ESTADOS_HISTORIAL,
 } from "@/lib/domain/ruta-estado-transiciones";
 
 type RecoleccionRow = Database["public"]["Tables"]["ruta_recolecciones"]["Row"];
 
 export type OperarioRutasFiltro = "operativo" | "historial";
 
+export type HistorialFechaFiltro = {
+  desde: string;
+  hasta: string;
+};
+
 export async function fetchOperarioDashboardData(
   filtro: OperarioRutasFiltro = "operativo",
+  opciones?: { fechas?: HistorialFechaFiltro },
 ) {
   const admin = createAdminClient();
-  const limit = filtro === "historial" ? 500 : 200;
+  const limit = filtro === "historial" ? 5000 : 200;
+  const fechas = filtro === "historial" ? opciones?.fechas : undefined;
 
-  const { data: rutas, error: rutasError } = await admin
-    .from("rutas")
-    .select("*")
-    .order("fecha", { ascending: filtro !== "historial" })
-    .order("turno", { ascending: true })
-    .limit(limit);
+  let query = admin.from("rutas").select("*");
+
+  if (filtro === "historial") {
+    query = query
+      .in("estado", RUTA_ESTADOS_HISTORIAL)
+      .order("fecha", { ascending: false })
+      .order("turno", { ascending: true })
+      .limit(limit);
+    if (fechas) {
+      query = query.gte("fecha", fechas.desde).lte("fecha", fechas.hasta);
+    }
+  } else {
+    query = query
+      .order("fecha", { ascending: true })
+      .order("turno", { ascending: true })
+      .limit(limit);
+  }
+
+  const { data: rutas, error: rutasError } = await query;
 
   if (rutasError) {
     return { rutas: [], recolecciones: [], recolectores: [] as RecolectorOption[], error: rutasError.message };

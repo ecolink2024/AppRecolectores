@@ -93,6 +93,8 @@ Menú **Historial** → `/panel/historial`
 
 Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierre operario), **Cerradas** (con cierre operario) o **Canceladas**.
 
+**Filtro de fechas:** igual que en KPIs — **Desde / Hasta** + **Aplicar**, o atajos (7 días, 30 días, mes en curso, 90 días). Por defecto muestra los **últimos 30 días** (fecha de la ruta). El CSV descarga solo lo visible en el filtro.
+
 **Acciones por ruta (columna Acciones):**
 
 | Estado | Botones disponibles |
@@ -107,7 +109,7 @@ En rutas **Realizadas**, el botón **Editar** de la ruta suma una sección **Dat
 
 En rutas **Realizadas** también podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar se recalcula el total de la ruta en Historial. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial. Los KPIs (recaudación, materiales, etc.) impactan recién al **Cierre operario**.
 
-**Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta **todas** las rutas del historial y **todos** sus servicios en un archivo Excel-compatible.
+**Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta las rutas del **rango filtrado** y sus servicios en un archivo Excel-compatible.
 
 #### Tabla de rutas (Historial)
 
@@ -126,7 +128,8 @@ Tabla amplia con **scroll vertical** (altura acotada, encabezado fijo al bajar) 
 | Recolecciones / exitosos / pendientes / canceladas | Resumen de paradas |
 | **Monto a recaudar** | Suma de precios cargados en paradas visitadas (*monto total por servicios prestados*) |
 | **Total recaudado** | Pagos reales cobrados en campo: efectivo + transferencia + QR (*monto real recaudado*) |
-| Después de gastos / Total efectivo | Efectivo neto tras combustible, descuento y otros gastos de cierre |
+| **Total efectivo** | Efectivo bruto cobrado en paradas (sin descontar gastos de jornada) |
+| **Después de gastos** | Efectivo neto tras combustible, descuento y otros gastos |
 | **Acciones** | Editar, Reactivar (Realizado), Cierre operario (Realizado) |
 
 Seleccioná una fila para ver sus servicios abajo.
@@ -135,7 +138,9 @@ Seleccioná una fila para ver sus servicios abajo.
 
 Misma ruta seleccionada arriba. Mismo criterio de **scroll vertical** (encabezado fijo) y horizontal que la tabla de rutas. Columnas (en este orden):
 
-Horario · Recolector · Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · Observaciones · Detalle · Firma · Firmante · **Unidad** · **Tipo de servicio** · **Editar carga** (solo en rutas Realizadas)
+Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · **Cesto** · Precio total · Montos (efectivo, transferencia, QR) · Estado · Motivo cancelación · **Obs. recolector** · **Obs. operario** · Detalle · Firma · Firmante · **Unidad** · **Tipo de servicio** · **Editar carga** (solo en rutas Realizadas)
+
+Horario, turno y recolector se ven en la tabla de rutas de arriba (no se repiten en cada parada). **Cesto** muestra la cantidad entregada en campo (`—` si no hubo).
 
 > **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), motivo de cancelación, observaciones y firma. Los contadores de retiro que se muestran **dependen del tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo). La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
 
@@ -149,7 +154,7 @@ Menú **KPIs** → `/panel/kpis`
 
 Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
-> **Alcance:** los KPIs miran rutas del **historial** en el rango de fechas. Los **conteos** de rutas (Pendiente cierre, Realizadas, Cerradas, Canceladas) incluyen todo el historial. En cambio, **montos, materiales, zonas, recolectores, gastos, km y el gráfico mensual** solo impactan cuando el operario hizo **Cierre operario** (estado **Cerrada**). Una ruta **Realizada** (pendiente de cierre) aparece en “Pendiente cierre” pero **no** mueve la recaudación ni los materiales hasta cerrarla.
+> **Alcance:** los KPIs miran rutas del **historial** en el rango de fechas. Ves **Pendiente cierre**, **Realizadas**, **Cerradas** y **Canceladas**. En cambio, **montos, materiales, servicios y “Rutas en el período”** solo suman rutas **Cerradas** (cierre operario). Una **Pendiente de cierre** se muestra en su tarjeta pero **no** mueve recaudación ni el total de rutas del período hasta cerrarla.
 
 **Filtros de fecha:**
 
@@ -160,8 +165,8 @@ Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
 **Secciones principales:**
 
-- Resumen del período: **Monto total por servicios prestados** y **Monto real recaudado**, servicios exitosos, índice de exitosas, cantidad de rutas del historial
-- **Rutas** por estado en historial: **Pendiente cierre** (Realizado sin cierre operario), **Realizadas** (jornadas finalizadas por el recolector, incluye las ya cerradas), **Cerradas**, **Canceladas**
+- Resumen del período: **Monto total por servicios prestados** y **Monto real recaudado**, servicios exitosos, índice de exitosas, **rutas cerradas** en el período
+- **Rutas** por estado: **Pendiente cierre**, **Realizadas**, **Cerradas**, **Canceladas** (las pendientes no suman a montos ni a “Rutas en el período”)
 - **Recolecciones (servicios):** ingresadas (todas las paradas de esas rutas), exitosas, canceladas, omitidas, pendientes, índice de exitosas
 - **Por zona:** servicios, tipo de servicio, frecuencia, **bolsas llenas** (solo llenas, sin contar nuevas), efectivo, transferencia, QR, ingreso total
 - **Por recolector:** agendadas, realizadas, % éxito, ingresos (monto real recaudado)
@@ -260,7 +265,7 @@ Podés editar la preparación mientras la ruta no haya sido iniciada por el reco
 
 Muestra las paradas de la **ruta seleccionada** arriba (fila resaltada en verde). La tabla tiene **scroll propio** para ver muchas paradas sin perder de vista la lista de rutas.
 
-**Columnas principales:** #, Estado, **Detalle**, Zona, Dirección, Horario prog., Nombre, Hora real, Unidad, Tipo de cliente, Precio total, **Obs. recolector**, **Obs. operario**, Firma, Firmante, **Editar**.
+**Columnas principales:** #, Estado, **Detalle**, Zona, Dirección, Horario prog., Nombre, Hora real, Unidad, Tipo de cliente, **Cesto**, Precio total, **Obs. recolector**, **Obs. operario**, Firma, Firmante, **Editar**.
 
 Los tipos de cliente válidos al crear/editar una parada son: **Reciclaje**, **Mixto**, **Orgánico** y **Punto** (este último con Unidad **Empresa** activa reglas de cobro especiales; no confundir con Unidad **Puntos**).
 
@@ -410,7 +415,7 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 ### 4.2 Historial y KPIs
 
 - **Historial:** rutas realizadas, cerradas o canceladas; **Cierre operario** y **Reactivar** en la tabla; **Descargar historial (CSV)** incluye ambos montos por ruta
-- **KPIs:** indicadores del historial en el período; **montos y materiales solo tras Cierre operario**; usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
+- **KPIs:** indicadores del historial; **montos y “Rutas en el período” solo tras Cierre operario** (Pendiente cierre se ve pero no suma); usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
 
@@ -748,7 +753,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### El CSV de KPIs o Historial está vacío o incompleto
 
 - Verificá el **rango de fechas** (KPIs) o que haya rutas en Historial
-- KPIs filtra por **fecha de la ruta** y **solo incluye rutas del historial**. Los **conteos** incluyen Realizadas pendientes de cierre; **montos y materiales** solo de rutas ya **Cerradas** (cierre operario)
+- KPIs filtra por **fecha de la ruta** e incluye el historial. **Pendiente cierre** se muestra pero no suma a montos ni a “Rutas en el período”; eso solo cuenta rutas **Cerradas**
 
 ### El total a cobrar no coincide con lo que esperaba (recolector / operario)
 

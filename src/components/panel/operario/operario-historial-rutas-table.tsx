@@ -61,7 +61,7 @@ export function OperarioHistorialRutasTable({
   if (rutas.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900">
-        No hay rutas en el historial. Las rutas aparecen acá cuando el recolector las finaliza.
+        No hay rutas en el historial para este rango de fechas. Probá otro período o ampliá Desde/Hasta.
       </div>
     );
   }
@@ -102,8 +102,18 @@ export function OperarioHistorialRutasTable({
             <th className={`${TH} text-right`}>Km recorridos</th>
             <th className={`${TH} text-right`}>Monto a recaudar</th>
             <th className={`${TH} text-right`}>Total recaudado</th>
-            <th className={`${TH} text-right`}>Después de gastos</th>
-            <th className={`${TH} text-right`}>Total efectivo</th>
+            <th
+              className={`${TH} text-right`}
+              title="Efectivo cobrado en paradas (sin descontar gastos)"
+            >
+              Total efectivo
+            </th>
+            <th
+              className={`${TH} text-right`}
+              title="Efectivo menos combustible, descuento y otros gastos"
+            >
+              Después de gastos
+            </th>
             <th className={`${TH} text-center`}>Acciones</th>
           </tr>
         </thead>
@@ -196,11 +206,11 @@ export function OperarioHistorialRutasTable({
                 <td className={`${TD} text-right font-medium`}>
                   {formatMoney(ruta.total_recaudado)}
                 </td>
-                <td className={`${TD} text-right`}>
-                  {formatMoney(d.recaudadoDespuesGastos)}
-                </td>
                 <td className={`${TD} text-right font-medium text-emerald-700 dark:text-emerald-400`}>
                   {formatMoney(d.totalEfectivo)}
+                </td>
+                <td className={`${TD} text-right`}>
+                  {formatMoney(d.recaudadoDespuesGastos)}
                 </td>
                 <td className={`${TD} text-center`}>
                   <div className="flex flex-wrap items-center justify-center gap-1.5">

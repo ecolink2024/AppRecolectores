@@ -16,6 +16,7 @@ import { OperarioRecoleccionDetalleModal } from "@/components/panel/operario/ope
 import {
   buildRecoleccionOperarioDetalleCarga,
   esFirmaDigitalImagen,
+  formatCantidadCestos,
   formatHoraReal,
   formatMoney,
   type RecoleccionOperarioRow,
@@ -83,6 +84,12 @@ export function OperarioRecoleccionesTable({
               <th className="px-3 py-3 font-medium">Hora real</th>
               <th className="px-3 py-3 font-medium">Unidad</th>
               <th className="px-3 py-3 font-medium">Tipo de cliente</th>
+              <th
+                className="px-3 py-3 font-medium text-center"
+                title="Cestos entregados en campo"
+              >
+                Cesto
+              </th>
               <th className="px-3 py-3 font-medium text-right">Precio total</th>
               <th
                 className="w-[5.5rem] max-w-[5.5rem] px-2 py-3 font-medium"
@@ -160,6 +167,9 @@ export function OperarioRecoleccionesTable({
                     title={item.tipo_servicio ?? undefined}
                   >
                     {formatTipoClienteLabel(item.tipo_servicio)}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2.5 text-center">
+                    {formatCantidadCestos(item)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2.5 text-right">
                     {formatMoney(

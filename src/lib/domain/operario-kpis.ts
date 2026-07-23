@@ -334,7 +334,6 @@ export function buildOperarioKpis(
   recolectorNombres: Map<string, string>,
   periodo: { desde: string; hasta: string; etiqueta: string },
 ): OperarioKpis {
-
   const estadoCounts = new Map<RutaEstado, number>();
 
   let cerradas = 0;
@@ -346,12 +345,10 @@ export function buildOperarioKpis(
   let gastos = 0;
   const duraciones: number[] = [];
 
-  const rutaIds = new Set(rutas.map((r) => r.id));
+  /** Montos / materiales / servicios: solo cierre operario (no pendientes de cierre). */
   const rutasImpacto = rutas.filter((r) => rutaImpactaKpis(r.estado));
   const rutaIdsImpacto = new Set(rutasImpacto.map((r) => r.id));
-  const recs = recolecciones.filter((r) => rutaIds.has(r.ruta_id));
-  /** Paradas de rutas ya cerradas por operario (únicas que mueven montos/materiales/KPIs de impacto). */
-  const recsImpacto = recs.filter((r) => rutaIdsImpacto.has(r.ruta_id));
+  const recsImpacto = recolecciones.filter((r) => rutaIdsImpacto.has(r.ruta_id));
 
   for (const ruta of rutas) {
     estadoCounts.set(ruta.estado, (estadoCounts.get(ruta.estado) ?? 0) + 1);
@@ -499,6 +496,7 @@ export function buildOperarioKpis(
   return {
     periodo,
     rutas: {
+      /** Total del historial en el período (incluye pendientes de cierre). */
       total: rutas.length,
       cerradas,
       realizadas,

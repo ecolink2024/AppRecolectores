@@ -37,17 +37,24 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
   lines.push(row(["Monto real recaudado", finanzas.total]));
   lines.push(row(["Servicios exitosos", recolecciones.exitosas]));
   lines.push(row(["Índice de exitosas", formatKpiPercent(recolecciones.indiceExitosas)]));
-  lines.push(row(["Rutas en el período", rutas.total]));
+  lines.push(row(["Rutas en el período (cerradas)", rutas.cerradas]));
   lines.push(row(["Rutas cerradas", rutas.cerradas]));
+  lines.push(row(["Pendiente cierre operario", rutas.pendientesCierre]));
   lines.push(row(["Rutas realizadas", rutas.realizadas]));
+  lines.push(row(["Canceladas", rutas.canceladas]));
 
   lines.push(...sectionTitle("RUTAS"));
   lines.push(row(["Métrica", "Cantidad"]));
-  lines.push(row(["Total", rutas.total]));
+  lines.push(row(["Total historial", rutas.total]));
   lines.push(row(["Pendiente cierre operario", rutas.pendientesCierre]));
   lines.push(row(["Realizadas", rutas.realizadas]));
   lines.push(row(["Cerradas", rutas.cerradas]));
   lines.push(row(["Canceladas", rutas.canceladas]));
+  lines.push(
+    row([
+      "Nota: montos y materiales solo de rutas con cierre operario. Pendiente cierre no suma.",
+    ]),
+  );
   lines.push(row(["Estado", "Cantidad", "% del total"]));
   for (const e of rutas.porEstado) {
     const pct =
@@ -56,6 +63,9 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
   }
 
   lines.push(...sectionTitle("RECOLECCIONES (SERVICIOS)"));
+  lines.push(
+    row(["Solo paradas de rutas con cierre operario en el período."]),
+  );
   lines.push(row(["Métrica", "Cantidad"]));
   lines.push(row(["Total ingresadas", recolecciones.ingresadas]));
   lines.push(row(["Exitosas", recolecciones.exitosas]));

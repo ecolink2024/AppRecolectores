@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { OperarioHistorialRutasTable } from "@/components/panel/operario/operario-historial-rutas-table";
+import { OperarioKpisFiltroFechas } from "@/components/panel/operario/operario-kpis-filtro-fechas";
 import { OperarioRutaPreparacionInsumosModal } from "@/components/panel/operario/operario-ruta-preparacion-insumos-modal";
 import { OperarioRutaInsumosModal } from "@/components/panel/operario/operario-ruta-insumos-modal";
 import { OperarioRecoleccionFormModal } from "@/components/panel/operario/operario-recoleccion-form-modal";
@@ -20,12 +21,14 @@ import { OperarioRutaMapModal } from "@/components/panel/operario/operario-ruta-
 import { OperarioRutasTable } from "@/components/panel/operario/operario-rutas-table";
 import {
   buildRutaDetalle,
+  formatRutaFecha,
   pickDefaultRutaId,
   type RecolectorOption,
   type RecoleccionOperarioRow,
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
 import { downloadHistorialCsv } from "@/lib/domain/operario-historial-export";
+import type { KpiFiltroFechas } from "@/lib/domain/operario-kpis";
 
 
 type Props = {
@@ -36,6 +39,7 @@ type Props = {
   mapsApiKey: string | null;
   variant?: "operativo" | "historial";
   preciosCampo?: PreciosCampoActivos;
+  filtroFechas?: KpiFiltroFechas | null;
 };
 
 export function OperarioDashboard({
@@ -46,6 +50,7 @@ export function OperarioDashboard({
   mapsApiKey,
   variant = "operativo",
   preciosCampo,
+  filtroFechas = null,
 }: Props) {
   const isHistorial = variant === "historial";
   const router = useRouter();
@@ -190,7 +195,9 @@ export function OperarioDashboard({
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
             {isHistorial
-              ? "Rutas finalizadas por el recolector, cerradas operariamente o canceladas. En Realizado podés editar, reactivar o aplicar cierre operario."
+              ? filtroFechas
+                ? `${filtroFechas.etiqueta} · ${formatRutaFecha(filtroFechas.desde)} — ${formatRutaFecha(filtroFechas.hasta)}. Rutas finalizadas, cerradas o canceladas.`
+                : "Rutas finalizadas por el recolector, cerradas operariamente o canceladas. En Realizado podés editar, reactivar o aplicar cierre operario."
               : "Rutas pendientes o en proceso. Prepará insumos, editá paradas y seguí el avance del recolector."}
           </p>
         </div>
@@ -207,6 +214,16 @@ export function OperarioDashboard({
           </button>
         )}
       </div>
+
+      {isHistorial && filtroFechas && (
+        <OperarioKpisFiltroFechas
+          desde={filtroFechas.desde}
+          hasta={filtroFechas.hasta}
+          modo={filtroFechas.modo}
+          periodoPreset={filtroFechas.periodoPreset}
+          basePath="/panel/historial"
+        />
+      )}
 
       <section className="space-y-3">
         <SectionTitle

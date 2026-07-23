@@ -17,8 +17,14 @@ export type InsumosHistorialDetalle = {
   pendientes: number;
   canceladas: number;
   kmRecorridos: number | null;
+  /** Efectivo bruto cobrado (paradas / monto_efectivo de ruta). */
   totalRecaudadoBruto: number;
+  /** Efectivo neto tras combustible, descuento y otros gastos. */
   recaudadoDespuesGastos: number;
+  /**
+   * Columna UI «Total efectivo»: mismo que el bruto.
+   * (El neto va en «Después de gastos».)
+   */
   totalEfectivo: number | null;
 };
 
@@ -96,15 +102,24 @@ export function buildInsumosHistorialDetalle(
   const totalRecaudadoBruto =
     ruta.monto_efectivo != null ? num(ruta.monto_efectivo) : stats.efectivoRecolecciones;
 
-  const recaudadoDespuesGastos = calcTotalEfectivo(
+  const recaudadoDespuesGastosCalculado = calcTotalEfectivo(
     totalRecaudadoBruto,
     combustible,
     descuento,
     otrosGastos,
   );
 
+  /** Neto: preferir el valor persistido al cierre; si no, recalcular. */
+  const recaudadoDespuesGastos =
+    ruta.total_efectivo != null
+      ? num(ruta.total_efectivo)
+      : recaudadoDespuesGastosCalculado;
+
+  /** Bruto en efectivo (sin descontar gastos de jornada). */
   const totalEfectivo =
-    ruta.total_efectivo != null ? num(ruta.total_efectivo) : recaudadoDespuesGastos;
+    totalRecaudadoBruto > 0 || recaudadoDespuesGastos !== 0
+      ? totalRecaudadoBruto
+      : null;
 
   return {
     insumosPorTipo,
@@ -119,7 +134,7 @@ export function buildInsumosHistorialDetalle(
     kmRecorridos,
     totalRecaudadoBruto,
     recaudadoDespuesGastos,
-    totalEfectivo: totalRecaudadoBruto > 0 || totalEfectivo !== 0 ? totalEfectivo : null,
+    totalEfectivo,
   };
 }
 

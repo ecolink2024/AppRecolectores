@@ -118,7 +118,7 @@ export function OperarioKpisDashboard({
               {kpis.periodo.etiqueta} ·{" "}
               {formatRutaFecha(kpis.periodo.desde)} — {formatRutaFecha(kpis.periodo.hasta)}
               {" · "}
-              Solo historial · montos y materiales al cerrar operario
+              Historial · montos y “Rutas en el período” sin pendientes de cierre
             </p>
           </div>
           <button
@@ -186,18 +186,21 @@ export function OperarioKpisDashboard({
             />
             <KpiCard
               label="Rutas en el período"
-              value={formatKpiNumber(kpis.rutas.total)}
-              hint={`${formatKpiNumber(kpis.rutas.realizadas)} finalizadas por recolector · ${formatKpiNumber(kpis.rutas.cerradas)} con cierre operario`}
+              value={formatKpiNumber(kpis.rutas.cerradas)}
+              hint={`${formatKpiNumber(kpis.rutas.pendientesCierre)} pendiente(s) de cierre · no suman acá`}
               accent="amber"
             />
           </div>
 
-          <Section title="Rutas" subtitle="Conteos del historial. Montos y materiales solo de rutas Cerradas (cierre operario).">
+          <Section
+            title="Rutas"
+            subtitle="Conteos del historial. Montos, materiales y “Rutas en el período” solo de Cerradas (sin pendientes de cierre)."
+          >
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 label="Pendiente cierre"
                 value={formatKpiNumber(kpis.rutas.pendientesCierre)}
-                hint="Realizado: aún no impacta montos/KPIs de recaudación"
+                hint="Realizado: aún no suma montos ni rutas del período"
                 accent="zinc"
               />
               <KpiCard
@@ -252,7 +255,7 @@ export function OperarioKpisDashboard({
 
           <Section
             title={KPI_LABEL_SERVICIOS}
-            subtitle="Servicios (paradas) ingresados en rutas del período"
+            subtitle="Servicios (paradas) de rutas cerradas en el período"
           >
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <KpiCard
@@ -318,6 +321,7 @@ export function OperarioKpisDashboard({
               <KpiCard
                 label="Efectivo"
                 value={formatMoney(kpis.finanzas.efectivo)}
+                hint="Cobrado en paradas · no descuenta gastos de jornada"
                 accent="emerald"
               />
               <KpiCard

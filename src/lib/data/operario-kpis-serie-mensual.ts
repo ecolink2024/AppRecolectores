@@ -5,10 +5,9 @@ import {
   rangoMesesSerieRecaudacion,
   type KpiSerieMes,
 } from "@/lib/domain/operario-kpis";
-import { RUTA_ESTADOS_HISTORIAL } from "@/lib/domain/ruta-estado-transiciones";
+import { RUTA_ESTADOS_KPI_IMPACTO } from "@/lib/domain/ruta-estado-transiciones";
 import type { Database } from "@/types/database";
 
-type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
 type RecoleccionRow = Database["public"]["Tables"]["ruta_recolecciones"]["Row"];
 
 export async function fetchSerieMensualRecaudacion(
@@ -19,7 +18,7 @@ export async function fetchSerieMensualRecaudacion(
   const { data: rutas, error: rutasError } = await admin
     .from("rutas")
     .select("*")
-    .in("estado", RUTA_ESTADOS_HISTORIAL)
+    .in("estado", RUTA_ESTADOS_KPI_IMPACTO)
     .gte("fecha", desdeFecha)
     .lte("fecha", hastaFecha)
     .order("fecha", { ascending: true })

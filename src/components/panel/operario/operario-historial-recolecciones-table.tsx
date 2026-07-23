@@ -16,8 +16,8 @@ import {
   esFirmaDigitalImagen,
   formatCantidadBiotachos,
   formatCantidadBolsas,
+  formatCantidadCestos,
   formatMoney,
-  formatRutaHorario,
   type RecoleccionOperarioRow,
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
@@ -108,9 +108,6 @@ export function OperarioHistorialRecoleccionesTable({
     );
   }
 
-  const horarioRuta = formatRutaHorario(ruta.fecha, ruta.turno);
-  const recolector = ruta.recolector_nombre ?? "—";
-
   return (
     <>
       <OperarioScrollableTable
@@ -121,22 +118,28 @@ export function OperarioHistorialRecoleccionesTable({
             : `${recolecciones.length} parada${recolecciones.length === 1 ? "" : "s"}`
         }
       >
-        <table className="min-w-[2100px] w-full text-left text-sm">
+        <table className="min-w-[2000px] w-full text-left text-sm">
           <thead className={OPERARIO_TABLE_HEAD_STICKY}>
             <tr>
-              <th className={TH}>Horario</th>
-              <th className={TH}>Recolector</th>
               <th className={TH}>Nombre cliente</th>
               <th className={TH}>Zona</th>
               <th className={`${TH} text-center`}>Biotachos llenos</th>
               <th className={`${TH} text-center`}>Bolsas llenas</th>
+              <th className={`${TH} text-center`} title="Cestos entregados en campo">
+                Cesto
+              </th>
               <th className={`${TH} text-right`}>Precio total</th>
               <th className={`${TH} text-right`}>Monto efectivo</th>
               <th className={`${TH} text-right`}>Monto transferencia</th>
               <th className={`${TH} text-right`}>Monto QR</th>
               <th className={TH}>Estado</th>
               <th className={TH}>Motivo cancelación</th>
-              <th className={TH}>Observaciones</th>
+              <th className={TH} title="Observaciones del recolector en campo">
+                Obs. recolector
+              </th>
+              <th className={TH} title="Observaciones de planilla u operario">
+                Obs. operario
+              </th>
               <th className={TH}>Detalle</th>
               <th className={TH}>Firma digital</th>
               <th className={TH}>Nombre firmante</th>
@@ -163,8 +166,6 @@ export function OperarioHistorialRecoleccionesTable({
 
               return (
                 <tr key={item.id} className={rowClass}>
-                  <td className={`${TD} text-zinc-600`}>{horarioRuta}</td>
-                  <td className={TD}>{recolector}</td>
                   <td className={TD}>
                     <ClienteCell
                       item={item}
@@ -186,6 +187,9 @@ export function OperarioHistorialRecoleccionesTable({
                   <td className={`${TD} text-center`}>
                     {formatCantidadBolsas(item)}
                   </td>
+                  <td className={`${TD} text-center`}>
+                    {formatCantidadCestos(item)}
+                  </td>
                   <td className={`${TD} text-right`}>
                     {formatMoney(
                       item.precio_total ??
@@ -201,6 +205,7 @@ export function OperarioHistorialRecoleccionesTable({
                     <RecoleccionEstadoBadge estado={item.estado_operativo} />
                   </td>
                   <TextCell value={item.motivo_cancelacion} maxWidth="160px" />
+                  <TextCell value={item.observaciones_recolector} maxWidth="180px" />
                   <TextCell value={item.observaciones} maxWidth="140px" />
                   <TextCell value={item.detalle} maxWidth="120px" />
                   <td className={TD}>

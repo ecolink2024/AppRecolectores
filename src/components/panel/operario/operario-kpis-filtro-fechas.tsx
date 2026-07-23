@@ -14,6 +14,8 @@ type Props = {
   hasta: string;
   modo: KpiFiltroModo;
   periodoPreset: KpiPeriodo | null;
+  /** Ruta base del panel (default KPIs). */
+  basePath?: string;
 };
 
 export function OperarioKpisFiltroFechas({
@@ -21,6 +23,7 @@ export function OperarioKpisFiltroFechas({
   hasta,
   modo,
   periodoPreset,
+  basePath = "/panel/kpis",
 }: Props) {
   const router = useRouter();
   const [desdeInput, setDesdeInput] = useState(desde);
@@ -34,7 +37,7 @@ export function OperarioKpisFiltroFechas({
 
   function setPeriodo(p: KpiPeriodo) {
     setError(null);
-    router.push(`/panel/kpis?periodo=${p}`);
+    router.push(`${basePath}?periodo=${p}`);
   }
 
   function aplicarRango(e: React.FormEvent) {
@@ -54,7 +57,7 @@ export function OperarioKpisFiltroFechas({
     const params = new URLSearchParams();
     params.set("desde", desdeInput);
     params.set("hasta", hastaInput);
-    router.push(`/panel/kpis?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   return (

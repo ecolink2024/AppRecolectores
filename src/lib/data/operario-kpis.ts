@@ -12,7 +12,6 @@ import {
   type OperarioKpis,
 } from "@/lib/domain/operario-kpis";
 
-type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
 type RecoleccionRow = Database["public"]["Tables"]["ruta_recolecciones"]["Row"];
 
 export type KpiFetchParams = {
@@ -51,6 +50,7 @@ export async function fetchOperarioKpisData(
 
   const serieMensualPromise = fetchSerieMensualRecaudacion(admin);
 
+  /** Historial completo para conteos; montos/materiales solo de `cerrada` en buildOperarioKpis. */
   const { data: rutas, error: rutasError } = await admin
     .from("rutas")
     .select("*")
@@ -98,20 +98,28 @@ export async function fetchOperarioKpisData(
     .eq("role", "recolector");
 
   const nombreMap = new Map(
-    (recolectores ?? []).map((r) => [r.id, r.full_name || r.email || "Sin nombre"]),
+    (recolectores ?? []).map((p) => [
+      p.id,
+      p.full_name?.trim() || p.email || "Recolector",
+    ]),
   );
 
   const kpis = buildOperarioKpis(rutasRows, recolecciones, nombreMap, periodo);
-  const { serie: serieMensual, error: serieError } = await serieMensualPromise;
+  const { serie, error: serieError } = await serieMensualPromise;
 
-  return { kpis, serieMensual, filtro, error: serieError };
+  return {
+    kpis,
+    serieMensual: serie,
+    filtro,
+    error: serieError,
+  };
+}
+
+function emptyKpis(periodo: { desde: string; hasta: string; etiqueta: string }): OperarioKpis {
+  return buildOperarioKpis([], [], new Map(), periodo);
 }
 
 function emptySerieMensual(): KpiSerieMes[] {
   const { desdeMes, hastaMes } = rangoMesesSerieRecaudacion();
   return buildSerieMensualRecaudacion([], [], desdeMes, hastaMes);
-}
-
-function emptyKpis(periodo: { desde: string; hasta: string; etiqueta: string }): OperarioKpis {
-  return buildOperarioKpis([], [], new Map(), periodo);
 }

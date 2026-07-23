@@ -10,9 +10,9 @@ export const RUTA_ESTADOS_HISTORIAL: RutaEstado[] = [
 ];
 
 /**
- * Estados cuyas paradas/montos/gastos impactan los KPIs numéricos.
- * Solo tras el **cierre operario** (`cerrada`). Las Realizadas (`completada`)
- * aparecen en conteos de “Pendiente cierre” pero no mueven recaudación ni materiales.
+ * Estados cuyas rutas alimentan montos, materiales, servicios y serie de KPIs.
+ * Solo tras el **cierre operario** (`cerrada`). Las Realizadas pendientes (`completada`)
+ * aparecen en conteos de “Pendiente cierre” pero no mueven recaudación ni “Rutas en el período”.
  */
 export const RUTA_ESTADOS_KPI_IMPACTO: RutaEstado[] = ["cerrada"];
 
