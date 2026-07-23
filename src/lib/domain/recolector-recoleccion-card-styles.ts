@@ -9,7 +9,7 @@ export function recoleccionCardShellClass(estado: RecoleccionOperativaEstado): s
     case "en_camino":
       return `${base} border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50`;
     case "cancelada":
-      return `${base} border-red-300 bg-red-50 dark:border-red-900 dark:bg-red-950/45`;
+      return `${base} border-red-400 bg-red-100 dark:border-red-800 dark:bg-red-950/70`;
     case "omitida":
       return `${base} border-orange-300 bg-orange-50 dark:border-orange-900 dark:bg-orange-950/45`;
     case "pendiente":

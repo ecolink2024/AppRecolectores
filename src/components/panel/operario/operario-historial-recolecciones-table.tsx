@@ -153,11 +153,16 @@ export function OperarioHistorialRecoleccionesTable({
           </thead>
           <tbody>
             {recolecciones.map((item) => {
+              const cancelada = item.estado_operativo === "cancelada";
+              const rowClass = cancelada
+                ? "border-b border-red-100 bg-red-50 last:border-0 dark:border-red-950 dark:bg-red-950/40"
+                : "border-b border-zinc-100 last:border-0 dark:border-zinc-800";
+              const stickyBg = cancelada
+                ? "bg-red-50 dark:bg-red-950/40"
+                : "bg-white dark:bg-zinc-900";
+
               return (
-                <tr
-                  key={item.id}
-                  className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
-                >
+                <tr key={item.id} className={rowClass}>
                   <td className={`${TD} text-zinc-600`}>{horarioRuta}</td>
                   <td className={TD}>{recolector}</td>
                   <td className={TD}>
@@ -220,7 +225,7 @@ export function OperarioHistorialRecoleccionesTable({
                   <TextCell value={formatTipoClienteLabel(item.tipo_servicio)} maxWidth="120px" />
                   {editableCarga && (
                     <td
-                      className={`${TD} sticky right-0 z-10 bg-white text-center dark:bg-zinc-900`}
+                      className={`${TD} sticky right-0 z-10 text-center ${stickyBg}`}
                     >
                       <button
                         type="button"

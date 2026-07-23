@@ -106,11 +106,16 @@ export function OperarioRecoleccionesTable({
           <tbody>
             {recolecciones.map((item) => {
               const tieneDetalle = buildRecoleccionOperarioDetalleCarga(item).tieneCarga;
+              const cancelada = item.estado_operativo === "cancelada";
 
               return (
                 <tr
                   key={item.id}
-                  className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
+                  className={
+                    cancelada
+                      ? "border-b border-red-100 bg-red-50 last:border-0 dark:border-red-950 dark:bg-red-950/40"
+                      : "border-b border-zinc-100 last:border-0 dark:border-zinc-800"
+                  }
                 >
                   <td className="whitespace-nowrap px-3 py-2.5 font-semibold text-zinc-700 dark:text-zinc-200">
                     {item.orden}
