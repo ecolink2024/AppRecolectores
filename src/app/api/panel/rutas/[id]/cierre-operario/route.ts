@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
@@ -65,6 +66,10 @@ export async function POST(_request: Request, { params }: Props) {
       : updateError.message;
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
+
+  revalidatePath("/panel");
+  revalidatePath("/panel/historial");
+  revalidatePath("/panel/kpis");
 
   return NextResponse.json({ ok: true, estado: "cerrada", cierre_operario_at: now });
 }

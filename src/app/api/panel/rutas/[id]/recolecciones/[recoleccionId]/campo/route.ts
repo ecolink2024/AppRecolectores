@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
+import { persistRutaTotalesCierre } from "@/lib/data/ruta-totales-cierre";
 import {
   fetchPrecioBolsaExtraActivo,
   fetchPrecioBolsaLlenaPuntoActivo,
@@ -13,6 +14,7 @@ import {
   parseRecoleccionCampoBody,
 } from "@/lib/domain/recolector-recoleccion-campo";
 import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
+import { buildRutaTotalesCierreUpdate } from "@/lib/domain/ruta-totales-cierre";
 import { uploadFirmaRecoleccionPng } from "@/lib/storage/firmas-recoleccion";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
@@ -51,7 +53,7 @@ export async function PATCH(request: Request, { params }: Props) {
 
   const { data: ruta, error: rutaError } = await admin
     .from("rutas")
-    .select("id, estado")
+    .select("id, estado, combustible, descuento, otros_gastos")
     .eq("id", rutaId)
     .maybeSingle();
 
@@ -171,6 +173,36 @@ export async function PATCH(request: Request, { params }: Props) {
     updateRow.detalle = null;
   }
 
+  // Validar totales de la ruta con el estado proyectado (antes de persistir).
+  const { data: hermanas, error: hermanasError } = await admin
+    .from("ruta_recolecciones")
+    .select("id, estado_operativo, monto_efectivo, monto_transferencia, monto_qr")
+    .eq("ruta_id", rutaId);
+
+  if (hermanasError) {
+    return NextResponse.json({ ok: false, error: hermanasError.message }, { status: 500 });
+  }
+
+  const proyectadas = (hermanas ?? []).map((row) =>
+    row.id === recoleccionId
+      ? {
+          estado_operativo: String(updateRow.estado_operativo ?? row.estado_operativo),
+          monto_efectivo: updateRow.monto_efectivo ?? null,
+          monto_transferencia: updateRow.monto_transferencia ?? null,
+          monto_qr: updateRow.monto_qr ?? null,
+        }
+      : row,
+  );
+
+  const previewTotales = buildRutaTotalesCierreUpdate(proyectadas, {
+    combustible: typeof ruta.combustible === "number" ? ruta.combustible : Number(ruta.combustible ?? 0) || 0,
+    descuento: typeof ruta.descuento === "number" ? ruta.descuento : Number(ruta.descuento ?? 0) || 0,
+    otros_gastos: typeof ruta.otros_gastos === "number" ? ruta.otros_gastos : Number(ruta.otros_gastos ?? 0) || 0,
+  });
+  if (!previewTotales.ok) {
+    return NextResponse.json({ ok: false, error: previewTotales.error }, { status: 400 });
+  }
+
   const { error: updateError } = await admin
     .from("ruta_recolecciones")
     .update(updateRow)
@@ -179,6 +211,18 @@ export async function PATCH(request: Request, { params }: Props) {
 
   if (updateError) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
+  }
+
+  const totales = await persistRutaTotalesCierre(admin, rutaId, {
+    recolecciones: proyectadas,
+    gastos: {
+      combustible: typeof ruta.combustible === "number" ? ruta.combustible : Number(ruta.combustible ?? 0) || 0,
+      descuento: typeof ruta.descuento === "number" ? ruta.descuento : Number(ruta.descuento ?? 0) || 0,
+      otros_gastos: typeof ruta.otros_gastos === "number" ? ruta.otros_gastos : Number(ruta.otros_gastos ?? 0) || 0,
+    },
+  });
+  if (!totales.ok) {
+    return NextResponse.json({ ok: false, error: totales.error }, { status: 400 });
   }
 
   revalidatePath("/panel");

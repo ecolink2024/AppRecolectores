@@ -1,6 +1,7 @@
 import { rutaEstadoOperarioLabel } from "@/lib/domain/constants";
 import { calcDuracionJornadaMinutos } from "@/lib/domain/operario-historial-ruta";
 import { getInicioJornadaAt } from "@/lib/domain/recolector-ruta";
+import { rutaImpactaKpis } from "@/lib/domain/ruta-estado-transiciones";
 import type { Database, RecoleccionOperativaEstado, RutaEstado } from "@/types/database";
 
 type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
@@ -346,7 +347,11 @@ export function buildOperarioKpis(
   const duraciones: number[] = [];
 
   const rutaIds = new Set(rutas.map((r) => r.id));
+  const rutasImpacto = rutas.filter((r) => rutaImpactaKpis(r.estado));
+  const rutaIdsImpacto = new Set(rutasImpacto.map((r) => r.id));
   const recs = recolecciones.filter((r) => rutaIds.has(r.ruta_id));
+  /** Paradas de rutas ya cerradas por operario (únicas que mueven montos/materiales/KPIs de impacto). */
+  const recsImpacto = recs.filter((r) => rutaIdsImpacto.has(r.ruta_id));
 
   for (const ruta of rutas) {
     estadoCounts.set(ruta.estado, (estadoCounts.get(ruta.estado) ?? 0) + 1);
@@ -355,7 +360,9 @@ export function buildOperarioKpis(
     if (ruta.estado === "completada" || ruta.estado === "cerrada") realizadas += 1;
     if (ruta.estado === "completada") pendientesCierre += 1;
     if (ruta.estado === "cancelada") canceladas += 1;
+  }
 
+  for (const ruta of rutasImpacto) {
     kmRecorridos += kmRuta(ruta);
 
     if (ruta.cierre_recolector_at) {
@@ -367,10 +374,7 @@ export function buildOperarioKpis(
       if (mins != null) duraciones.push(mins);
     }
 
-    if (ruta.estado === "cerrada" || ruta.estado === "completada") {
-      gastos +=
-        num(ruta.combustible) + num(ruta.descuento) + num(ruta.otros_gastos);
-    }
+    gastos += num(ruta.combustible) + num(ruta.descuento) + num(ruta.otros_gastos);
   }
 
   const porEstado: KpiEstadoRuta[] = Array.from(estadoCounts.entries())
@@ -396,7 +400,7 @@ export function buildOperarioKpis(
   const recByRuta = new Map<string, RecoleccionRow[]>();
   const porZonaMap = new Map<string, ZonaAccumulator>();
 
-  for (const rec of recs) {
+  for (const rec of recsImpacto) {
     const list = recByRuta.get(rec.ruta_id) ?? [];
     list.push(rec);
     recByRuta.set(rec.ruta_id, list);
@@ -443,11 +447,11 @@ export function buildOperarioKpis(
     );
 
   const totalRecaudado = efectivo + transferencia + qr;
-  const ingresadas = recs.length;
+  const ingresadas = recsImpacto.length;
 
   const porRecolectorMap = new Map<string, KpiRecolectorRow>();
 
-  for (const ruta of rutas) {
+  for (const ruta of rutasImpacto) {
     const recolectorId = ruta.asignado_a ?? "__sin_asignar__";
     const nombre =
       ruta.asignado_a != null
@@ -589,6 +593,7 @@ export function buildSerieMensualRecaudacion(
   }
 
   for (const ruta of rutas) {
+    if (!rutaImpactaKpis(ruta.estado)) continue;
     const mes = monthKeyFromFecha(ruta.fecha);
     const entry = serieMap.get(mes);
     if (!entry) continue;

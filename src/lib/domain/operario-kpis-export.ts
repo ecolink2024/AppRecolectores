@@ -76,7 +76,7 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
   lines.push(row(["Transferencia", finanzas.transferencia]));
   lines.push(row(["QR", finanzas.qr]));
   lines.push(row(["Monto real recaudado", finanzas.total]));
-  lines.push(row(["Gastos (rutas cerradas/realizadas)", finanzas.gastos]));
+  lines.push(row(["Gastos (rutas con cierre operario)", finanzas.gastos]));
   lines.push(row(["Promedio por recolección", finanzas.promedioPorRecoleccion ?? ""]));
 
   lines.push(...sectionTitle("OPERACIÓN Y MATERIALES"));

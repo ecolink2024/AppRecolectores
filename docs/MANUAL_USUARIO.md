@@ -103,9 +103,9 @@ Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierr
 - **Reactivar** (solo Realizado): la ruta vuelve a **Operativo** en **En proceso**; se borran los datos de cierre del recolector para que pueda seguir operándola.
 - **Cierre operario** (solo Realizado): la ruta pasa a **Cerrada** (sigue en Historial).
 
-En rutas **Realizadas**, el botón **Editar** de la ruta suma una sección **Datos de la jornada del recolector** donde podés corregir, sin reactivar: **Kilómetros iniciales**, **Insumos**, **Kilómetros finales**, **Descarga realizada**, **Combustible** y **Otros gastos**. Al guardar se **recalcula el total efectivo** (con el efectivo recaudado en campo y el descuento vigente) y se actualizan Historial y KPIs. Esta sección aparece solo en Realizadas (antes del Cierre operario); en Cerradas/Canceladas, **Editar** cambia solo datos administrativos.
+En rutas **Realizadas**, el botón **Editar** de la ruta suma una sección **Datos de la jornada del recolector** donde podés corregir, sin reactivar: **Kilómetros iniciales**, **Insumos**, **Kilómetros finales**, **Descarga realizada**, **Combustible** y **Otros gastos**. Al guardar se **recalcula el total efectivo** (con el efectivo recaudado en campo y el descuento vigente). Esta sección aparece solo en Realizadas (antes del Cierre operario); en Cerradas/Canceladas, **Editar** cambia solo datos administrativos. Los montos de **KPIs** se actualizan cuando hagas **Cierre operario**.
 
-En rutas **Realizadas** también podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar, se recalcula el total y se actualizan Historial y KPIs. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial.
+En rutas **Realizadas** también podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar se recalcula el total de la ruta en Historial. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial. Los KPIs (recaudación, materiales, etc.) impactan recién al **Cierre operario**.
 
 **Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta **todas** las rutas del historial y **todos** sus servicios en un archivo Excel-compatible.
 
@@ -149,7 +149,7 @@ Menú **KPIs** → `/panel/kpis`
 
 Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
-> **Alcance:** los KPIs incluyen **solo rutas del historial** (`Realizado`, `Cerrada` o `Cancelada`) cuya **fecha de ruta** cae en el rango elegido. Las rutas que siguen en **Operativo** (pendientes o en curso) **no** entran en estos números. Una ruta **Cancelada** cuenta aunque el recolector no la haya finalizado.
+> **Alcance:** los KPIs miran rutas del **historial** en el rango de fechas. Los **conteos** de rutas (Pendiente cierre, Realizadas, Cerradas, Canceladas) incluyen todo el historial. En cambio, **montos, materiales, zonas, recolectores, gastos, km y el gráfico mensual** solo impactan cuando el operario hizo **Cierre operario** (estado **Cerrada**). Una ruta **Realizada** (pendiente de cierre) aparece en “Pendiente cierre” pero **no** mueve la recaudación ni los materiales hasta cerrarla.
 
 **Filtros de fecha:**
 
@@ -175,8 +175,8 @@ En tablas de rutas, resumen de KPIs y gráfico mensual se distinguen:
 
 | Nombre en KPIs | En tablas de rutas | Qué incluye |
 |----------------|-------------------|-------------|
-| **Monto total por servicios prestados** | **Monto a recaudar** | Suma de los precios calculados en cada parada **visitada** de rutas del historial en el período |
-| **Monto real recaudado** | **Total recaudado** | Suma de lo cobrado en campo: efectivo + transferencia + QR en paradas **visitadas** de esas rutas |
+| **Monto total por servicios prestados** | **Monto a recaudar** | Suma de los precios calculados en cada parada **visitada** de rutas **Cerradas** (cierre operario) en el período |
+| **Monto real recaudado** | **Total recaudado** | Suma de lo cobrado en campo: efectivo + transferencia + QR en paradas **visitadas** de esas rutas cerradas |
 
 Si un cliente pagó de más o de menos respecto al precio, los dos montos pueden diferir.
 
@@ -410,7 +410,7 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 ### 4.2 Historial y KPIs
 
 - **Historial:** rutas realizadas, cerradas o canceladas; **Cierre operario** y **Reactivar** en la tabla; **Descargar historial (CSV)** incluye ambos montos por ruta
-- **KPIs:** indicadores **solo del historial** en el período; usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
+- **KPIs:** indicadores del historial en el período; **montos y materiales solo tras Cierre operario**; usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
 
@@ -748,7 +748,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### El CSV de KPIs o Historial está vacío o incompleto
 
 - Verificá el **rango de fechas** (KPIs) o que haya rutas en Historial
-- KPIs filtra por **fecha de la ruta** y **solo incluye rutas del historial** (Realizado, Cerrada, Cancelada), no las que siguen en Operativo
+- KPIs filtra por **fecha de la ruta** y **solo incluye rutas del historial**. Los **conteos** incluyen Realizadas pendientes de cierre; **montos y materiales** solo de rutas ya **Cerradas** (cierre operario)
 
 ### El total a cobrar no coincide con lo que esperaba (recolector / operario)
 

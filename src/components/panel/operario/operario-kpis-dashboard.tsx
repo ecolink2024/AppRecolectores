@@ -118,7 +118,7 @@ export function OperarioKpisDashboard({
               {kpis.periodo.etiqueta} ·{" "}
               {formatRutaFecha(kpis.periodo.desde)} — {formatRutaFecha(kpis.periodo.hasta)}
               {" · "}
-              Solo rutas del historial (finalizadas, cerradas o canceladas)
+              Solo historial · montos y materiales al cerrar operario
             </p>
           </div>
           <button
@@ -140,7 +140,7 @@ export function OperarioKpisDashboard({
 
       <Section
         title="Recaudación por mes"
-        subtitle="Monto total por servicios prestados y monto real recaudado, por mes de la ruta (solo historial). Ignora el filtro Desde/Hasta; últimos 12 meses visibles."
+        subtitle="Monto total por servicios prestados y monto real recaudado, por mes de la ruta. Solo rutas Cerradas (cierre operario). Ignora el filtro Desde/Hasta; últimos 12 meses visibles."
       >
         <OperarioKpiRecaudacionChart serie={serieMensual} />
       </Section>
@@ -192,23 +192,24 @@ export function OperarioKpisDashboard({
             />
           </div>
 
-          <Section title="Rutas" subtitle="Estados en historial (mismo criterio que la pantalla Historial)">
+          <Section title="Rutas" subtitle="Conteos del historial. Montos y materiales solo de rutas Cerradas (cierre operario).">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 label="Pendiente cierre"
                 value={formatKpiNumber(kpis.rutas.pendientesCierre)}
-                hint="Realizado sin cierre operario"
+                hint="Realizado: aún no impacta montos/KPIs de recaudación"
                 accent="zinc"
               />
               <KpiCard
                 label="Realizadas"
                 value={formatKpiNumber(kpis.rutas.realizadas)}
-                hint="Jornadas finalizadas por el recolector (incluye las ya cerradas)"
+                hint="Finalizadas por recolector (incluye cerradas)"
                 accent="zinc"
               />
               <KpiCard
                 label="Cerradas"
                 value={formatKpiNumber(kpis.rutas.cerradas)}
+                hint="Con cierre operario · alimentan montos y materiales"
                 accent="zinc"
               />
               <KpiCard

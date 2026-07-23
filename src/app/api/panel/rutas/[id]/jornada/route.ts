@@ -2,7 +2,8 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
-import { calcTotalEfectivo } from "@/lib/domain/recolector-cierre-ruta";
+import { persistRutaTotalesCierre } from "@/lib/data/ruta-totales-cierre";
+import { buildRutaTotalesCierreUpdate } from "@/lib/domain/ruta-totales-cierre";
 import { parseInicioRutaBody } from "@/lib/domain/ruta-insumos";
 import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -70,7 +71,6 @@ export async function PATCH(request: Request, { params }: Props) {
     );
   }
 
-  // km inicial + insumos (mismas reglas que el inicio del recolector).
   const inicio = parseInicioRutaBody({ km_inicial: body.km_inicial, insumos: body.insumos });
   if (!inicio.ok) {
     return NextResponse.json({ ok: false, error: inicio.error }, { status: 400 });
@@ -96,39 +96,19 @@ export async function PATCH(request: Request, { params }: Props) {
 
   const descuento = typeof ruta.descuento === "number" ? ruta.descuento : Number(ruta.descuento ?? 0) || 0;
 
-  // Efectivo recaudado en campo (paradas visitadas) para recomputar el total.
   const { data: recs, error: recsError } = await admin
     .from("ruta_recolecciones")
-    .select("estado_operativo, monto_efectivo")
+    .select("estado_operativo, monto_efectivo, monto_transferencia, monto_qr")
     .eq("ruta_id", rutaId);
 
   if (recsError) {
     return NextResponse.json({ ok: false, error: recsError.message }, { status: 500 });
   }
 
-  const efectivoRecaudado = (recs ?? []).reduce((acc, r) => {
-    if (r.estado_operativo !== "visitada") return acc;
-    const n = typeof r.monto_efectivo === "number" ? r.monto_efectivo : Number(r.monto_efectivo ?? 0);
-    return acc + (Number.isFinite(n) ? n : 0);
-  }, 0);
-
-  const gastos = combustible + descuento + otrosGastos;
-  if (efectivoRecaudado <= 0 && gastos > 0) {
-    return NextResponse.json(
-      { ok: false, error: "No podés cargar gastos si la ruta no recaudó efectivo" },
-      { status: 400 },
-    );
-  }
-  if (efectivoRecaudado > 0 && gastos > efectivoRecaudado) {
-    return NextResponse.json(
-      { ok: false, error: "Los gastos no pueden superar el efectivo recaudado" },
-      { status: 400 },
-    );
-  }
-
-  const totalEfectivo = calcTotalEfectivo(efectivoRecaudado, combustible, descuento, otrosGastos);
-  if (totalEfectivo < 0) {
-    return NextResponse.json({ ok: false, error: "El total efectivo no puede ser negativo" }, { status: 400 });
+  const gastos = { combustible, descuento, otros_gastos: otrosGastos };
+  const totales = buildRutaTotalesCierreUpdate(recs ?? [], gastos);
+  if (!totales.ok) {
+    return NextResponse.json({ ok: false, error: totales.error }, { status: 400 });
   }
 
   const updateRow: RutaUpdate = {
@@ -138,7 +118,9 @@ export async function PATCH(request: Request, { params }: Props) {
     descarga,
     combustible,
     otros_gastos: otrosGastos,
-    total_efectivo: totalEfectivo,
+    monto_efectivo: totales.data.monto_efectivo,
+    monto_transferencia: totales.data.monto_transferencia,
+    total_efectivo: totales.data.total_efectivo,
   };
 
   const { error: updateError } = await admin.from("rutas").update(updateRow).eq("id", rutaId);
@@ -146,6 +128,12 @@ export async function PATCH(request: Request, { params }: Props) {
   if (updateError) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
   }
+
+  // Idempotente: deja totales alineados por si hubiera carrera con otra edición.
+  await persistRutaTotalesCierre(admin, rutaId, {
+    recolecciones: recs ?? [],
+    gastos,
+  });
 
   revalidatePath("/panel");
   revalidatePath("/panel/historial");
