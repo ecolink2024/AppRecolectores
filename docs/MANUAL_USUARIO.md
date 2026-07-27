@@ -848,8 +848,9 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **KPIs** | Indicadores agregados por período (staff); solo rutas del historial |
 | **Monto a recaudar** | Monto total por servicios prestados (suma de precios en visitadas) |
 | **Total recaudado** | Monto real recaudado (pagos en campo: efectivo + transferencia + QR) |
-| **Unidad** | Hogar, Empresa o Puntos (planilla); en Empresa el cobro no varía por bolsas llenas |
-| **Tipo de cliente** | Reciclaje, Mixto, Orgánico o **Punto** (desplegable al editar). **Punto** con Unidad Empresa → cobro especial |
+| **Unidad** | Hogar, Empresa o Puntos (planilla / columna DB `unidad`). En Empresa el cobro no varía por bolsas llenas |
+| **Tipo de servicio** (planilla / `tipo_servicio`) | Reciclaje, Mixto, Orgánico o **Punto**. En las **tarjetas del recolector** se muestra con esta etiqueta |
+| **Tipo de cliente** (tarjeta recolector) | En las cards de parada: Hogar / Empresa / Puntos (mismo dato que **Unidad**). En el panel staff, «Tipo de cliente» a veces nombra al `tipo_servicio` de la planilla |
 | **Empresa + Punto** | En base: Unidad `Empresa` + Tipo `Punto`; retiro en campo con bolsas hogar / punto / vendidas |
 | **Obs. operario** | Columna `observaciones` — planilla o panel operario |
 | **Obs. recolector** | Columna `observaciones_recolector` — al guardar carga en campo |
