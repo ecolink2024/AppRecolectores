@@ -20,6 +20,12 @@ import { formatObservacionesHistorial } from "@/lib/domain/operario-historial-ru
 import { INSUMO_TIPOS } from "@/lib/domain/ruta-insumos";
 import { formatRutaFecha } from "@/lib/domain/rutas";
 
+export type HistorialCsvRango = {
+  desde: string;
+  hasta: string;
+  etiqueta?: string;
+};
+
 function firmaExport(firma: string | null): string {
   if (!firma) return "";
   if (esFirmaDigitalImagen(firma)) return "Imagen";
@@ -38,9 +44,15 @@ function precioRecoleccion(item: RecoleccionOperarioRow): number | null {
 export function buildHistorialCsv(
   rutas: RutaOperarioRow[],
   recolecciones: RecoleccionOperarioRow[],
+  rango?: HistorialCsvRango | null,
 ): string {
   const lines: string[] = [];
-  const rutaMap = new Map(rutas.map((r) => [r.id, r]));
+  const rutasExport = rango
+    ? rutas.filter((r) => r.fecha >= rango.desde && r.fecha <= rango.hasta)
+    : rutas;
+  const rutaIds = new Set(rutasExport.map((r) => r.id));
+  const rutaMap = new Map(rutasExport.map((r) => [r.id, r]));
+  const recsExport = recolecciones.filter((r) => rutaIds.has(r.ruta_id));
 
   lines.push(csvRow(["Historial — App Recolectores"]));
   lines.push(
@@ -49,8 +61,11 @@ export function buildHistorialCsv(
       new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" }),
     ]),
   );
-  lines.push(csvRow(["Total rutas", rutas.length]));
-  lines.push(csvRow(["Total servicios (recolecciones)", recolecciones.length]));
+  if (rango) {
+    lines.push(csvRow(["Filtro", rango.etiqueta ?? "Rango", rango.desde, rango.hasta]));
+  }
+  lines.push(csvRow(["Total rutas", rutasExport.length]));
+  lines.push(csvRow(["Total servicios (recolecciones)", recsExport.length]));
 
   lines.push(...csvSectionTitle("RUTAS"));
   lines.push(
@@ -86,7 +101,7 @@ export function buildHistorialCsv(
     ]),
   );
 
-  for (const ruta of rutas) {
+  for (const ruta of rutasExport) {
     const d = ruta.insumos_detalle;
     lines.push(
       csvRow([
@@ -164,7 +179,7 @@ export function buildHistorialCsv(
     ]),
   );
 
-  const recsOrdenadas = recolecciones
+  const recsOrdenadas = recsExport
     .slice()
     .sort((a, b) => {
       const rutaA = rutaMap.get(a.ruta_id);
@@ -178,12 +193,13 @@ export function buildHistorialCsv(
 
   for (const item of recsOrdenadas) {
     const ruta = rutaMap.get(item.ruta_id);
+    if (!ruta) continue;
     lines.push(
       csvRow([
-        ruta ? formatRutaFecha(ruta.fecha) : "",
-        ruta ? formatRutaHorario(ruta.fecha, ruta.turno) : "",
-        ruta?.nombre ?? "",
-        ruta?.recolector_nombre ?? "",
+        formatRutaFecha(ruta.fecha),
+        formatRutaHorario(ruta.fecha, ruta.turno),
+        ruta.nombre ?? "",
+        ruta.recolector_nombre ?? "",
         item.orden,
         item.nombre,
         item.direccion,
@@ -223,10 +239,11 @@ export function buildHistorialCsv(
 export function downloadHistorialCsv(
   rutas: RutaOperarioRow[],
   recolecciones: RecoleccionOperarioRow[],
+  rango?: HistorialCsvRango | null,
 ): void {
-  const content = buildHistorialCsv(rutas, recolecciones);
-  const fechas = rutas.map((r) => r.fecha).sort();
-  const desde = fechas[0] ?? "sin-fecha";
-  const hasta = fechas[fechas.length - 1] ?? desde;
+  const content = buildHistorialCsv(rutas, recolecciones, rango);
+  const fechas = [...rutas.map((r) => r.fecha)].sort();
+  const desde = rango?.desde ?? fechas[0] ?? "sin-fecha";
+  const hasta = rango?.hasta ?? fechas[fechas.length - 1] ?? desde;
   downloadCsvFile(`historial_${desde}_${hasta}.csv`, content);
 }

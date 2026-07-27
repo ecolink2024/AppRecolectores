@@ -29,6 +29,7 @@ import {
 } from "@/lib/domain/operario-dashboard";
 import { downloadHistorialCsv } from "@/lib/domain/operario-historial-export";
 import type { KpiFiltroFechas } from "@/lib/domain/operario-kpis";
+import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
 
 
 type Props = {
@@ -180,7 +181,17 @@ export function OperarioDashboard({
   function handleDescargarHistorial() {
     setDescargandoHistorial(true);
     try {
-      downloadHistorialCsv(rutasVisibles, recolecciones);
+      downloadHistorialCsv(
+        rutasVisibles,
+        recolecciones,
+        filtroFechas
+          ? {
+              desde: filtroFechas.desde,
+              hasta: filtroFechas.hasta,
+              etiqueta: filtroFechas.etiqueta,
+            }
+          : null,
+      );
     } finally {
       setDescargandoHistorial(false);
     }
@@ -285,8 +296,8 @@ export function OperarioDashboard({
           )}
           {selectedRuta && isHistorial && (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {selectedRuta.estado === "completada"
-                ? "Editá la carga del recolector de cada parada. Para agregar o quitar paradas, reactivá la ruta desde Operativo."
+              {puedeEditarCargaStaff(selectedRuta.estado)
+                ? "Editá la carga del recolector de cada parada. Para agregar o quitar paradas, reactivá la ruta (solo Realizadas)."
                 : "Vista de solo lectura para recolecciones en rutas del historial."}
             </p>
           )}

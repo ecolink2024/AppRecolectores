@@ -31,14 +31,14 @@ export async function fetchOperarioDashboardData(
   let query = admin.from("rutas").select("*");
 
   if (filtro === "historial") {
-    query = query
-      .in("estado", RUTA_ESTADOS_HISTORIAL)
-      .order("fecha", { ascending: false })
-      .order("turno", { ascending: true })
-      .limit(limit);
+    query = query.in("estado", RUTA_ESTADOS_HISTORIAL);
     if (fechas) {
       query = query.gte("fecha", fechas.desde).lte("fecha", fechas.hasta);
     }
+    query = query
+      .order("fecha", { ascending: false })
+      .order("turno", { ascending: true })
+      .limit(limit);
   } else {
     query = query
       .order("fecha", { ascending: true })

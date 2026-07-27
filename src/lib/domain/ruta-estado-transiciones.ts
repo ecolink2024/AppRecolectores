@@ -62,12 +62,14 @@ export function puedeCierreOperario(estado: RutaEstado): boolean {
 }
 
 /**
- * El staff puede editar la carga de campo (datos que llenó el recolector) de
- * una ruta Realizada mientras no tenga cierre operario. Una vez cerrada o
- * cancelada, la carga queda inmutable.
+ * El staff puede editar la carga de campo (datos que llenó el recolector) y la
+ * jornada desde Historial.
+ *
+ * TEMPORAL: también permite `cerrada` (cierre operario). Volver a solo
+ * `completada` cuando terminen los ajustes puntuales.
  */
 export function puedeEditarCargaStaff(estado: RutaEstado): boolean {
-  return estado === "completada";
+  return estado === "completada" || estado === "cerrada";
 }
 
 export function estadoTrasReactivar(): "en_curso" {

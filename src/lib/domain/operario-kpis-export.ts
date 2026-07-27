@@ -145,7 +145,7 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
 
   lines.push(
     ...sectionTitle(
-      "RECAUDACIÓN POR MES (48 meses; no usa el filtro Desde/Hasta de arriba)",
+      "RECAUDACIÓN POR MES (solo meses dentro del filtro Desde/Hasta)",
     ),
   );
   lines.push(
@@ -162,7 +162,10 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
       "Monto real recaudado (ARS)",
     ]),
   );
+  const desdeMes = periodo.desde.slice(0, 7);
+  const hastaMes = periodo.hasta.slice(0, 7);
   for (const m of serieMensual) {
+    if (m.mes < desdeMes || m.mes > hastaMes) continue;
     lines.push(row([formatKpiMesLabel(m.mes), m.mes, m.rutas, m.totalPrecio, m.recaudado]));
   }
 

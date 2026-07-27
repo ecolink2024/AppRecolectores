@@ -168,10 +168,7 @@ export function OperarioHistorialRutasTable({
                 </td>
                 <td className={`${TD} text-right`}>{formatKm(ruta.km_inicial)}</td>
                 <td className={`${TD} text-right`}>{formatKm(ruta.km_final)}</td>
-                <td
-                  className={`max-w-[180px] truncate px-3 py-2.5 text-zinc-600`}
-                  title={observaciones !== "—" ? observaciones : undefined}
-                >
+                <td className="min-w-[16rem] max-w-[28rem] whitespace-normal break-words px-3 py-2.5 align-top text-zinc-600">
                   {observaciones}
                 </td>
                 <td className={TD}>
