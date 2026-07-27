@@ -501,6 +501,7 @@ Dentro de cada sección, las rutas se ordenan por fecha (más recientes arriba).
    - Botones **Maps** (recorrido), **Avisar** (WhatsApp, tras iniciar) e **Inicio de ruta**
    - Lista de **recolecciones** en orden (cada una con su botón **Maps**)
 
+En cada **tarjeta de cliente/parada** ves, cuando hay datos: **Barrio**, **Tipo de servicio** (Reciclaje, Mixto, Orgánico, Punto — campo `tipo_servicio` de la planilla) y **Tipo de cliente** (Hogar, Empresa, Puntos — campo `unidad` de la planilla).
 ### 5.3 Iniciar la ruta (obligatorio antes de cargar paradas)
 
 **Requisito previo:** el operario debe haber completado la **Preparación de insumos** en el panel operativo. Si falta, verás un aviso y **Inicio de ruta** estará deshabilitado; en el detalle aparecerán los **Insumos asignados** cuando el operario los cargue.

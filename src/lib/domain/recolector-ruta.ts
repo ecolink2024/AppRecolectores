@@ -67,8 +67,9 @@ export type RecolectorRecoleccionPreview = {
   estado: RecoleccionRow["estado_operativo"];
   barrio: string | null;
   /** `tipo_servicio` (Reciclaje, Mixto, etc.) */
+  /** `tipo_servicio` (Reciclaje, Mixto, …) — etiqueta «Tipo de servicio» en cards */
   tipoCliente: string | null;
-  /** `unidad` (Hogar, Empresa, Puntos) — etiqueta «Tipo de servicio» en cards */
+  /** `unidad` (Hogar, Empresa, Puntos) — etiqueta «Tipo de cliente» en cards */
   unidad: string | null;
 };
 

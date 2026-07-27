@@ -601,7 +601,7 @@ Componentes en `src/components/panel/recolector/`:
 |------------|---------|
 | `recolector-shell.tsx` | Layout mobile + header + bottom nav |
 | `mis-rutas-cards.tsx` | Listado agrupado por categoría (Activas / Completadas) |
-| `recolector-ruta-detalle.tsx` | Detalle, **Maps** (ruta + por parada), **Avisar** (WhatsApp), lista de paradas, botón **Finalizar ruta** |
+| `recolector-ruta-detalle.tsx` | Detalle, **Maps** (ruta + por parada), **Avisar** (WhatsApp), lista de paradas (cards: Barrio, **Tipo de servicio** ← `tipo_servicio`, **Tipo de cliente** ← `unidad`), botón **Finalizar ruta** |
 | `recolector-finalizar-ruta-form.tsx` | Formulario de cierre antes de finalizar |
 | `recolector-inicio-ruta-form.tsx` | Km + insumos |
 | `recolector-recoleccion-campo-form.tsx` | Carga por parada (desglose según regla empresa/mixto/estándar) |

@@ -553,8 +553,8 @@ export function RecolectorRutaDetalle({
 function RecoleccionCardMeta({ item }: { item: RecolectorRecoleccionPreview }) {
   const rows = [
     item.barrio ? { label: "Barrio", value: item.barrio } : null,
-    item.tipoCliente ? { label: "Tipo de cliente", value: item.tipoCliente } : null,
-    item.unidad ? { label: "Tipo de servicio", value: item.unidad } : null,
+    item.tipoCliente ? { label: "Tipo de servicio", value: item.tipoCliente } : null,
+    item.unidad ? { label: "Tipo de cliente", value: item.unidad } : null,
   ].filter((row): row is { label: string; value: string } => row !== null);
 
   if (rows.length === 0) return null;
