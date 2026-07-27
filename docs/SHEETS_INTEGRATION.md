@@ -38,7 +38,7 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 |-------|---------|
 | Unidad | Hogar, Empresa, Puntos |
 | Tipo de servicio / Tipo de cliente | Reciclaje, Mixto, Organico, **Punto** (con Unidad **Empresa** → cobro especial en app). No usar **Puntos** aquí: es valor de **Unidad**, no de tipo |
-| Frecuencia | Mensual, Puntual, Semanal |
+| Frecuencia | Mensual, Puntual, Semanal, Quincenal |
 
 ### Qué se persiste en Supabase al importar
 

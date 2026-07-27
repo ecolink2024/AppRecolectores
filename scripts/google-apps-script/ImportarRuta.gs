@@ -34,7 +34,7 @@ const CONFIG = {
   },
   UNIDADES: ["Hogar", "Empresa", "Puntos"],
   TIPOS_SERVICIO: ["Reciclaje", "Mixto", "Organico", "Punto"],
-  FRECUENCIAS: ["Mensual", "Puntual", "Semanal"],
+  FRECUENCIAS: ["Mensual", "Puntual", "Semanal", "Quincenal"],
   COLOR_PENDIENTE: "#FFF9C4",
   COLOR_INCOMPLETO: "#FFCDD2",
   COLOR_ERROR: "#FFCDD2",
@@ -51,6 +51,7 @@ function onOpen() {
     .addItem("Configurar integración", "configurarIntegracion")
     .addItem("Actualizar desplegable recolectores", "actualizarDesplegableRecolectores")
     .addItem("Actualizar desplegable tipos de cliente", "actualizarDesplegableTiposCliente")
+    .addItem("Actualizar desplegable frecuencias", "actualizarDesplegableFrecuencias")
     .addToUi();
 }
 
@@ -298,6 +299,21 @@ function actualizarDesplegableTiposCliente() {
   aplicarDesplegableLista_(sheet, col, CONFIG.TIPOS_SERVICIO);
   SpreadsheetApp.getUi().alert(
     "Desplegable de tipos de cliente actualizado: " + CONFIG.TIPOS_SERVICIO.join(", "),
+  );
+}
+
+function actualizarDesplegableFrecuencias() {
+  const sheet = getSheet_();
+  const map = getColumnMap_(sheet);
+  const col = colIndex_(map, [CONFIG.COL.FRECUENCIA, "Frecuencia"]);
+  if (!col) {
+    SpreadsheetApp.getUi().alert('Falta columna "Frecuencia"');
+    return;
+  }
+
+  aplicarDesplegableLista_(sheet, col, CONFIG.FRECUENCIAS);
+  SpreadsheetApp.getUi().alert(
+    "Desplegable de frecuencias actualizado: " + CONFIG.FRECUENCIAS.join(", "),
   );
 }
 

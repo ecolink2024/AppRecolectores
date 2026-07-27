@@ -6,7 +6,7 @@ import {
 
 export const UNIDADES = ["Hogar", "Empresa", "Puntos"] as const;
 export const TIPOS_SERVICIO = RECOLECCION_TIPOS_CLIENTE;
-export const FRECUENCIAS = ["Mensual", "Puntual", "Semanal"] as const;
+export const FRECUENCIAS = ["Mensual", "Puntual", "Semanal", "Quincenal"] as const;
 export const ESTADOS_HOJA = ["Pendiente", "Incompleto", "Error", "Enviada"] as const;
 
 export type Unidad = (typeof UNIDADES)[number];
