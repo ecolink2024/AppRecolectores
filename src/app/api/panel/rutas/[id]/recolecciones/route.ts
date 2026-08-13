@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
 import { parseRecoleccionFields } from "@/lib/domain/operario-crud";
+import { puedeAgregarRecoleccion } from "@/lib/domain/ruta-estado-transiciones";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type Props = { params: Promise<{ id: string }> };
@@ -48,7 +49,7 @@ export async function POST(request: Request, { params }: Props) {
     return NextResponse.json({ ok: false, error: "Ruta no encontrada" }, { status: 404 });
   }
 
-  if (ruta.estado === "completada" || ruta.estado === "cerrada") {
+  if (!puedeAgregarRecoleccion(ruta.estado)) {
     return NextResponse.json(
       { ok: false, error: "No se puede agregar una recolección a una ruta finalizada" },
       { status: 409 },

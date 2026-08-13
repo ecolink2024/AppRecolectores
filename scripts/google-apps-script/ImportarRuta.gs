@@ -8,6 +8,9 @@
  * - Enviar pendientes a la app
  * - Configurar integración
  * - Actualizar desplegable recolectores
+ *
+ * Si la ruta ya existe (fecha + turno + recolector) y no está finalizada,
+ * las filas nuevas se suman. Teléfono repetido o ruta Realizada/Cerrada → Error.
  */
 
 const CONFIG = {
@@ -225,14 +228,39 @@ function enviarPendientes() {
     return;
   }
 
+  const omitidas = {};
+  const omitMsgs = {};
+  const filasOmitidas = body.filas_omitidas || [];
+  for (let i = 0; i < filasOmitidas.length; i++) {
+    omitidas[filasOmitidas[i]] = true;
+  }
+  const detalleOmitidas = body.omitidas || [];
+  for (let i = 0; i < detalleOmitidas.length; i++) {
+    const item = detalleOmitidas[i];
+    omitidas[item.fila] = true;
+    omitMsgs[item.fila] = item.motivo;
+  }
+
+  const omitMsgDefault =
+    "No se importó: ruta finalizada o ya existe una recolección con ese teléfono.";
+
   for (let i = 0; i < pendientes.length; i++) {
     const fila = pendientes[i].fila;
+    if (omitidas[fila]) {
+      sheet.getRange(fila, cols.estado).setValue("Error");
+      sheet.getRange(fila, cols.mensaje).setValue(omitMsgs[fila] || omitMsgDefault);
+      sheet.getRange(fila, 1, 1, sheet.getLastColumn()).setBackground(CONFIG.COLOR_ERROR);
+      continue;
+    }
     sheet.getRange(fila, cols.estado).setValue("Enviada");
     sheet.getRange(fila, cols.mensaje).setValue("");
     sheet.getRange(fila, 1, 1, sheet.getLastColumn()).setBackground(CONFIG.COLOR_ENVIADA);
   }
 
   let msg = body.message || "Importación OK";
+  if (body.warnings && body.warnings.length) {
+    msg += "\n\nAvisos:\n- " + body.warnings.join("\n- ");
+  }
   if (body.rejected && body.rejected.length) {
     msg += "\n\nRechazadas:\n- " + body.rejected.join("\n- ");
   }

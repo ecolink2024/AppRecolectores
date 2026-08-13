@@ -72,6 +72,11 @@ export function puedeEditarCargaStaff(estado: RutaEstado): boolean {
   return estado === "completada" || estado === "cerrada";
 }
 
+/** No se agregan paradas a rutas Realizadas o Cerradas (Sheets y botón del panel). */
+export function puedeAgregarRecoleccion(estado: RutaEstado): boolean {
+  return estado !== "completada" && estado !== "cerrada";
+}
+
 export function estadoTrasReactivar(): "en_curso" {
   return "en_curso";
 }

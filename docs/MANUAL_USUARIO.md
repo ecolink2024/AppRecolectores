@@ -809,6 +809,9 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 - Ejecutá **Validar todas las filas** y corregí errores en rojo
 - Verificá que el **nombre** (o email) del Recolector exista en la app — usá **Actualizar desplegable recolectores**
 - Las filas **Enviada** (verde) no se reimportan — creá fila nueva si hace falta
+- Si la ruta de esa fecha/turno/recolector **ya existe y no está finalizada**, las filas nuevas se **suman** (no pisan las paradas ya cargadas)
+- Si el **teléfono** ya está en esa ruta, esa fila no entra
+- Si la ruta ya está **Realizada** o **Cerrada**, no se pueden agregar paradas (reactivá primero, o usá el botón en Operativo mientras siga abierta)
 
 ### No veo el botón Completar / error al guardar preparación (operario)
 

@@ -384,7 +384,8 @@ Doc: [SHEETS_INTEGRATION.md](./SHEETS_INTEGRATION.md)
 1. Operario completa planilla Google Sheets (columnas documentadas en SHEETS_INTEGRATION)
 2. Apps Script valida filas y POST a `/api/integrations/sheets/import-recolecciones`
 3. API agrupa filas en rutas por `(Dia, turno derivado de Hora, email Recolector)`
-4. Cada fila → `ruta_recolecciones` (única por teléfono normalizado)
+4. Si no hay ruta operativa con esa fecha + turno + recolector → se crea
+5. Si ya existe y no está `completada`/`cerrada` → se **agregan** paradas nuevas (`puedeAgregarRecoleccion`). Unique `(ruta_id, telefono_normalizado)`: teléfono repetido se omite. Nunca se borran paradas existentes.
 
 ### Panel operario
 
