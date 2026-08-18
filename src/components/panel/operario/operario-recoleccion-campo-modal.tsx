@@ -4,8 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { FirmaCanvas, type FirmaCanvasRef } from "@/components/panel/firma-canvas";
 import { FirmaDigitalImage } from "@/components/panel/firma-digital-image";
+import { MotivoCancelacionFields } from "@/components/panel/motivo-cancelacion-fields";
 import type { RecoleccionOperarioRow } from "@/lib/domain/operario-dashboard";
 import {
+  esMotivoCancelacionValido,
   getRecoleccionCampoContadoresRules,
   parsePrecioRetiro,
 } from "@/lib/domain/recolector-recoleccion-campo";
@@ -50,6 +52,7 @@ export function OperarioRecoleccionCampoModal({
   onClose,
   onSaved,
 }: Props) {
+  const [cancelada, setCancelada] = useState(false);
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [bolsasLlenas, setBolsasLlenas] = useState("");
   const [bolsasLlenasPunto, setBolsasLlenasPunto] = useState("");
@@ -70,7 +73,11 @@ export function OperarioRecoleccionCampoModal({
 
   useEffect(() => {
     if (!open || !recoleccion) return;
-    setMotivoCancelacion(recoleccion.motivo_cancelacion ?? recoleccion.detalle ?? "");
+    const motivo = recoleccion.motivo_cancelacion ?? recoleccion.detalle ?? "";
+    setMotivoCancelacion(motivo);
+    setCancelada(
+      recoleccion.estado_operativo === "cancelada" || motivo.trim().length > 0,
+    );
     setBolsasLlenas(countToString(recoleccion.bolsas_llenas));
     setBolsasLlenasPunto(countToString(recoleccion.bolsas_llenas_punto));
     setBolsasNuevasVendidas(countToString(recoleccion.bolsas_nuevas_vendidas));
@@ -103,7 +110,7 @@ export function OperarioRecoleccionCampoModal({
   const esEmpresaPunto = recoleccion
     ? isEmpresaPuntoCobro(recoleccion.unidad, recoleccion.tipo_servicio)
     : false;
-  const esCancelacion = motivoCancelacion.trim().length > 0;
+  const esCancelacion = cancelada;
   const contadoresRules = useMemo(
     () =>
       getRecoleccionCampoContadoresRules(
@@ -164,6 +171,12 @@ export function OperarioRecoleccionCampoModal({
       return;
     }
 
+    if (cancelada && !esMotivoCancelacionValido(motivoCancelacion.trim())) {
+      setError("Elegí un motivo de cancelación");
+      setSaving(false);
+      return;
+    }
+
     if (!nombreFirmante.trim()) {
       setError("Completá el nombre del firmante");
       setSaving(false);
@@ -171,7 +184,8 @@ export function OperarioRecoleccionCampoModal({
     }
 
     const payload: Record<string, unknown> = {
-      motivo_cancelacion: motivoCancelacion.trim() || null,
+      motivo_cancelacion: cancelada ? motivoCancelacion.trim() || null : null,
+      cancelada,
       bolsas_llenas: bolsasLlenas === "" ? null : Number.parseInt(bolsasLlenas, 10),
       bolsas_llenas_punto:
         bolsasLlenasPunto === "" ? null : Number.parseInt(bolsasLlenasPunto, 10),
@@ -252,17 +266,14 @@ export function OperarioRecoleccionCampoModal({
             </p>
           )}
 
-          <label className="block space-y-1.5">
-            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              Motivo de cancelación
-            </span>
-            <textarea
-              value={motivoCancelacion}
-              onChange={(e) => setMotivoCancelacion(e.target.value)}
-              placeholder="Si lo completás, la parada queda cancelada (sin retiro ni cobro)"
-              className={`${inputClass} min-h-[64px] resize-y`}
-            />
-          </label>
+          <MotivoCancelacionFields
+            cancelada={cancelada}
+            onCanceladaChange={setCancelada}
+            motivo={motivoCancelacion}
+            onMotivoChange={setMotivoCancelacion}
+            selectClassName={inputClass}
+            compact
+          />
 
           {!esCancelacion && (
             <>

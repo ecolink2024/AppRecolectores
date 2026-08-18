@@ -483,7 +483,7 @@ Solo en **Operativo** (`operario-recolecciones-table.tsx`). Estado local del mod
 
 - Botón habilitado si la parada está **visitada** o **cancelada** (`buildRecoleccionOperarioDetalleCarga().tieneCarga`)
 - **Visitada:** bloques **Retiro** (bolsas llenas/nuevas, biotachos llenos/nuevos, **cestos**) y **Recaudación** (efectivo, transferencia, QR)
-- **Cancelada:** motivo de cancelación
+- **Cancelada:** motivo de cancelación (desplegable: Por el cliente, Por no tener respuestas, Por fuera de horario pactado, Por ecolink)
 - **Pendiente / en camino:** botón deshabilitado
 
 Helpers de formato: `formatCantidadBolsasDetalle`, `formatCantidadBiotachosDetalle`, `formatMoney`.

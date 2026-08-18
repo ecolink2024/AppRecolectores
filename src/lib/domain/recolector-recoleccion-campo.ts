@@ -123,6 +123,23 @@ export type RecoleccionCampoPayload = {
   cancelada: boolean;
 };
 
+export const MOTIVOS_CANCELACION = [
+  "Por el cliente",
+  "Por no tener respuestas",
+  "Por fuera de horario pactado",
+  "Por ecolink",
+] as const;
+
+export type MotivoCancelacion = (typeof MOTIVOS_CANCELACION)[number];
+
+export function esMotivoCancelacionValido(value: string): boolean {
+  return (MOTIVOS_CANCELACION as readonly string[]).includes(value);
+}
+
+function bodyMarcaCancelada(body: Record<string, unknown>): boolean {
+  return body.cancelada === true || body.cancelada === "true";
+}
+
 export function parseRecoleccionCampoBody(
   body: Record<string, unknown>,
   precios: Omit<PrecioCobroInput, "bolsasLlenas" | "bolsasLlenasPunto" | "bolsasNuevasVendidas">,
@@ -132,6 +149,7 @@ export function parseRecoleccionCampoBody(
   const nombre_firmante = str(body.nombre_firmante);
   const firma_digital = str(body.firma_digital);
   const empresaPunto = isEmpresaPuntoCobro(precios.unidad, precios.tipoServicio);
+  const cancelada = bodyMarcaCancelada(body) || motivo_cancelacion != null;
 
   if (!nombre_firmante) {
     return { ok: false, error: "El nombre del firmante es obligatorio" };
@@ -141,7 +159,10 @@ export function parseRecoleccionCampoBody(
     return { ok: false, error: "Debés capturar la firma del cliente en el recuadro" };
   }
 
-  if (motivo_cancelacion) {
+  if (cancelada) {
+    if (!motivo_cancelacion || !esMotivoCancelacionValido(motivo_cancelacion)) {
+      return { ok: false, error: "Elegí un motivo de cancelación" };
+    }
     return {
       ok: true,
       data: {

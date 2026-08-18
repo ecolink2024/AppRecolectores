@@ -6,12 +6,17 @@ import { useMemo, useRef, useState } from "react";
 
 import { FirmaCanvas, type FirmaCanvasRef } from "@/components/panel/firma-canvas";
 import { FirmaDigitalImage } from "@/components/panel/firma-digital-image";
+import { MotivoCancelacionFields } from "@/components/panel/motivo-cancelacion-fields";
 import { RecolectorParadaDatosClienteRows } from "@/components/panel/recolector/recolector-parada-datos-cliente";
 
 import {
   type RecoleccionCampoFormData,
 } from "@/lib/domain/recolector-recoleccion-form";
-import { formatPrecioDisplay, getRecoleccionCampoContadoresRules } from "@/lib/domain/recolector-recoleccion-campo";
+import {
+  esMotivoCancelacionValido,
+  formatPrecioDisplay,
+  getRecoleccionCampoContadoresRules,
+} from "@/lib/domain/recolector-recoleccion-campo";
 import {
   buildPrecioCobroDetalle,
   type PrecioCobroDetalle,
@@ -34,6 +39,9 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
     [data.telefono],
   );
   const soloLectura = data.soloLectura;
+  const [cancelada, setCancelada] = useState(
+    data.motivoCancelacion.trim().length > 0 || data.estadoLabel === "Cancelada",
+  );
   const [motivoCancelacion, setMotivoCancelacion] = useState(data.motivoCancelacion);
   const [bolsasLlenas, setBolsasLlenas] = useState(data.bolsasLlenas);
   const [bolsasLlenasPunto, setBolsasLlenasPunto] = useState(data.bolsasLlenasPunto);
@@ -53,7 +61,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const esCancelacion = motivoCancelacion.trim().length > 0;
+  const esCancelacion = cancelada;
   const contadoresRules = useMemo(
     () => getRecoleccionCampoContadoresRules(data.unidad, data.tipoServicio),
     [data.unidad, data.tipoServicio],
@@ -101,14 +109,21 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
     setSaving(true);
     setError(null);
 
+    if (cancelada && !esMotivoCancelacionValido(motivoCancelacion.trim())) {
+      setError("Elegí un motivo de cancelación");
+      setSaving(false);
+      return;
+    }
+
     const montoEfectivoVal = parsePaymentValue(montoEfectivo);
     const montoTransferenciaVal = parsePaymentValue(montoTransferencia);
     const montoQrVal = parsePaymentValue(montoQr);
 
     if (
-      montoEfectivoVal === null ||
-      montoTransferenciaVal === null ||
-      montoQrVal === null
+      !cancelada &&
+      (montoEfectivoVal === null ||
+        montoTransferenciaVal === null ||
+        montoQrVal === null)
     ) {
       setError("Efectivo, transferencia y QR deben ser números ≥ 0");
       setSaving(false);
@@ -136,7 +151,8 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            motivo_cancelacion: motivoCancelacion.trim() || null,
+            motivo_cancelacion: cancelada ? motivoCancelacion.trim() || null : null,
+            cancelada,
             bolsas_llenas: bolsasLlenas === "" ? null : Number.parseInt(bolsasLlenas, 10),
             bolsas_llenas_punto:
               bolsasLlenasPunto === "" ? null : Number.parseInt(bolsasLlenasPunto, 10),
@@ -241,17 +257,13 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
         </section>
 
         <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              Motivo de cancelación
-            </span>
-            <textarea
-              value={motivoCancelacion}
-              onChange={(e) => setMotivoCancelacion(e.target.value)}
-              placeholder="Si completás esto, solo necesitás firmar (sin cargar bolsas ni pagos)"
-              className={`${inputClass} min-h-[88px] resize-y`}
-            />
-          </label>
+          <MotivoCancelacionFields
+            cancelada={cancelada}
+            onCanceladaChange={setCancelada}
+            motivo={motivoCancelacion}
+            onMotivoChange={setMotivoCancelacion}
+            selectClassName={inputClass}
+          />
         </section>
 
         {!esCancelacion && (

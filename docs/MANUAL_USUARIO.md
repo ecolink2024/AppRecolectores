@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (agosto 2026):** al **enviar pendientes** desde la planilla, las filas nuevas se **suman** a la ruta de esa fecha/turno/recolector (no pisan paradas ni carga de campo). Si el **teléfono** ya está en la ruta, esa fila no entra; si la ruta está **Realizada** o **Cerrada**, hay que reactivarla para agregar. Al marcar **Descarga realizada** al finalizar (o al editar la jornada), aparece un texto opcional de detalle.
+**Novedades recientes (agosto 2026):** al **enviar pendientes** desde la planilla, las filas nuevas se **suman** a la ruta de esa fecha/turno/recolector (no pisan paradas ni carga de campo). Si el **teléfono** ya está en la ruta, esa fila no entra; si la ruta está **Realizada** o **Cerrada**, hay que reactivarla para agregar. Al marcar **Descarga realizada** al finalizar (o al editar la jornada), aparece un texto opcional de detalle. Al **cancelar una parada**, el motivo es un desplegable (Por el cliente, Por no tener respuestas, Por fuera de horario pactado, Por ecolink).
 
 **Novedades previas (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa); **renombre de parámetros** (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos de ayuda** en el cobro del recolector; **Maps por tramos** (máx. 8 paradas por enlace, cartel **Siguiente tramo**) para que Google no saltee direcciones.
 
@@ -144,7 +144,7 @@ Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · **Cesto**
 
 Horario, turno y recolector se ven en la tabla de rutas de arriba (no se repiten en cada parada). **Cesto** muestra la cantidad entregada en campo (`—` si no hubo).
 
-> **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), motivo de cancelación, observaciones y firma. Los contadores de retiro que se muestran **dependen del tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo). La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
+> **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), **Cancelar recolección** con motivo en desplegable, observaciones y firma. Los contadores de retiro que se muestran **dependen del tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo). La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
 
 **Horario programado**, **hora real** y **bolsas nuevas** de cada parada están en el popup **Info** (junto al nombre del cliente).
 
@@ -569,7 +569,8 @@ Antes de firmar podés escribir **Tus observaciones** (ej. “cliente no estaba�
 
 Si la parada no se pudo hacer:
 
-1. Escribí el **Motivo de cancelación**
+1. Marcá **Cancelar recolección**
+2. Elegí el **Motivo de cancelación** (Por el cliente, Por no tener respuestas, Por fuera de horario pactado, Por ecolink)
 2. Completá **Nombre del firmante**
 3. Pedile al cliente que **firme en el recuadro** (con el dedo)
 4. Guardá → la parada queda como **Cancelada**
@@ -779,7 +780,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 
 - ¿Iniciaste la ruta? Sin inicio de ruta solo podés **ver** el detalle, no cargar
 - Revisá que la suma de pagos **no sea menor** al total (puede ser mayor)
-- Si cancelás, solo necesitás motivo + firmante + firma
+- Si cancelás, marcá **Cancelar recolección**, elegí el motivo, firmante y firma
 
 ### No veo retiro ni cobro en una parada (operario)
 
