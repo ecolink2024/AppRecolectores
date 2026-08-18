@@ -18,7 +18,9 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa); **renombre de parámetros** (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos de ayuda** en el cobro del recolector; **Maps por tramos** (máx. 8 paradas por enlace, cartel **Siguiente tramo**) para que Google no saltee direcciones.
+**Novedades recientes (agosto 2026):** al **enviar pendientes** desde la planilla, las filas nuevas se **suman** a la ruta de esa fecha/turno/recolector (no pisan paradas ni carga de campo). Si el **teléfono** ya está en la ruta, esa fila no entra; si la ruta está **Realizada** o **Cerrada**, hay que reactivarla para agregar. Al marcar **Descarga realizada** al finalizar (o al editar la jornada), aparece un texto opcional de detalle.
+
+**Novedades previas (julio 2026):** **editar los datos de la jornada** (km iniciales/finales, insumos, descarga, combustible, otros gastos) desde el botón **Editar** de rutas Realizadas; **contadores de retiro según el tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo); **nueva lista de insumos** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa); **renombre de parámetros** (Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos de ayuda** en el cobro del recolector; **Maps por tramos** (máx. 8 paradas por enlace, cartel **Siguiente tramo**) para que Google no saltee direcciones.
 
 **Novedades previas (junio 2026):** **Operativo vs Historial** (al finalizar el recolector la ruta pasa a Historial); **cierre operario** y **reactivar** solo en Historial; **editar la carga del recolector** desde Historial en rutas Realizadas (antes del cierre operario); KPIs **solo del historial** (Pendiente cierre, Realizadas, Cerradas, Canceladas); **Preparación de insumos**; tablas con scroll; **Ver detalle** de ruta/parada (cestos, firma digital); **dos montos** en rutas y KPIs; gráfico **Recaudación por mes**; **Obs. recolector**; tipo **Punto**; Maps con GPS; WhatsApp **Avisar**. Ya no existe suspender rutas.
 
@@ -105,7 +107,7 @@ Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierr
 - **Reactivar** (solo Realizado): la ruta vuelve a **Operativo** en **En proceso**; se borran los datos de cierre del recolector para que pueda seguir operándola.
 - **Cierre operario** (solo Realizado): la ruta pasa a **Cerrada** (sigue en Historial).
 
-En rutas **Realizadas**, el botón **Editar** de la ruta suma una sección **Datos de la jornada del recolector** donde podés corregir, sin reactivar: **Kilómetros iniciales**, **Insumos**, **Kilómetros finales**, **Descarga realizada**, **Combustible** y **Otros gastos**. Al guardar se **recalcula el total efectivo** (con el efectivo recaudado en campo y el descuento vigente). Esta sección aparece solo en Realizadas (antes del Cierre operario); en Cerradas/Canceladas, **Editar** cambia solo datos administrativos. Los montos de **KPIs** se actualizan cuando hagas **Cierre operario**.
+En rutas **Realizadas**, el botón **Editar** de la ruta suma una sección **Datos de la jornada del recolector** donde podés corregir, sin reactivar: **Kilómetros iniciales**, **Insumos**, **Kilómetros finales**, **Descarga realizada** (y su detalle), **Combustible** y **Otros gastos**. Al guardar se **recalcula el total efectivo** (con el efectivo recaudado en campo y el descuento vigente). Esta sección aparece solo en Realizadas (antes del Cierre operario); en Cerradas/Canceladas, **Editar** cambia solo datos administrativos. Los montos de **KPIs** se actualizan cuando hagas **Cierre operario**.
 
 En rutas **Realizadas** también podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar se recalcula el total de la ruta en Historial. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial. Los KPIs (recaudación, materiales, etc.) impactan recién al **Cierre operario**.
 
@@ -124,7 +126,7 @@ Tabla amplia con **scroll vertical** (altura acotada, encabezado fijo al bajar) 
 | Observaciones | Recolector + operario |
 | Estado | Cerrada, Cancelada, etc. |
 | **Ver insumos** | Popup con la cantidad de cada insumo declarado al inicio (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) |
-| Descarga, gastos | Combustible, descuento, otros |
+| Descarga, gastos | Sí/No; si hay texto de descarga se muestra al lado. Combustible, descuento, otros |
 | Recolecciones / exitosos / pendientes / canceladas | Resumen de paradas |
 | **Monto a recaudar** | Suma de precios cargados en paradas visitadas (*monto total por servicios prestados*) |
 | **Total recaudado** | Pagos reales cobrados en campo: efectivo + transferencia + QR (*monto real recaudado*) |
@@ -440,7 +442,7 @@ Desde **Editar** en la tabla de rutas podés modificar:
 - Observaciones del operario
 - Kilómetros recorridos (cuando corresponda)
 
-En rutas **Realizadas** del **Historial**, el mismo botón **Editar** incluye además la sección **Datos de la jornada del recolector**: kilómetros iniciales/finales, insumos, descarga, combustible y otros gastos (ver [Historial](#historial)).
+En rutas **Realizadas** del **Historial**, el mismo botón **Editar** incluye además la sección **Datos de la jornada del recolector**: kilómetros iniciales/finales, insumos, descarga (con detalle), combustible y otros gastos (ver [Historial](#historial)).
 
 ### 4.6 Editar o agregar una recolección (servicio)
 
@@ -619,7 +621,7 @@ Cuando terminaste todas las paradas del día:
 3. Tocá **Finalizar ruta** (si falta algo, el botón queda deshabilitado y aparece el **motivo** debajo)
 4. Completá el **formulario de cierre**:
    - **Kilómetros finales** (obligatorio; deben ser **mayores o iguales** a los km iniciales)
-   - **Descarga realizada** (casilla)
+   - **Descarga realizada** (casilla). Si la marcás, aparece **Detalle de descarga** (texto opcional: lugar u observaciones)
    - **Combustible**, **Descuento**, **Otros gastos** (opcionales; solo si hubo **efectivo recaudado**)
    - **Total efectivo** (se calcula automáticamente: efectivo recaudado − gastos)
    - **Observaciones** (opcional)

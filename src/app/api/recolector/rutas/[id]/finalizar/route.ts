@@ -102,6 +102,7 @@ export async function POST(request: Request, { params }: Props) {
     monto_efectivo: montoEfectivo > 0 ? montoEfectivo : null,
     km_final: cierreParsed.data.km_final,
     descarga: cierreParsed.data.descarga,
+    descarga_detalle: cierreParsed.data.descarga_detalle,
     combustible: cierreParsed.data.combustible,
     descuento: cierreParsed.data.descuento,
     otros_gastos: cierreParsed.data.otros_gastos,

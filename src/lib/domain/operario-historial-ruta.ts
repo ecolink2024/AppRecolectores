@@ -9,6 +9,7 @@ export type InsumosHistorialDetalle = {
   /** Cantidad de cada insumo declarado al iniciar, por tipo (ver INSUMO_TIPOS). */
   insumosPorTipo: Record<InsumoTipo, number>;
   descarga: boolean;
+  descargaDetalle: string | null;
   combustible: number;
   descuento: number;
   otrosGastos: number;
@@ -124,6 +125,7 @@ export function buildInsumosHistorialDetalle(
   return {
     insumosPorTipo,
     descarga: Boolean(ruta.descarga),
+    descargaDetalle: ruta.descarga_detalle?.trim() ? ruta.descarga_detalle.trim() : null,
     combustible,
     descuento,
     otrosGastos,

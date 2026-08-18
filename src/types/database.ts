@@ -170,6 +170,7 @@ export type Database = {
           km_recorridos: number | null;
           km_final: number | null;
           descarga: boolean;
+          descarga_detalle: string | null;
           combustible: number | null;
           descuento: number | null;
           otros_gastos: number | null;
@@ -206,6 +207,7 @@ export type Database = {
           km_recorridos?: number | null;
           km_final?: number | null;
           descarga?: boolean;
+          descarga_detalle?: string | null;
           combustible?: number | null;
           descuento?: number | null;
           otros_gastos?: number | null;
@@ -242,6 +244,7 @@ export type Database = {
           km_recorridos?: number | null;
           km_final?: number | null;
           descarga?: boolean;
+          descarga_detalle?: string | null;
           combustible?: number | null;
           descuento?: number | null;
           otros_gastos?: number | null;

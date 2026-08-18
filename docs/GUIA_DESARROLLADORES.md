@@ -212,6 +212,7 @@ node scripts/apply-pending-migrations.mjs
 | `20260606120000_recoleccion_observaciones_recolector.sql` | `observaciones_recolector` en `ruta_recolecciones` (notas del recolector al cargar parada) |
 | `20260607120000_recoleccion_cesto_campo.sql` | `cestos` en `ruta_recolecciones` (cantidad retirada en campo) |
 | `20260608120000_remove_ruta_suspendida.sql` | Normaliza rutas `suspendida` → `activa`/`en_curso`; funcionalidad suspendida removida de UI/API |
+| `20260818120000_ruta_descarga_detalle.sql` | `descarga_detalle` en `rutas` (texto opcional al marcar descarga) |
 
 Columnas de **cierre operario** en `rutas` (desde `20260523120000` / `20260524140000`): `cierre_operario_at`, `cierre_operario_por`.
 
@@ -649,6 +650,7 @@ Body de cierre (`recolector-cierre-ruta.ts`):
 {
   "km_final": 45200,
   "descarga": true,
+  "descarga_detalle": "Planta Norte",
   "combustible": 0,
   "descuento": 0,
   "otros_gastos": 0,
@@ -665,7 +667,7 @@ Validaciones de cierre:
 - Gastos no pueden superar el efectivo recaudado
 - `total_efectivo = efectivo recaudado − combustible − descuento − otros_gastos`
 
-Columnas en `rutas` (migración `20260531120000`): `km_final`, `descarga`, `combustible`, `descuento`, `otros_gastos`, `total_efectivo`, `observaciones_recolector`
+Columnas en `rutas` (migración `20260531120000` + `20260818120000`): `km_final`, `descarga`, `descarga_detalle`, `combustible`, `descuento`, `otros_gastos`, `total_efectivo`, `observaciones_recolector`
 
 #### Ruta iniciada (detección unificada)
 

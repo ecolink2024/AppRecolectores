@@ -46,6 +46,7 @@ export function limpiezaTrasReactivar(estado: RutaEstado): RutaUpdate {
       cierre_recolector_at: null,
       km_final: null,
       descarga: false,
+      descarga_detalle: null,
       combustible: null,
       descuento: null,
       otros_gastos: null,

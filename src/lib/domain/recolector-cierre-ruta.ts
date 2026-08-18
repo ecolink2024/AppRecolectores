@@ -1,6 +1,7 @@
 export type RecolectorCierreRutaPayload = {
   km_final: number;
   descarga: boolean;
+  descarga_detalle: string | null;
   combustible: number;
   descuento: number;
   otros_gastos: number;
@@ -17,6 +18,19 @@ function asNumber(value: unknown): number | null {
 function str(value: unknown): string {
   if (value === null || value === undefined) return "";
   return String(value).trim();
+}
+
+const DESCARGA_DETALLE_MAX = 500;
+
+export function parseDescargaDetalle(
+  descarga: boolean,
+  value: unknown,
+): { ok: true; value: string | null } | { ok: false; error: string } {
+  const detalleRaw = str(value);
+  if (detalleRaw.length > DESCARGA_DETALLE_MAX) {
+    return { ok: false, error: "El detalle de descarga no puede superar 500 caracteres" };
+  }
+  return { ok: true, value: descarga && detalleRaw ? detalleRaw : null };
 }
 
 export function calcTotalEfectivo(
@@ -78,11 +92,16 @@ export function parseRecolectorCierreRutaBody(
   const observacionesRaw = str(body.observaciones_recolector);
   const observaciones_recolector = observacionesRaw ? observacionesRaw : null;
 
+  const detalleParsed = parseDescargaDetalle(descarga, body.descarga_detalle);
+  if (!detalleParsed.ok) return detalleParsed;
+  const descarga_detalle = detalleParsed.value;
+
   return {
     ok: true,
     data: {
       km_final: km_final_raw,
       descarga,
+      descarga_detalle,
       combustible,
       descuento,
       otros_gastos,

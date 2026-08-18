@@ -24,6 +24,7 @@ export function RecolectorFinalizarRutaForm({
 
   const [kmFinal, setKmFinal] = useState("");
   const [descarga, setDescarga] = useState(false);
+  const [descargaDetalle, setDescargaDetalle] = useState("");
   const [combustible, setCombustible] = useState("0");
   const [descuento, setDescuento] = useState("0");
   const [otrosGastos, setOtrosGastos] = useState("0");
@@ -120,6 +121,7 @@ export function RecolectorFinalizarRutaForm({
         body: JSON.stringify({
           km_final: km,
           descarga,
+          descarga_detalle: descarga ? descargaDetalle.trim() || null : null,
           combustible: combustibleN,
           descuento: descuentoN,
           otros_gastos: otrosGastosN,
@@ -218,11 +220,30 @@ export function RecolectorFinalizarRutaForm({
             <input
               type="checkbox"
               checked={descarga}
-              onChange={(e) => setDescarga(e.target.checked)}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setDescarga(checked);
+                if (!checked) setDescargaDetalle("");
+              }}
               className="h-4 w-4"
             />
             Descarga realizada
           </label>
+          {descarga && (
+            <label className="mt-3 block space-y-2">
+              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                Detalle de descarga
+              </span>
+              <textarea
+                value={descargaDetalle}
+                onChange={(e) => setDescargaDetalle(e.target.value)}
+                rows={3}
+                maxLength={500}
+                placeholder="Lugar u observaciones de la descarga (opcional)"
+                className="w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-900 outline-none focus:border-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
+              />
+            </label>
+          )}
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">

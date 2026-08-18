@@ -45,6 +45,7 @@ export function OperarioRutaFormModal({
   const [kmInicial, setKmInicial] = useState("");
   const [kmFinal, setKmFinal] = useState("");
   const [descarga, setDescarga] = useState(false);
+  const [descargaDetalle, setDescargaDetalle] = useState("");
   const [combustible, setCombustible] = useState("");
   const [otrosGastos, setOtrosGastos] = useState("");
   const [insumosInicio, setInsumosInicio] = useState<InsumoInicio[]>([]);
@@ -67,6 +68,7 @@ export function OperarioRutaFormModal({
     setKmInicial(ruta.km_inicial != null ? String(ruta.km_inicial) : "");
     setKmFinal(ruta.km_final != null ? String(ruta.km_final) : "");
     setDescarga(Boolean(ruta.insumos_detalle?.descarga));
+    setDescargaDetalle(ruta.insumos_detalle?.descargaDetalle ?? "");
     setCombustible(
       ruta.insumos_detalle?.combustible ? String(ruta.insumos_detalle.combustible) : "",
     );
@@ -129,6 +131,7 @@ export function OperarioRutaFormModal({
             insumos: insumosInicio,
             km_final: kmFinal.trim() === "" ? null : Number(kmFinal),
             descarga,
+            descarga_detalle: descarga ? descargaDetalle.trim() || null : null,
             combustible: combustible.trim() === "" ? 0 : Number(combustible),
             otros_gastos: otrosGastos.trim() === "" ? 0 : Number(otrosGastos),
           }),
@@ -339,10 +342,26 @@ export function OperarioRutaFormModal({
                     type="checkbox"
                     className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
                     checked={descarga}
-                    onChange={(e) => setDescarga(e.target.checked)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setDescarga(checked);
+                      if (!checked) setDescargaDetalle("");
+                    }}
                   />
                   Descarga realizada
                 </label>
+                {descarga && (
+                  <Field label="Detalle de descarga">
+                    <textarea
+                      className={inputClass}
+                      rows={3}
+                      maxLength={500}
+                      value={descargaDetalle}
+                      onChange={(e) => setDescargaDetalle(e.target.value)}
+                      placeholder="Lugar u observaciones de la descarga (opcional)"
+                    />
+                  </Field>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Combustible">

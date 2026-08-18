@@ -48,4 +48,8 @@ ADD COLUMN IF NOT EXISTS observaciones_recolector TEXT;
 ALTER TABLE public.ruta_recolecciones
 ADD COLUMN IF NOT EXISTS cestos INT;
 
+-- 20260818120000_ruta_descarga_detalle.sql
+ALTER TABLE public.rutas
+ADD COLUMN IF NOT EXISTS descarga_detalle TEXT;
+
 NOTIFY pgrst, 'reload schema';

@@ -42,7 +42,7 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 
 ### Qué se persiste en Supabase al importar
 
-Cada fila **Pendiente** enviada crea o actualiza una fila en `ruta_recolecciones`. Los encabezados de planilla se mapean así:
+Cada fila **Pendiente** enviada **crea** una parada en `ruta_recolecciones` (si la ruta ya existe, se **agrega**; nunca se pisa una parada existente). Los encabezados de planilla se mapean así:
 
 | Columna planilla | Columna DB | Notas |
 |------------------|------------|--------|

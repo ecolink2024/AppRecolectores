@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/session";
 import { persistRutaTotalesCierre } from "@/lib/data/ruta-totales-cierre";
 import { buildRutaTotalesCierreUpdate } from "@/lib/domain/ruta-totales-cierre";
+import { parseDescargaDetalle } from "@/lib/domain/recolector-cierre-ruta";
 import { parseInicioRutaBody } from "@/lib/domain/ruta-insumos";
 import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -88,6 +89,10 @@ export async function PATCH(request: Request, { params }: Props) {
   }
 
   const descarga = Boolean(body.descarga);
+  const detalleParsed = parseDescargaDetalle(descarga, body.descarga_detalle);
+  if (!detalleParsed.ok) {
+    return NextResponse.json({ ok: false, error: detalleParsed.error }, { status: 400 });
+  }
   const combustible = asNumber(body.combustible) ?? 0;
   const otrosGastos = asNumber(body.otros_gastos) ?? 0;
   if (combustible < 0 || otrosGastos < 0) {
@@ -116,6 +121,7 @@ export async function PATCH(request: Request, { params }: Props) {
     insumos_inicio: inicio.data.insumos as unknown as Json,
     km_final: kmFinal,
     descarga,
+    descarga_detalle: detalleParsed.value,
     combustible,
     otros_gastos: otrosGastos,
     monto_efectivo: totales.data.monto_efectivo,

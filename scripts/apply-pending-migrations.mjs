@@ -26,6 +26,7 @@ const MIGRATION_FILES = [
   "20260606120000_recoleccion_observaciones_recolector.sql",
   "20260607120000_recoleccion_cesto_campo.sql",
   "20260608120000_remove_ruta_suspendida.sql",
+  "20260818120000_ruta_descarga_detalle.sql",
 ];
 
 function loadEnv() {

@@ -186,7 +186,13 @@ export function OperarioHistorialRutasTable({
                     Ver insumos
                   </button>
                 </td>
-                <td className={TD}>{d.descarga ? "Sí" : "No"}</td>
+                <td className="min-w-[8rem] max-w-[16rem] whitespace-normal break-words px-3 py-2.5">
+                  {d.descarga
+                    ? d.descargaDetalle
+                      ? `Sí · ${d.descargaDetalle}`
+                      : "Sí"
+                    : "No"}
+                </td>
                 <td className={`${TD} text-right`}>{formatMoney(d.combustible)}</td>
                 <td className={`${TD} text-right`}>{formatMoney(d.descuento)}</td>
                 <td className={`${TD} text-right`}>{formatMoney(d.otrosGastos)}</td>
