@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  OPERARIO_SCROLL_KPI_POR_ZONA,
+  OPERARIO_TABLE_HEAD_STICKY,
+  OperarioScrollableTable,
+} from "@/components/panel/operario/operario-scrollable-table";
 import { formatMoney } from "@/lib/domain/operario-dashboard";
 import {
   KPI_LABEL_SERVICIOS,
@@ -7,6 +12,12 @@ import {
   type KpiDesgloseItem,
   type KpiZonaRow,
 } from "@/lib/domain/operario-kpis";
+
+const TH_ZONA =
+  "sticky left-0 z-30 min-w-[7rem] bg-zinc-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:bg-zinc-950 dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]";
+
+const TD_ZONA =
+  "sticky left-0 z-10 min-w-[7rem] bg-white font-medium text-zinc-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]";
 
 type Props = {
   filas: KpiZonaRow[];
@@ -40,11 +51,18 @@ export function OperarioKpiPorZonaTable({ filas }: Props) {
   if (filas.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <OperarioScrollableTable
+      maxHeightClass={OPERARIO_SCROLL_KPI_POR_ZONA}
+      footer={
+        filas.length > 4
+          ? `${filas.length} zonas · Desplazá vertical u horizontalmente para ver más`
+          : `${filas.length} zona${filas.length === 1 ? "" : "s"}`
+      }
+    >
       <table className="w-full min-w-[960px] text-left text-sm">
-        <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950">
+        <thead className={OPERARIO_TABLE_HEAD_STICKY}>
           <tr>
-            <th className="px-4 py-3 font-medium">Zona</th>
+            <th className={`${TH_ZONA} px-4 py-3 font-medium`}>Zona</th>
             <th className="px-4 py-3 font-medium text-center">{KPI_LABEL_SERVICIOS}</th>
             <th className="min-w-[10rem] px-4 py-3 font-medium">Tipo de servicio</th>
             <th className="min-w-[10rem] px-4 py-3 font-medium">Frecuencia</th>
@@ -61,9 +79,7 @@ export function OperarioKpiPorZonaTable({ filas }: Props) {
               key={row.zona}
               className="border-b border-zinc-100 align-top last:border-0 dark:border-zinc-800"
             >
-              <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
-                {row.zona}
-              </td>
+              <td className={`${TD_ZONA} px-4 py-3`}>{row.zona}</td>
               <td className="px-4 py-3 text-center tabular-nums">
                 {formatKpiNumber(row.recolecciones)}
               </td>
@@ -88,6 +104,6 @@ export function OperarioKpiPorZonaTable({ filas }: Props) {
           ))}
         </tbody>
       </table>
-    </div>
+    </OperarioScrollableTable>
   );
 }

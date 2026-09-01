@@ -95,7 +95,9 @@ Menú **Historial** → `/panel/historial`
 
 Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierre operario), **Cerradas** (con cierre operario) o **Canceladas**.
 
-**Filtro de fechas:** igual que en KPIs — **Desde / Hasta** + **Aplicar**, o atajos (7 días, 30 días, mes en curso, 90 días). Por defecto muestra los **últimos 30 días** (fecha de la ruta). El CSV descarga solo lo visible en el filtro.
+**Filtro de fechas:** igual que en KPIs — **Desde / Hasta** + **Aplicar**, o atajos (7 días, 30 días, mes en curso, 90 días). Por defecto muestra los **últimos 30 días**.
+
+El filtro usa la **fecha de la ruta** (columna `Dia` de la planilla / campo Fecha), **no** el día en que el recolector la finalizó. El **Hasta** no puede ser posterior a **hoy**: si una ruta está fechada a futuro (ej. 23/08) y hoy es 18/08, **no aparece** aunque ya esté Realizada. Tampoco está en Operativo (ya se finalizó). El CSV descarga solo lo visible en el filtro.
 
 **Acciones por ruta (columna Acciones):**
 
@@ -162,8 +164,10 @@ Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
 | Opción | Uso |
 |--------|-----|
-| **Desde / Hasta** + **Aplicar** | Cualquier rango (días, meses, años) |
+| **Desde / Hasta** + **Aplicar** | Cualquier rango (días, meses, años). **Hasta** no puede ser posterior a hoy |
 | Atajos (7 días, 30 días, mes en curso, 90 días) | Períodos frecuentes |
+
+Mismo criterio que Historial: se filtra por **fecha de la ruta**, no por el día del cierre.
 
 **Secciones principales:**
 
@@ -416,7 +420,7 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 
 ### 4.2 Historial y KPIs
 
-- **Historial:** rutas realizadas, cerradas o canceladas; **Cierre operario** y **Reactivar** en la tabla; **Descargar historial (CSV)** incluye ambos montos por ruta
+- **Historial:** rutas realizadas, cerradas o canceladas **cuya fecha de ruta cae en el rango** (por defecto últimos 30 días hasta hoy); **Cierre operario** y **Reactivar** en la tabla; **Descargar historial (CSV)** incluye ambos montos por ruta
 - **KPIs:** indicadores del historial; **montos y “Rutas en el período” solo tras Cierre operario** (Pendiente cierre se ve pero no suma); usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
@@ -571,9 +575,9 @@ Si la parada no se pudo hacer:
 
 1. Marcá **Cancelar recolección**
 2. Elegí el **Motivo de cancelación** (Por el cliente, Por no tener respuestas, Por fuera de horario pactado, Por ecolink)
-2. Completá **Nombre del firmante**
-3. Pedile al cliente que **firme en el recuadro** (con el dedo)
-4. Guardá → la parada queda como **Cancelada**
+3. Completá **Nombre del firmante**
+4. Pedile al cliente que **firme en el recuadro** (con el dedo)
+5. Guardá → la parada queda como **Cancelada**
 
 No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si querés.
 
@@ -754,10 +758,17 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 - Están en **Historial**, no en Operativo
 - **Reactivar** y **Cierre operario** solo para rutas **Realizadas**
 
+### No veo una ruta que acabo de finalizar en Historial
+
+- Historial **no lista por el día en que se finalizó**, sino por la **fecha de la ruta** (el `Dia` de la planilla)
+- El rango por defecto es **últimos 30 días hasta hoy**. El **Hasta** no pasa de hoy
+- Si la ruta está fechada **a futuro** (ej. 23/08 y hoy es 18/08), no entra en el filtro aunque ya esté Realizada. Tampoco está en Operativo
+- Ampliá **Hasta** no alcanza: la app lo recorta a hoy. Cuando llegue esa fecha, va a aparecer sola
+
 ### El CSV de KPIs o Historial está vacío o incompleto
 
-- Verificá el **rango de fechas** (KPIs) o que haya rutas en Historial
-- KPIs filtra por **fecha de la ruta** e incluye el historial. **Pendiente cierre** se muestra pero no suma a montos ni a “Rutas en el período”; eso solo cuenta rutas **Cerradas**
+- Verificá el **rango de fechas** (KPIs e Historial filtran por **fecha de la ruta**, y **Hasta** no puede ser posterior a hoy)
+- KPIs incluye el historial de ese rango. **Pendiente cierre** se muestra pero no suma a montos ni a “Rutas en el período”; eso solo cuenta rutas **Cerradas**
 
 ### El total a cobrar no coincide con lo que esperaba (recolector / operario)
 

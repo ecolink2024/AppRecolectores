@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { OperarioClienteDetalleModal } from "@/components/panel/operario/operario-cliente-detalle-modal";
 import {
-  OPERARIO_SCROLL_HISTORIAL_RECOLECCIONES,
   OPERARIO_TABLE_HEAD_STICKY,
+  OPERARIO_TABLE_VISIBLE_ROWS,
   OperarioScrollableTable,
 } from "@/components/panel/operario/operario-scrollable-table";
 import {
@@ -111,9 +111,9 @@ export function OperarioHistorialRecoleccionesTable({
   return (
     <>
       <OperarioScrollableTable
-        maxHeight={OPERARIO_SCROLL_HISTORIAL_RECOLECCIONES}
+        tableKind="recolecciones"
         footer={
-          recolecciones.length > 10
+          recolecciones.length > OPERARIO_TABLE_VISIBLE_ROWS
             ? `${recolecciones.length} paradas · Desplazá para ver más`
             : `${recolecciones.length} parada${recolecciones.length === 1 ? "" : "s"}`
         }

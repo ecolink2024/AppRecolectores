@@ -1,7 +1,7 @@
 import { RutaEstadoBadge } from "@/components/panel/operario/operario-badges";
 import {
-  OPERARIO_SCROLL_RUTAS,
   OPERARIO_TABLE_HEAD_STICKY,
+  OPERARIO_TABLE_VISIBLE_ROWS,
   OperarioScrollableTable,
 } from "@/components/panel/operario/operario-scrollable-table";
 import {
@@ -45,9 +45,9 @@ export function OperarioRutasTable({
 
   return (
     <OperarioScrollableTable
-      maxHeight={OPERARIO_SCROLL_RUTAS}
+      tableKind="rutas"
       footer={
-        rutas.length > 8
+        rutas.length > OPERARIO_TABLE_VISIBLE_ROWS
           ? `${rutas.length} rutas · Desplazá vertical u horizontalmente para ver más`
           : `${rutas.length} ruta${rutas.length === 1 ? "" : "s"}`
       }

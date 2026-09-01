@@ -7,8 +7,8 @@ import {
   ZonaBadge,
 } from "@/components/panel/operario/operario-badges";
 import {
-  OPERARIO_SCROLL_RECOLECCIONES,
   OPERARIO_TABLE_HEAD_STICKY,
+  OPERARIO_TABLE_VISIBLE_ROWS,
   OperarioScrollableTable,
 } from "@/components/panel/operario/operario-scrollable-table";
 import { OperarioClienteDetalleModal } from "@/components/panel/operario/operario-cliente-detalle-modal";
@@ -64,9 +64,9 @@ export function OperarioRecoleccionesTable({
   return (
     <>
       <OperarioScrollableTable
-        maxHeight={OPERARIO_SCROLL_RECOLECCIONES}
+        tableKind="recolecciones"
         footer={
-          recolecciones.length > 10
+          recolecciones.length > OPERARIO_TABLE_VISIBLE_ROWS
             ? `${recolecciones.length} paradas · Desplazá para ver más`
             : `${recolecciones.length} parada${recolecciones.length === 1 ? "" : "s"}`
         }

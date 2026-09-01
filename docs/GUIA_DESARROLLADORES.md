@@ -425,7 +425,7 @@ Componentes en `src/components/panel/operario/`:
 
 Datos:
 
-- `src/lib/data/operario-dashboard.ts` — Operativo / Historial (~200 rutas por vista)
+- `src/lib/data/operario-dashboard.ts` — Operativo / Historial. Historial: `.in("estado", RUTA_ESTADOS_HISTORIAL)` y `.gte/.lte` sobre `rutas.fecha` (no sobre `cierre_recolector_at`). `resolveKpiFiltroFechas` recorta `hasta` a hoy, así que rutas con `fecha` futura no aparecen. Limit 5000 en historial / 200 en operativo
 - `src/lib/domain/operario-dashboard.ts` — filas de tabla, agregados de ruta y helpers de detalle:
   - `buildRutaOperarioRows()` — suma bolsas/biotachos visitadas, `monto_a_recaudar`, `total_recaudado` (efectivo + transferencia + QR)
   - `buildRutaDetalle()` + `buildRecoleccionesPorUnidadTipo()` — desglose exitosas / pendientes / canceladas por `(unidad, tipo_servicio)`

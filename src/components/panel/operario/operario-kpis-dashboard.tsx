@@ -6,6 +6,11 @@ import { useState } from "react";
 import { OperarioKpiPorZonaTable } from "@/components/panel/operario/operario-kpi-por-zona-table";
 import { OperarioKpisFiltroFechas } from "@/components/panel/operario/operario-kpis-filtro-fechas";
 import { OperarioKpiRecaudacionChart } from "@/components/panel/operario/operario-kpi-recaudacion-chart";
+import {
+  OPERARIO_SCROLL_KPI_POR_RECOLECTOR,
+  OPERARIO_TABLE_HEAD_STICKY,
+  OperarioScrollableTable,
+} from "@/components/panel/operario/operario-scrollable-table";
 import { formatMoney, formatRutaFecha } from "@/lib/domain/operario-dashboard";
 import {
   formatKpiDuracion,
@@ -375,11 +380,20 @@ export function OperarioKpisDashboard({
 
           {kpis.porRecolector.length > 0 && (
             <Section title="Por recolector" subtitle="Agendadas, realizadas e ingresos">
-              <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+              <OperarioScrollableTable
+                maxHeightClass={OPERARIO_SCROLL_KPI_POR_RECOLECTOR}
+                footer={
+                  kpis.porRecolector.length > 6
+                    ? `${kpis.porRecolector.length} recolectores · Desplazá vertical u horizontalmente para ver más`
+                    : `${kpis.porRecolector.length} recolector${kpis.porRecolector.length === 1 ? "" : "es"}`
+                }
+              >
                 <table className="w-full min-w-[560px] text-left text-sm">
-                  <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950">
+                  <thead className={OPERARIO_TABLE_HEAD_STICKY}>
                     <tr>
-                      <th className="px-4 py-3 font-medium">Recolector</th>
+                      <th className="sticky left-0 z-30 min-w-[10rem] bg-zinc-50 px-4 py-3 font-medium shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:bg-zinc-950 dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]">
+                        Recolector
+                      </th>
                       <th className="px-4 py-3 font-medium text-center">Agendadas</th>
                       <th className="px-4 py-3 font-medium text-center">Realizadas</th>
                       <th className="px-4 py-3 font-medium text-center">% éxito</th>
@@ -392,7 +406,7 @@ export function OperarioKpisDashboard({
                         key={row.id}
                         className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
                       >
-                        <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
+                        <td className="sticky left-0 z-10 min-w-[10rem] bg-white px-4 py-3 font-medium text-zinc-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-[2px_0_4px_-2px_rgba(0,0,0,0.4)]">
                           {row.nombre}
                           <span className="ml-2 text-xs font-normal text-zinc-500">
                             {row.rutas} ruta(s)
@@ -412,7 +426,7 @@ export function OperarioKpisDashboard({
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </OperarioScrollableTable>
             </Section>
           )}
         </>
