@@ -5,6 +5,7 @@ import {
   rangoMesesSerieRecaudacion,
   type KpiSerieMes,
 } from "@/lib/domain/operario-kpis";
+import { fetchRecoleccionesForRutaIds } from "@/lib/data/ruta-recolecciones-fetch";
 import { RUTA_ESTADOS_KPI_IMPACTO } from "@/lib/domain/ruta-estado-transiciones";
 import type { Database } from "@/types/database";
 
@@ -33,15 +34,12 @@ export async function fetchSerieMensualRecaudacion(
   let recolecciones: RecoleccionRow[] = [];
 
   if (rutaIds.length > 0) {
-    const { data, error: recError } = await admin
-      .from("ruta_recolecciones")
-      .select("*")
-      .in("ruta_id", rutaIds);
-
-    if (recError) {
-      return { serie: [], error: recError.message };
+    try {
+      recolecciones = await fetchRecoleccionesForRutaIds(admin, rutaIds);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al cargar recolecciones";
+      return { serie: [], error: message };
     }
-    recolecciones = data ?? [];
   }
 
   return {

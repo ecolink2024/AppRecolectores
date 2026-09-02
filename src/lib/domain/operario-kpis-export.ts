@@ -6,6 +6,7 @@ import {
 import { formatRutaFecha } from "@/lib/domain/rutas";
 import type { KpiSerieMes, OperarioKpis } from "@/lib/domain/operario-kpis";
 import {
+  KPI_TIPOS_SERVICIO_COLUMNAS,
   formatKpiDuracion,
   formatKpiMesLabel,
   formatKpiPercent,
@@ -96,6 +97,50 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
   lines.push(row(["Duración promedio jornada", formatKpiDuracion(operacion.duracionPromedioMin)]));
   lines.push(row(["Bolsas llenas", materiales.bolsas]));
   lines.push(row(["Biotachos retirados", materiales.biotachos]));
+
+  lines.push(...sectionTitle("POR UNIDAD DE NEGOCIO"));
+  lines.push(
+    row([
+      "Paradas por unidad y tipo: exitosos/cancelados por celda. Mixto de planilla → Reciclaje/Orgánico según bolsas/biotachos (+1 por tipo). Solo rutas cerradas.",
+    ]),
+  );
+  lines.push(
+    row([
+      "Unidad",
+      ...KPI_TIPOS_SERVICIO_COLUMNAS.flatMap(({ label }) => [
+        `${label} exitosos`,
+        `${label} cancelados`,
+      ]),
+      "Total servicios",
+      "Exitosos total",
+      "Cancelados total",
+    ]),
+  );
+  for (const u of kpis.porUnidadNegocio) {
+    lines.push(
+      row([
+        u.unidad,
+        ...KPI_TIPOS_SERVICIO_COLUMNAS.flatMap(({ key }) => [
+          u.porTipo[key].exitosas,
+          u.porTipo[key].canceladas,
+        ]),
+        u.total,
+        u.exitosas,
+        u.canceladas,
+      ]),
+    );
+  }
+
+  lines.push(...sectionTitle("POR TIPO DE SERVICIO"));
+  lines.push(
+    row([
+      "Sin fila Mixto: planilla Mixto repartida a Reciclaje/Orgánico según campo. Cancelada mixta solo en totales generales.",
+    ]),
+  );
+  lines.push(row(["Tipo de servicio", "Total servicios", "Exitosos", "Cancelados"]));
+  for (const t of kpis.porTipoServicio) {
+    lines.push(row([t.tipo, t.total, t.exitosas, t.canceladas]));
+  }
 
   lines.push(...sectionTitle("POR ZONA"));
   lines.push(

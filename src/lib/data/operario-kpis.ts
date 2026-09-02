@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { fetchRecoleccionesForRutaIds } from "@/lib/data/ruta-recolecciones-fetch";
 import type { Database } from "@/types/database";
 import { fetchSerieMensualRecaudacion } from "@/lib/data/operario-kpis-serie-mensual";
 import { RUTA_ESTADOS_HISTORIAL } from "@/lib/domain/ruta-estado-transiciones";
@@ -75,21 +76,18 @@ export async function fetchOperarioKpisData(
   let recolecciones: RecoleccionRow[] = [];
 
   if (rutaIds.length > 0) {
-    const { data, error: recError } = await admin
-      .from("ruta_recolecciones")
-      .select("*")
-      .in("ruta_id", rutaIds);
-
-    if (recError) {
+    try {
+      recolecciones = await fetchRecoleccionesForRutaIds(admin, rutaIds);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al cargar recolecciones";
       const { serie, error: serieError } = await serieMensualPromise;
       return {
         kpis: emptyKpis(periodo),
         serieMensual: serie,
         filtro,
-        error: recError.message ?? serieError,
+        error: message ?? serieError,
       };
     }
-    recolecciones = data ?? [];
   }
 
   const { data: recolectores } = await admin

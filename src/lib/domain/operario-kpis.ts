@@ -2,6 +2,11 @@ import { rutaEstadoOperarioLabel } from "@/lib/domain/constants";
 import { calcDuracionJornadaMinutos } from "@/lib/domain/operario-historial-ruta";
 import { getInicioJornadaAt } from "@/lib/domain/recolector-ruta";
 import { rutaImpactaKpis } from "@/lib/domain/ruta-estado-transiciones";
+import {
+  parseTipoServicio,
+  parseUnidad,
+  type TipoServicio,
+} from "@/lib/integrations/sheet-recoleccion-validation";
 import type { Database, RecoleccionOperativaEstado, RutaEstado } from "@/types/database";
 
 type RutaRow = Database["public"]["Tables"]["rutas"]["Row"];
@@ -177,6 +182,247 @@ type ZonaAccumulator = Omit<KpiZonaRow, "porTipoServicio" | "porFrecuencia"> & {
   frecuenciaMap: Map<string, number>;
 };
 
+/** Unidades de negocio canónicas (columna `unidad` de la parada). */
+export const KPI_UNIDADES_NEGOCIO = ["Hogar", "Empresa", "Puntos"] as const;
+
+/** Tipos de servicio en columnas KPI (sin Mixto: se reclasifica según campo). */
+export type KpiTipoServicioColumnaKey = "Reciclaje" | "Organico" | "Punto" | "sin_dato";
+
+export const KPI_TIPOS_SERVICIO_COLUMNAS: {
+  key: KpiTipoServicioColumnaKey;
+  label: string;
+}[] = [
+  { key: "Reciclaje", label: "Reciclaje" },
+  { key: "Organico", label: "Orgánico" },
+  { key: "Punto", label: "Punto" },
+  { key: "sin_dato", label: "Sin dato" },
+];
+
+const KPI_UNIDAD_SIN = "Sin unidad";
+const KPI_UNIDAD_ORDER = [...KPI_UNIDADES_NEGOCIO, KPI_UNIDAD_SIN];
+
+export type KpiUnidadNegocioCelda = {
+  /** Paradas visitadas (exitosas) en esta unidad × tipo. */
+  exitosas: number;
+  /** Paradas canceladas en esta unidad × tipo. */
+  canceladas: number;
+};
+
+export type KpiUnidadNegocioPorTipo = Record<
+  KpiTipoServicioColumnaKey,
+  KpiUnidadNegocioCelda
+>;
+
+export type KpiUnidadNegocioRow = {
+  unidad: string;
+  porTipo: KpiUnidadNegocioPorTipo;
+  total: number;
+  /** Paradas visitadas (exitosas) en la unidad (todos los tipos). */
+  exitosas: number;
+  /** Paradas canceladas en la unidad (todos los tipos). */
+  canceladas: number;
+};
+
+export type KpiTipoServicioRow = {
+  tipo: string;
+  total: number;
+  /** Paradas visitadas (exitosas). */
+  exitosas: number;
+  /** Paradas canceladas. */
+  canceladas: number;
+};
+
+type UnidadNegocioAccumulator = {
+  unidad: string;
+  porTipo: KpiUnidadNegocioPorTipo;
+  total: number;
+  exitosas: number;
+  canceladas: number;
+};
+
+function createEmptyPorTipoUnidad(): KpiUnidadNegocioPorTipo {
+  return Object.fromEntries(
+    KPI_TIPOS_SERVICIO_COLUMNAS.map(({ key }) => [
+      key,
+      { exitosas: 0, canceladas: 0 },
+    ]),
+  ) as KpiUnidadNegocioPorTipo;
+}
+
+function createUnidadNegocioAccumulator(unidad: string): UnidadNegocioAccumulator {
+  return {
+    unidad,
+    porTipo: createEmptyPorTipoUnidad(),
+    total: 0,
+    exitosas: 0,
+    canceladas: 0,
+  };
+}
+
+function kpiUnidadNegocioLabel(raw: string | null | undefined): string {
+  const parsed = parseUnidad(raw);
+  if (parsed) return parsed;
+  const text = raw?.trim();
+  return text ? text : KPI_UNIDAD_SIN;
+}
+
+function kpiTipoServicioKey(raw: string | null | undefined): TipoServicio | "sin_dato" {
+  const parsed = parseTipoServicio(String(raw ?? "").trim());
+  return parsed ?? "sin_dato";
+}
+
+function kpiPlanillaToColumnaKey(
+  planilla: TipoServicio | "sin_dato",
+): KpiTipoServicioColumnaKey {
+  if (planilla === "Reciclaje" || planilla === "Organico" || planilla === "Punto") {
+    return planilla;
+  }
+  return "sin_dato";
+}
+
+/** Mixto visitada: tipos KPI según bolsas (reciclaje) y biotachos (orgánico); +1 por tipo si hubo retiro. */
+function kpiMixtoVisitadaTiposColumna(rec: RecoleccionRow): KpiTipoServicioColumnaKey[] {
+  if (rec.bolsas_llenas == null || rec.biotachos_llenos == null) {
+    return [];
+  }
+  const tipos: KpiTipoServicioColumnaKey[] = [];
+  if (num(rec.bolsas_llenas) > 0) tipos.push("Reciclaje");
+  if (num(rec.biotachos_llenos) > 0) tipos.push("Organico");
+  return tipos;
+}
+
+/** Tipos de columna que reciben exit./canc. para esta parada (Mixto cancelada → ninguno). */
+function kpiTiposColumnaExitCanc(rec: RecoleccionRow): KpiTipoServicioColumnaKey[] {
+  const estado = rec.estado_operativo as RecoleccionOperativaEstado;
+  const planilla = kpiTipoServicioKey(rec.tipo_servicio);
+
+  if (planilla === "Mixto") {
+    if (estado !== "visitada") return [];
+    return kpiMixtoVisitadaTiposColumna(rec);
+  }
+
+  if (estado !== "visitada" && estado !== "cancelada") return [];
+
+  return [kpiPlanillaToColumnaKey(planilla)];
+}
+
+function incrementUnidadNegocioCelda(
+  celda: KpiUnidadNegocioCelda,
+  estado: RecoleccionOperativaEstado,
+) {
+  if (estado === "visitada") celda.exitosas += 1;
+  else if (estado === "cancelada") celda.canceladas += 1;
+}
+
+function incrementUnidadNegocioParada(acc: UnidadNegocioAccumulator, rec: RecoleccionRow) {
+  acc.total += 1;
+  const estado = rec.estado_operativo as RecoleccionOperativaEstado;
+  if (estado === "visitada") acc.exitosas += 1;
+  else if (estado === "cancelada") acc.canceladas += 1;
+
+  for (const tipo of kpiTiposColumnaExitCanc(rec)) {
+    incrementUnidadNegocioCelda(acc.porTipo[tipo], estado);
+  }
+}
+
+function sortUnidadNegocioRows(rows: KpiUnidadNegocioRow[]): KpiUnidadNegocioRow[] {
+  return [...rows].sort((a, b) => {
+    const ia = KPI_UNIDAD_ORDER.indexOf(a.unidad as (typeof KPI_UNIDAD_ORDER)[number]);
+    const ib = KPI_UNIDAD_ORDER.indexOf(b.unidad as (typeof KPI_UNIDAD_ORDER)[number]);
+    const orderA = ia >= 0 ? ia : KPI_UNIDAD_ORDER.length;
+    const orderB = ib >= 0 ? ib : KPI_UNIDAD_ORDER.length;
+    if (orderA !== orderB) return orderA - orderB;
+    return b.total - a.total || a.unidad.localeCompare(b.unidad, "es");
+  });
+}
+
+function buildPorUnidadNegocio(recolecciones: RecoleccionRow[]): KpiUnidadNegocioRow[] {
+  const map = new Map<string, UnidadNegocioAccumulator>();
+
+  for (const unidad of KPI_UNIDAD_ORDER) {
+    map.set(unidad, createUnidadNegocioAccumulator(unidad));
+  }
+
+  for (const rec of recolecciones) {
+    const unidadLabel = kpiUnidadNegocioLabel(rec.unidad);
+    let acc = map.get(unidadLabel);
+    if (!acc) {
+      acc = createUnidadNegocioAccumulator(unidadLabel);
+      map.set(unidadLabel, acc);
+    }
+    incrementUnidadNegocioParada(acc, rec);
+  }
+
+  return sortUnidadNegocioRows(
+    [...map.values()]
+      .filter((row) => row.total > 0)
+      .map((row) => ({
+        unidad: row.unidad,
+        porTipo: row.porTipo,
+        total: row.total,
+        exitosas: row.exitosas,
+        canceladas: row.canceladas,
+      })),
+  );
+}
+
+type TipoServicioAccumulator = {
+  total: number;
+  exitosas: number;
+  canceladas: number;
+};
+
+function createTipoServicioAccumulator(): TipoServicioAccumulator {
+  return { total: 0, exitosas: 0, canceladas: 0 };
+}
+
+function applyParadaPorTipoServicio(
+  map: Map<KpiTipoServicioColumnaKey, TipoServicioAccumulator>,
+  rec: RecoleccionRow,
+) {
+  const estado = rec.estado_operativo as RecoleccionOperativaEstado;
+  const planilla = kpiTipoServicioKey(rec.tipo_servicio);
+
+  if (planilla === "Mixto") {
+    if (estado === "visitada") {
+      for (const tipo of kpiMixtoVisitadaTiposColumna(rec)) {
+        const acc = map.get(tipo)!;
+        acc.total += 1;
+        acc.exitosas += 1;
+      }
+    }
+    return;
+  }
+
+  const tipoCol = kpiPlanillaToColumnaKey(planilla);
+  const acc = map.get(tipoCol)!;
+  acc.total += 1;
+  if (estado === "visitada") acc.exitosas += 1;
+  else if (estado === "cancelada") acc.canceladas += 1;
+}
+
+function buildPorTipoServicio(recolecciones: RecoleccionRow[]): KpiTipoServicioRow[] {
+  const map = new Map<KpiTipoServicioColumnaKey, TipoServicioAccumulator>();
+
+  for (const { key } of KPI_TIPOS_SERVICIO_COLUMNAS) {
+    map.set(key, createTipoServicioAccumulator());
+  }
+
+  for (const rec of recolecciones) {
+    applyParadaPorTipoServicio(map, rec);
+  }
+
+  return KPI_TIPOS_SERVICIO_COLUMNAS.map(({ key, label }) => {
+    const acc = map.get(key)!;
+    return {
+      tipo: label,
+      total: acc.total,
+      exitosas: acc.exitosas,
+      canceladas: acc.canceladas,
+    };
+  }).filter((row) => row.total > 0);
+}
+
 export type KpiRecolectorRow = {
   id: string;
   nombre: string;
@@ -228,6 +474,8 @@ export type OperarioKpis = {
     indiceExitosas: number | null;
   };
   porZona: KpiZonaRow[];
+  porUnidadNegocio: KpiUnidadNegocioRow[];
+  porTipoServicio: KpiTipoServicioRow[];
   finanzas: {
     efectivo: number;
     transferencia: number;
@@ -443,6 +691,9 @@ export function buildOperarioKpis(
       (a, b) => b.ingresoTotal - a.ingresoTotal || b.recolecciones - a.recolecciones,
     );
 
+  const porUnidadNegocio = buildPorUnidadNegocio(recsImpacto);
+  const porTipoServicio = buildPorTipoServicio(recsImpacto);
+
   const totalRecaudado = efectivo + transferencia + qr;
   const ingresadas = recsImpacto.length;
 
@@ -513,6 +764,8 @@ export function buildOperarioKpis(
       indiceExitosas: tasaExitoPct(exitosas, ingresadas),
     },
     porZona,
+    porUnidadNegocio,
+    porTipoServicio,
     finanzas: {
       efectivo,
       transferencia,

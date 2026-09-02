@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { OperarioKpiPorTipoServicioTable } from "@/components/panel/operario/operario-kpi-por-tipo-servicio-table";
+import { OperarioKpiPorUnidadNegocioTable } from "@/components/panel/operario/operario-kpi-por-unidad-negocio-table";
 import { OperarioKpiPorZonaTable } from "@/components/panel/operario/operario-kpi-por-zona-table";
 import { OperarioKpisFiltroFechas } from "@/components/panel/operario/operario-kpis-filtro-fechas";
 import { OperarioKpiRecaudacionChart } from "@/components/panel/operario/operario-kpi-recaudacion-chart";
@@ -297,6 +299,24 @@ export function OperarioKpisDashboard({
               />
             </div>
           </Section>
+
+          {kpis.porUnidadNegocio.length > 0 && (
+            <Section
+              title="Por unidad de negocio"
+              subtitle="Exitosos y cancelados por unidad × tipo. Mixto de planilla se reparte a Reciclaje/Orgánico según bolsas y biotachos en campo (+1 por tipo si hubo retiro). Cada parada cuenta una vez en totales de fila. Solo rutas cerradas."
+            >
+              <OperarioKpiPorUnidadNegocioTable filas={kpis.porUnidadNegocio} />
+            </Section>
+          )}
+
+          {kpis.porTipoServicio.length > 0 && (
+            <Section
+              title="Por tipo de servicio"
+              subtitle="Mixto de planilla no aparece: se suma en Reciclaje u Orgánico según campo. Totales de fila = una parada; columnas por tipo pueden sumar más si hubo ambos materiales. Solo rutas cerradas."
+            >
+              <OperarioKpiPorTipoServicioTable filas={kpis.porTipoServicio} />
+            </Section>
+          )}
 
           {kpis.porZona.length > 0 && (
             <Section

@@ -112,6 +112,13 @@ export function parseTipoServicio(raw: string): TipoServicio | null {
   return matchEnum(v, TIPOS_SERVICIO);
 }
 
+/** Normaliza unidad de negocio (Hogar, Empresa, Puntos). */
+export function parseUnidad(raw: string | null | undefined): Unidad | null {
+  const v = str(raw);
+  if (!v) return null;
+  return matchEnum(v, UNIDADES);
+}
+
 export function normalizeArgPhone(raw: string): { ok: true; value: string } | { ok: false; error: string } {
   let v = str(raw);
   if (!v) return { ok: false, error: "Teléfono vacío" };

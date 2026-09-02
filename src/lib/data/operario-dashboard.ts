@@ -1,5 +1,6 @@
 import type { Database } from "@/types/database";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { fetchRecoleccionesForRutaIds } from "@/lib/data/ruta-recolecciones-fetch";
 import {
   buildRecoleccionOperarioRows,
   buildRutaOperarioRows,
@@ -60,12 +61,12 @@ export async function fetchOperarioDashboardData(
   let recoleccionesRaw: RecoleccionRow[] = [];
 
   if (rutaIds.length > 0) {
-    const { data } = await admin
-      .from("ruta_recolecciones")
-      .select("*")
-      .in("ruta_id", rutaIds)
-      .order("orden", { ascending: true });
-    recoleccionesRaw = data ?? [];
+    try {
+      recoleccionesRaw = await fetchRecoleccionesForRutaIds(admin, rutaIds);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al cargar recolecciones";
+      return { rutas: [], recolecciones: [], recolectores: [] as RecolectorOption[], error: message };
+    }
   }
 
   const { data: recolectores } = await admin
