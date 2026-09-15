@@ -4,6 +4,7 @@ import {
   RUTA_TURNO_LABELS,
   formatTipoClienteLabel,
 } from "@/lib/domain/constants";
+import { isParadaClienteMetricas } from "@/lib/domain/parada-categoria";
 import { formatRutaFecha } from "@/lib/domain/rutas";
 import { evaluarFinalizarRuta } from "@/lib/domain/recolector-finalizar-ruta";
 import { recoleccionCerradaParaRecolector } from "@/lib/domain/recolector-recoleccion-campo";
@@ -126,6 +127,7 @@ function sumRecaudoVisitadas(recolecciones: RecoleccionRow[]) {
   let montoARecaudar = 0;
 
   for (const item of recolecciones) {
+    if (!isParadaClienteMetricas(item)) continue;
     if (item.estado_operativo !== "visitada") continue;
     efectivo += num(item.monto_efectivo);
     transferencia += num(item.monto_transferencia);

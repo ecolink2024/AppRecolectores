@@ -314,6 +314,7 @@ export type Database = {
           nombre: string;
           unidad: string | null;
           tipo_servicio: string | null;
+          categoria_parada: string;
           frecuencia: string | null;
           barrio: string | null;
           direccion: string;
@@ -348,6 +349,10 @@ export type Database = {
           bolsas_nuevas: number | null;
           biotachos_nuevos: number | null;
           cestos: number | null;
+          cestos_dejo: number | null;
+          cestos_retiro: number | null;
+          biotachos_dejo: number | null;
+          biotachos_retiro: number | null;
           detalle: string | null;
           firma_digital: string | null;
           nombre_firmante: string | null;
@@ -362,6 +367,7 @@ export type Database = {
           nombre: string;
           unidad?: string | null;
           tipo_servicio?: string | null;
+          categoria_parada?: string;
           frecuencia?: string | null;
           barrio?: string | null;
           direccion: string;
@@ -396,6 +402,10 @@ export type Database = {
           bolsas_nuevas?: number | null;
           biotachos_nuevos?: number | null;
           cestos?: number | null;
+          cestos_dejo?: number | null;
+          cestos_retiro?: number | null;
+          biotachos_dejo?: number | null;
+          biotachos_retiro?: number | null;
           detalle?: string | null;
           firma_digital?: string | null;
           nombre_firmante?: string | null;
@@ -410,6 +420,7 @@ export type Database = {
           nombre?: string;
           unidad?: string | null;
           tipo_servicio?: string | null;
+          categoria_parada?: string;
           frecuencia?: string | null;
           barrio?: string | null;
           direccion?: string;
@@ -444,6 +455,10 @@ export type Database = {
           bolsas_nuevas?: number | null;
           biotachos_nuevos?: number | null;
           cestos?: number | null;
+          cestos_dejo?: number | null;
+          cestos_retiro?: number | null;
+          biotachos_dejo?: number | null;
+          biotachos_retiro?: number | null;
           detalle?: string | null;
           firma_digital?: string | null;
           nombre_firmante?: string | null;

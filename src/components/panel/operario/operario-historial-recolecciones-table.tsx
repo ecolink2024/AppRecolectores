@@ -17,11 +17,13 @@ import {
   formatCantidadBiotachos,
   formatCantidadBolsas,
   formatCantidadCestos,
+  formatCantidadDejoRetiro,
   formatMoney,
   type RecoleccionOperarioRow,
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
 import { formatTipoClienteLabel } from "@/lib/domain/constants";
+import { isParadaLogistica } from "@/lib/domain/parada-categoria";
 import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
 
 type Props = {
@@ -157,6 +159,7 @@ export function OperarioHistorialRecoleccionesTable({
           <tbody>
             {recolecciones.map((item) => {
               const cancelada = item.estado_operativo === "cancelada";
+              const logistica = isParadaLogistica(item);
               const rowClass = cancelada
                 ? "border-b border-red-100 bg-red-50 last:border-0 dark:border-red-950 dark:bg-red-950/40"
                 : "border-b border-zinc-100 last:border-0 dark:border-zinc-800";
@@ -181,26 +184,42 @@ export function OperarioHistorialRecoleccionesTable({
                       <ZonaBadge zona={item.zona} />
                     </button>
                   </td>
-                  <td className={`${TD} text-center`}>
-                    {formatCantidadBiotachos(item)}
+                  <td
+                    className={`${TD} text-center`}
+                    title={logistica ? "Biotachos dejados · retirados" : undefined}
+                  >
+                    {logistica
+                      ? formatCantidadDejoRetiro(item.biotachos_dejo, item.biotachos_retiro)
+                      : formatCantidadBiotachos(item)}
                   </td>
                   <td className={`${TD} text-center`}>
-                    {formatCantidadBolsas(item)}
+                    {logistica ? "—" : formatCantidadBolsas(item)}
                   </td>
-                  <td className={`${TD} text-center`}>
-                    {formatCantidadCestos(item)}
+                  <td
+                    className={`${TD} text-center`}
+                    title={logistica ? "Cestos dejados · retirados" : "Cestos entregados en campo"}
+                  >
+                    {logistica
+                      ? formatCantidadDejoRetiro(item.cestos_dejo, item.cestos_retiro)
+                      : formatCantidadCestos(item)}
                   </td>
                   <td className={`${TD} text-right`}>
-                    {formatMoney(
-                      item.precio_total ??
-                        (item.precio_tarifa ? Number(item.precio_tarifa) || null : null),
-                    )}
+                    {logistica
+                      ? "—"
+                      : formatMoney(
+                          item.precio_total ??
+                            (item.precio_tarifa ? Number(item.precio_tarifa) || null : null),
+                        )}
                   </td>
-                  <td className={`${TD} text-right`}>{formatMoney(item.monto_efectivo)}</td>
                   <td className={`${TD} text-right`}>
-                    {formatMoney(item.monto_transferencia)}
+                    {logistica ? "—" : formatMoney(item.monto_efectivo)}
                   </td>
-                  <td className={`${TD} text-right`}>{formatMoney(item.monto_qr)}</td>
+                  <td className={`${TD} text-right`}>
+                    {logistica ? "—" : formatMoney(item.monto_transferencia)}
+                  </td>
+                  <td className={`${TD} text-right`}>
+                    {logistica ? "—" : formatMoney(item.monto_qr)}
+                  </td>
                   <td className={TD}>
                     <RecoleccionEstadoBadge estado={item.estado_operativo} />
                   </td>

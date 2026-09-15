@@ -158,6 +158,10 @@ export async function PATCH(request: Request, { params }: Props) {
     updateRow.bolsas_nuevas = null;
     updateRow.biotachos_nuevos = null;
     updateRow.cestos = null;
+    updateRow.cestos_dejo = null;
+    updateRow.cestos_retiro = null;
+    updateRow.biotachos_dejo = null;
+    updateRow.biotachos_retiro = null;
   } else {
     updateRow.bolsas_llenas = parsed.data.bolsas_llenas;
     updateRow.bolsas_llenas_punto = parsed.data.bolsas_llenas_punto;
@@ -166,6 +170,10 @@ export async function PATCH(request: Request, { params }: Props) {
     updateRow.bolsas_nuevas = parsed.data.bolsas_nuevas;
     updateRow.biotachos_nuevos = parsed.data.biotachos_nuevos;
     updateRow.cestos = parsed.data.cestos;
+    updateRow.cestos_dejo = parsed.data.cestos_dejo;
+    updateRow.cestos_retiro = parsed.data.cestos_retiro;
+    updateRow.biotachos_dejo = parsed.data.biotachos_dejo;
+    updateRow.biotachos_retiro = parsed.data.biotachos_retiro;
     updateRow.monto_efectivo = parsed.data.monto_efectivo;
     updateRow.monto_transferencia = parsed.data.monto_transferencia;
     updateRow.monto_qr = parsed.data.monto_qr;

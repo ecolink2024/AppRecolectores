@@ -104,7 +104,14 @@ export const RECOLECCION_OPERATIVA_LABELS = {
 } as const;
 
 /** Valores canónicos de planilla / panel (columna «Tipo de cliente» / tipo_servicio). */
-export const RECOLECCION_TIPOS_CLIENTE = ["Reciclaje", "Mixto", "Organico", "Punto"] as const;
+export const RECOLECCION_TIPOS_CLIENTE = [
+  "Reciclaje",
+  "Mixto",
+  "Organico",
+  "Punto",
+  "Proveedor",
+  "Cooperativa",
+] as const;
 export type RecoleccionTipoCliente = (typeof RECOLECCION_TIPOS_CLIENTE)[number];
 
 export const RECOLECCION_TIPO_CLIENTE_LABELS: Record<RecoleccionTipoCliente, string> = {
@@ -112,6 +119,8 @@ export const RECOLECCION_TIPO_CLIENTE_LABELS: Record<RecoleccionTipoCliente, str
   Mixto: "Mixto",
   Organico: "Orgánico",
   Punto: "Punto",
+  Proveedor: "Proveedor",
+  Cooperativa: "Cooperativa",
 };
 
 export function formatTipoClienteLabel(value: string | null | undefined): string {

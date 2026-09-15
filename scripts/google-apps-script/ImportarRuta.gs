@@ -36,7 +36,7 @@ const CONFIG = {
     MENSAJE: "MensajeSistema",
   },
   UNIDADES: ["Hogar", "Empresa", "Puntos"],
-  TIPOS_SERVICIO: ["Reciclaje", "Mixto", "Organico", "Punto"],
+  TIPOS_SERVICIO: ["Reciclaje", "Mixto", "Organico", "Punto", "Proveedor", "Cooperativa"],
   FRECUENCIAS: ["Mensual", "Puntual", "Semanal", "Quincenal"],
   COLOR_PENDIENTE: "#FFF9C4",
   COLOR_INCOMPLETO: "#FFCDD2",
@@ -607,7 +607,7 @@ function validarTipoServicio_(value, errors, errorFields) {
       "tipo",
       'Tipo de servicio (valor inválido: "' +
         raw +
-        '"; use Reciclaje, Mixto, Organico o Punto)',
+        '"; use Reciclaje, Mixto, Organico, Punto, Proveedor o Cooperativa)',
     );
   }
 }
@@ -620,6 +620,8 @@ function parseTipoServicio_(value) {
   if (!v) return null;
   const lower = v.toLowerCase();
   if (lower === "punto" || lower === "puntos") return "Punto";
+  if (lower === "proveedor") return "Proveedor";
+  if (lower === "cooperativa") return "Cooperativa";
   return matchEnum_(v, CONFIG.TIPOS_SERVICIO);
 }
 

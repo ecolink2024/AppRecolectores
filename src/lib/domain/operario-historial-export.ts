@@ -17,6 +17,7 @@ import {
   type RutaOperarioRow,
 } from "@/lib/domain/operario-dashboard";
 import { formatObservacionesHistorial } from "@/lib/domain/operario-historial-ruta";
+import { isParadaClienteMetricas, isParadaLogistica } from "@/lib/domain/parada-categoria";
 import { INSUMO_TIPOS } from "@/lib/domain/ruta-insumos";
 import { formatRutaFecha } from "@/lib/domain/rutas";
 
@@ -33,6 +34,7 @@ function firmaExport(firma: string | null): string {
 }
 
 function precioRecoleccion(item: RecoleccionOperarioRow): number | null {
+  if (isParadaLogistica(item)) return null;
   if (item.precio_total != null) return item.precio_total;
   if (item.precio_tarifa) {
     const n = Number(item.precio_tarifa);
@@ -65,7 +67,12 @@ export function buildHistorialCsv(
     lines.push(csvRow(["Filtro", rango.etiqueta ?? "Rango", rango.desde, rango.hasta]));
   }
   lines.push(csvRow(["Total rutas", rutasExport.length]));
-  lines.push(csvRow(["Total servicios (recolecciones)", recsExport.length]));
+  lines.push(
+    csvRow([
+      "Total servicios (recolecciones)",
+      recsExport.filter((r) => isParadaClienteMetricas(r)).length,
+    ]),
+  );
 
   lines.push(...csvSectionTitle("RUTAS"));
   lines.push(
@@ -158,12 +165,17 @@ export function buildHistorialCsv(
       "Hora real",
       "Unidad",
       "Tipo de cliente",
+      "Categoría parada",
       "Frecuencia",
       "Biotachos llenos",
       "Biotachos nuevos",
       "Bolsas llenas",
       "Bolsas nuevas",
       "Cesto",
+      "Cestos dejo",
+      "Cestos retiro",
+      "Biotachos dejo",
+      "Biotachos retiro",
       "Precio total",
       "Monto efectivo",
       "Monto transferencia",
@@ -196,6 +208,7 @@ export function buildHistorialCsv(
   for (const item of recsOrdenadas) {
     const ruta = rutaMap.get(item.ruta_id);
     if (!ruta) continue;
+    const logistica = isParadaLogistica(item);
     lines.push(
       csvRow([
         formatRutaFecha(ruta.fecha),
@@ -211,16 +224,21 @@ export function buildHistorialCsv(
         formatHoraReal(item.hora_real),
         item.unidad ?? "",
         item.tipo_servicio ?? "",
+        item.categoria_parada ?? (logistica ? "logistica" : "cliente"),
         item.frecuencia ?? "",
-        item.biotachos_llenos ?? "",
-        item.biotachos_nuevos ?? "",
-        item.bolsas_llenas ?? "",
-        item.bolsas_nuevas ?? "",
-        item.cestos ?? "",
-        precioRecoleccion(item) ?? "",
-        item.monto_efectivo ?? "",
-        item.monto_transferencia ?? "",
-        item.monto_qr ?? "",
+        logistica ? "" : (item.biotachos_llenos ?? ""),
+        logistica ? "" : (item.biotachos_nuevos ?? ""),
+        logistica ? "" : (item.bolsas_llenas ?? ""),
+        logistica ? "" : (item.bolsas_nuevas ?? ""),
+        logistica ? "" : (item.cestos ?? ""),
+        logistica ? (item.cestos_dejo ?? "") : "",
+        logistica ? (item.cestos_retiro ?? "") : "",
+        logistica ? (item.biotachos_dejo ?? "") : "",
+        logistica ? (item.biotachos_retiro ?? "") : "",
+        logistica ? "" : (precioRecoleccion(item) ?? ""),
+        logistica ? "" : (item.monto_efectivo ?? ""),
+        logistica ? "" : (item.monto_transferencia ?? ""),
+        logistica ? "" : (item.monto_qr ?? ""),
         RECOLECCION_OPERATIVA_LABELS[item.estado_operativo] ?? item.estado_operativo,
         item.motivo_cancelacion ?? "",
         item.observaciones_recolector ?? "",
@@ -230,7 +248,7 @@ export function buildHistorialCsv(
         item.nombre_firmante ?? "",
         item.telefono ?? "",
         item.deuda ?? "",
-        item.precio_tarifa ?? "",
+        logistica ? "" : (item.precio_tarifa ?? ""),
       ]),
     );
   }

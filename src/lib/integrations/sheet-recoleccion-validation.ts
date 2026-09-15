@@ -109,6 +109,8 @@ export function parseTipoServicio(raw: string): TipoServicio | null {
   if (!v) return null;
   const lower = v.toLowerCase();
   if (lower === "punto" || lower === "puntos") return "Punto";
+  if (lower === "proveedor") return "Proveedor";
+  if (lower === "cooperativa") return "Cooperativa";
   return matchEnum(v, TIPOS_SERVICIO);
 }
 
@@ -318,7 +320,7 @@ export function validateRecoleccionRow(
     if (!matched) {
       errors.push({
         field: "tipo_servicio",
-        message: `Tipo de servicio (valor inválido: "${tipoRaw}"; use Reciclaje, Mixto, Organico o Punto)`,
+        message: `Tipo de servicio (valor inválido: "${tipoRaw}"; use Reciclaje, Mixto, Organico, Punto, Proveedor o Cooperativa)`,
       });
     } else tipo_servicio = matched;
   }

@@ -91,6 +91,7 @@ export async function POST(request: Request, { params }: Props) {
       telefono_normalizado: parsed.data.telefono_normalizado,
       unidad: parsed.data.unidad,
       tipo_servicio: parsed.data.tipo_servicio,
+      categoria_parada: parsed.data.categoria_parada,
       frecuencia: parsed.data.frecuencia,
       precio: parsed.data.precio,
       deuda: parsed.data.deuda,

@@ -5,6 +5,7 @@ import {
   normalizeUnidad,
   type PrecioCobroInput,
 } from "@/lib/domain/sistema-parametros";
+import { isTipoServicioLogistica } from "@/lib/domain/parada-categoria";
 import type { RecoleccionOperativaEstado, RutaEstado } from "@/types/database";
 
 /** Estados en los que la recolección ya fue cargada por el recolector. */
@@ -78,6 +79,7 @@ export function isTipoServicioOrganico(tipoServicio: string | null | undefined):
  * - Reciclaje: no aplica biotachos (llenos ni nuevos).
  * - Orgánico: no aplica bolsas (llenas ni nuevas) ni cestos.
  * - Mixto y el resto (p. ej. Punto): aplican todos.
+ * - Logística (Proveedor/Cooperativa): no usa estos contadores de cliente.
  * Cuando un contador no aplica, no se muestra en el formulario ni es obligatorio.
  */
 export type RecoleccionCampoContadoresRules = {
@@ -86,12 +88,25 @@ export type RecoleccionCampoContadoresRules = {
   biotachosLlenosRequired: boolean;
   biotachosNuevosRequired: boolean;
   cestosRequired: boolean;
+  /** Parada Proveedor/Cooperativa: form dejo/retiro, sin cobro. */
+  logistica: boolean;
 };
 
 export function getRecoleccionCampoContadoresRules(
   _unidad: string | null | undefined,
   tipoServicio: string | null | undefined,
 ): RecoleccionCampoContadoresRules {
+  if (isTipoServicioLogistica(tipoServicio)) {
+    return {
+      bolsasLlenasRequired: false,
+      bolsasNuevasRequired: false,
+      biotachosLlenosRequired: false,
+      biotachosNuevosRequired: false,
+      cestosRequired: false,
+      logistica: true,
+    };
+  }
+
   const organico = isTipoServicioOrganico(tipoServicio);
   const reciclaje = isTipoServicioReciclaje(tipoServicio);
 
@@ -101,6 +116,7 @@ export function getRecoleccionCampoContadoresRules(
     biotachosLlenosRequired: !reciclaje,
     biotachosNuevosRequired: !reciclaje,
     cestosRequired: !organico,
+    logistica: false,
   };
 }
 
@@ -114,6 +130,10 @@ export type RecoleccionCampoPayload = {
   bolsas_nuevas: number | null;
   biotachos_nuevos: number | null;
   cestos: number | null;
+  cestos_dejo: number | null;
+  cestos_retiro: number | null;
+  biotachos_dejo: number | null;
+  biotachos_retiro: number | null;
   precio_total: number;
   monto_efectivo: number | null;
   monto_transferencia: number | null;
@@ -122,7 +142,6 @@ export type RecoleccionCampoPayload = {
   firma_digital: string;
   cancelada: boolean;
 };
-
 export const MOTIVOS_CANCELACION = [
   "Por el cliente",
   "Por no tener respuestas",
@@ -149,6 +168,7 @@ export function parseRecoleccionCampoBody(
   const nombre_firmante = str(body.nombre_firmante);
   const firma_digital = str(body.firma_digital);
   const empresaPunto = isEmpresaPuntoCobro(precios.unidad, precios.tipoServicio);
+  const logistica = isTipoServicioLogistica(precios.tipoServicio);
   const cancelada = bodyMarcaCancelada(body) || motivo_cancelacion != null;
 
   if (!nombre_firmante) {
@@ -159,6 +179,23 @@ export function parseRecoleccionCampoBody(
     return { ok: false, error: "Debés capturar la firma del cliente en el recuadro" };
   }
 
+  const emptyClienteCounters = {
+    bolsas_llenas: null as number | null,
+    bolsas_llenas_punto: null as number | null,
+    bolsas_nuevas_vendidas: null as number | null,
+    biotachos_llenos: null as number | null,
+    bolsas_nuevas: null as number | null,
+    biotachos_nuevos: null as number | null,
+    cestos: null as number | null,
+  };
+
+  const emptyLogisticaCounters = {
+    cestos_dejo: null as number | null,
+    cestos_retiro: null as number | null,
+    biotachos_dejo: null as number | null,
+    biotachos_retiro: null as number | null,
+  };
+
   if (cancelada) {
     if (!motivo_cancelacion || !esMotivoCancelacionValido(motivo_cancelacion)) {
       return { ok: false, error: "Elegí un motivo de cancelación" };
@@ -168,20 +205,52 @@ export function parseRecoleccionCampoBody(
       data: {
         motivo_cancelacion,
         observaciones_recolector,
-        bolsas_llenas: null,
-        bolsas_llenas_punto: null,
-        bolsas_nuevas_vendidas: null,
-        biotachos_llenos: null,
-        bolsas_nuevas: null,
-        biotachos_nuevos: null,
-        cestos: null,
-        precio_total: precios.precioRetiro,
+        ...emptyClienteCounters,
+        ...emptyLogisticaCounters,
+        precio_total: logistica ? 0 : precios.precioRetiro,
         monto_efectivo: null,
         monto_transferencia: null,
         monto_qr: null,
         nombre_firmante,
         firma_digital,
         cancelada: true,
+      },
+    };
+  }
+
+  if (logistica) {
+    const cestos_dejo = parseOptionalCount(body.cestos_dejo);
+    const cestos_retiro = parseOptionalCount(body.cestos_retiro);
+    const biotachos_dejo = parseOptionalCount(body.biotachos_dejo);
+    const biotachos_retiro = parseOptionalCount(body.biotachos_retiro);
+    const faltantes: string[] = [];
+    if (cestos_dejo === null) faltantes.push("cestos dejados");
+    if (cestos_retiro === null) faltantes.push("cestos retirados");
+    if (biotachos_dejo === null) faltantes.push("biotachos dejados");
+    if (biotachos_retiro === null) faltantes.push("biotachos retirados");
+    if (faltantes.length > 0) {
+      return {
+        ok: false,
+        error: `Completá ${faltantes.join(", ")} (podés poner 0)`,
+      };
+    }
+    return {
+      ok: true,
+      data: {
+        motivo_cancelacion: null,
+        observaciones_recolector,
+        ...emptyClienteCounters,
+        cestos_dejo,
+        cestos_retiro,
+        biotachos_dejo,
+        biotachos_retiro,
+        precio_total: 0,
+        monto_efectivo: null,
+        monto_transferencia: null,
+        monto_qr: null,
+        nombre_firmante,
+        firma_digital,
+        cancelada: false,
       },
     };
   }
@@ -267,6 +336,7 @@ export function parseRecoleccionCampoBody(
       bolsas_nuevas: contadoresRules.bolsasNuevasRequired ? bolsas_nuevas : null,
       biotachos_nuevos: contadoresRules.biotachosNuevosRequired ? biotachos_nuevos : null,
       cestos: contadoresRules.cestosRequired ? cestos : null,
+      ...emptyLogisticaCounters,
       precio_total,
       monto_efectivo,
       monto_transferencia,

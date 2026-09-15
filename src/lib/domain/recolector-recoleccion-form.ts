@@ -6,6 +6,7 @@ import {
   recolectorPuedeEditarRecoleccion,
 } from "@/lib/domain/recolector-recoleccion-campo";
 import { RECOLECCION_OPERATIVA_LABELS } from "@/lib/domain/constants";
+import { isTipoServicioLogistica } from "@/lib/domain/parada-categoria";
 import {
   formatParametroMoney,
   isEmpresaPuntoCobro,
@@ -24,6 +25,7 @@ export type RecoleccionCampoFormData = {
   zona: string | null;
   unidad: string | null;
   tipoServicio: string | null;
+  esLogistica: boolean;
   frecuencia: string | null;
   precio: string | null;
   deuda: string | null;
@@ -52,6 +54,10 @@ export type RecoleccionCampoFormData = {
   bolsasNuevas: string;
   biotachosNuevos: string;
   cestos: string;
+  cestosDejo: string;
+  cestosRetiro: string;
+  biotachosDejo: string;
+  biotachosRetiro: string;
   montoEfectivo: string;
   montoTransferencia: string;
   montoQr: string;
@@ -75,7 +81,9 @@ export function buildRecoleccionCampoFormData(
   const precioRetiro = parsePrecioRetiro(item.precio);
   const completada = recoleccionCerradaParaRecolector(item.estado_operativo);
   const soloLectura = !recolectorPuedeEditarRecoleccion(item.estado_operativo, estadoRuta);
-  const esEmpresaPunto = isEmpresaPuntoCobro(item.unidad, item.tipo_servicio);
+  const esLogistica =
+    item.categoria_parada === "logistica" || isTipoServicioLogistica(item.tipo_servicio);
+  const esEmpresaPunto = !esLogistica && isEmpresaPuntoCobro(item.unidad, item.tipo_servicio);
 
   return {
     id: item.id,
@@ -88,17 +96,18 @@ export function buildRecoleccionCampoFormData(
     zona: item.zona,
     unidad: item.unidad,
     tipoServicio: item.tipo_servicio,
+    esLogistica,
     frecuencia: item.frecuencia,
-    precio: item.precio?.trim() || formatPrecioDisplay(precioRetiro),
-    deuda: item.deuda,
+    precio: esLogistica ? null : item.precio?.trim() || formatPrecioDisplay(precioRetiro),
+    deuda: esLogistica ? null : item.deuda,
     notaEncargado: item.nota_encargado,
     telefono: item.telefono_normalizado?.trim() || item.telefono?.trim() || null,
     esEmpresaPunto,
     horaProgramada: String(item.hora).slice(0, 5),
     observaciones: item.observaciones,
     observacionesRecolector: item.observaciones_recolector ?? "",
-    precioRetiro,
-    precioRetiroLabel: formatPrecioDisplay(precioRetiro),
+    precioRetiro: esLogistica ? 0 : precioRetiro,
+    precioRetiroLabel: formatPrecioDisplay(esLogistica ? 0 : precioRetiro),
     precioBolsaExtra: precios.bolsaExtra,
     precioBolsaExtraLabel: formatParametroMoney(precios.bolsaExtra),
     precioRetiroReciclableMixto: precios.retiroReciclableMixto,
@@ -118,6 +127,10 @@ export function buildRecoleccionCampoFormData(
     bolsasNuevas: item.bolsas_nuevas != null ? String(item.bolsas_nuevas) : "",
     biotachosNuevos: item.biotachos_nuevos != null ? String(item.biotachos_nuevos) : "",
     cestos: item.cestos != null ? String(item.cestos) : "",
+    cestosDejo: item.cestos_dejo != null ? String(item.cestos_dejo) : "",
+    cestosRetiro: item.cestos_retiro != null ? String(item.cestos_retiro) : "",
+    biotachosDejo: item.biotachos_dejo != null ? String(item.biotachos_dejo) : "",
+    biotachosRetiro: item.biotachos_retiro != null ? String(item.biotachos_retiro) : "",
     montoEfectivo: paymentFieldToString(item.monto_efectivo),
     montoTransferencia: paymentFieldToString(item.monto_transferencia),
     montoQr: paymentFieldToString(item.monto_qr),

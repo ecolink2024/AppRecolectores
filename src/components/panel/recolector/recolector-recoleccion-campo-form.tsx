@@ -50,6 +50,10 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
   const [bolsasNuevas, setBolsasNuevas] = useState(data.bolsasNuevas);
   const [biotachosNuevos, setBiotachosNuevos] = useState(data.biotachosNuevos);
   const [cestos, setCestos] = useState(data.cestos);
+  const [cestosDejo, setCestosDejo] = useState(data.cestosDejo);
+  const [cestosRetiro, setCestosRetiro] = useState(data.cestosRetiro);
+  const [biotachosDejo, setBiotachosDejo] = useState(data.biotachosDejo);
+  const [biotachosRetiro, setBiotachosRetiro] = useState(data.biotachosRetiro);
   const [montoEfectivo, setMontoEfectivo] = useState(data.montoEfectivo);
   const [montoTransferencia, setMontoTransferencia] = useState(data.montoTransferencia);
   const [montoQr, setMontoQr] = useState(data.montoQr);
@@ -121,6 +125,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
 
     if (
       !cancelada &&
+      !data.esLogistica &&
       (montoEfectivoVal === null ||
         montoTransferenciaVal === null ||
         montoQrVal === null)
@@ -164,9 +169,14 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
             biotachos_nuevos:
               biotachosNuevos === "" ? null : Number.parseInt(biotachosNuevos, 10),
             cestos: cestos === "" ? null : Number.parseInt(cestos, 10),
-            monto_efectivo: montoEfectivoVal,
-            monto_transferencia: montoTransferenciaVal,
-            monto_qr: montoQrVal,
+            cestos_dejo: cestosDejo === "" ? null : Number.parseInt(cestosDejo, 10),
+            cestos_retiro: cestosRetiro === "" ? null : Number.parseInt(cestosRetiro, 10),
+            biotachos_dejo: biotachosDejo === "" ? null : Number.parseInt(biotachosDejo, 10),
+            biotachos_retiro:
+              biotachosRetiro === "" ? null : Number.parseInt(biotachosRetiro, 10),
+            monto_efectivo: data.esLogistica ? null : montoEfectivoVal,
+            monto_transferencia: data.esLogistica ? null : montoTransferenciaVal,
+            monto_qr: data.esLogistica ? null : montoQrVal,
             nombre_firmante: nombreFirmante.trim(),
             observaciones_recolector: observacionesRecolector.trim() || null,
             firma_png: firmaPng,
@@ -266,7 +276,40 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
           />
         </section>
 
-        {!esCancelacion && (
+        {!esCancelacion && data.esLogistica && (
+          <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+              Logística
+            </h2>
+            <p className="mb-3 text-xs text-zinc-500">
+              Parada {data.tipoServicio}: registrá cuántos cestos y biotachos se dejaron o
+              retiraron. Sin cobro.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Cestos dejados" value={cestosDejo} onChange={setCestosDejo} required />
+              <Field
+                label="Cestos retirados"
+                value={cestosRetiro}
+                onChange={setCestosRetiro}
+                required
+              />
+              <Field
+                label="Biotachos dejados"
+                value={biotachosDejo}
+                onChange={setBiotachosDejo}
+                required
+              />
+              <Field
+                label="Biotachos retirados"
+                value={biotachosRetiro}
+                onChange={setBiotachosRetiro}
+                required
+              />
+            </div>
+          </section>
+        )}
+
+        {!esCancelacion && !data.esLogistica && (
           <>
             <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
               <h2 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
@@ -476,6 +519,18 @@ function RecoleccionCampoSoloLectura({
             Cancelación
           </h2>
           <ReadOnlyRow label="Motivo" value={data.motivoCancelacion || "—"} />
+        </section>
+      ) : data.esLogistica ? (
+        <section className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <h2 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            Logística
+          </h2>
+          <dl className="space-y-2 text-sm">
+            <ReadOnlyRow label="Cestos dejados" value={data.cestosDejo || "0"} />
+            <ReadOnlyRow label="Cestos retirados" value={data.cestosRetiro || "0"} />
+            <ReadOnlyRow label="Biotachos dejados" value={data.biotachosDejo || "0"} />
+            <ReadOnlyRow label="Biotachos retirados" value={data.biotachosRetiro || "0"} />
+          </dl>
         </section>
       ) : (
         <>

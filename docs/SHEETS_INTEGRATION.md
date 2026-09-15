@@ -37,7 +37,7 @@ Zona | Nombre | Unidad | Tipo de servicio | Frecuencia | Barrio | Direccion | De
 | Campo | Valores |
 |-------|---------|
 | Unidad | Hogar, Empresa, Puntos |
-| Tipo de servicio / Tipo de cliente | Reciclaje, Mixto, Organico, **Punto** (con Unidad **Empresa** → cobro especial en app). No usar **Puntos** aquí: es valor de **Unidad**, no de tipo |
+| Tipo de servicio / Tipo de cliente | Reciclaje, Mixto, Organico, **Punto**, **Proveedor**, **Cooperativa**. Punto + Unidad Empresa → cobro especial. Proveedor/Cooperativa = paradas **logísticas** (sin cobro; la app deriva `categoria_parada = logistica`). No usar **Puntos** aquí: es valor de **Unidad**, no de tipo |
 | Frecuencia | Mensual, Puntual, Semanal, Quincenal |
 
 ### Qué se persiste en Supabase al importar
@@ -47,12 +47,12 @@ Cada fila **Pendiente** enviada **crea** una parada en `ruta_recolecciones` (si 
 | Columna planilla | Columna DB | Notas |
 |------------------|------------|--------|
 | Unidad | `unidad` | Canónico: `Hogar` \| `Empresa` \| `Puntos` |
-| Tipo de servicio / Tipo de cliente | `tipo_servicio` | Canónico: `Reciclaje` \| `Mixto` \| `Organico` \| `Punto` |
+| Tipo de servicio / Tipo de cliente | `tipo_servicio` | Canónico: `Reciclaje` \| `Mixto` \| `Organico` \| `Punto` \| `Proveedor` \| `Cooperativa`. Al importar Proveedor/Cooperativa se setea `categoria_parada = logistica` |
 | Precio | `precio` | TEXT (ej. `"15000"`) |
 | Observaciones | `observaciones` | Notas operario/planilla |
 | Recolector | (ruta) | Agrupa en `rutas.asignado_a` por email resuelto |
 
-Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo y se guardan en las mismas columnas de `ruta_recolecciones`. Qué contadores se muestran/piden depende del **tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo).
+Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo. Qué contadores se muestran depende del tipo: Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo; **Proveedor/Cooperativa** solo cestos/biotachos dejó/retiró (sin cobro). No hace falta columna nueva en Sheets para logística: solo el valor en Tipo de servicio.
 
 ### Cómo se suma a una ruta existente
 
@@ -78,7 +78,7 @@ Ver detalle del modelo (incl. Empresa + Punto): [GUIA_DESARROLLADORES.md](./GUIA
 1. Pegar `scripts/google-apps-script/ImportarRuta.gs` en Extensiones → Apps Script
 2. **Configurar integración** → URL `https://app-recolectores.vercel.app` + secreto
 3. **Actualizar desplegable recolectores** (trae nombres de la base; si hay nombres repetidos muestra `Nombre (email)`)
-4. **Actualizar desplegable tipos de cliente** (Reciclaje, Mixto, Organico, Punto en columna Tipo de servicio / Tipo de cliente)
+4. **Actualizar desplegable tipos de cliente** (Reciclaje, Mixto, Organico, Punto, Proveedor, Cooperativa)
 5. Completar filas de datos
 6. **Validar todas las filas**
 7. **Enviar pendientes a la app**

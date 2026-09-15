@@ -61,6 +61,10 @@ export function OperarioRecoleccionCampoModal({
   const [bolsasNuevas, setBolsasNuevas] = useState("");
   const [biotachosNuevos, setBiotachosNuevos] = useState("");
   const [cestos, setCestos] = useState("");
+  const [cestosDejo, setCestosDejo] = useState("");
+  const [cestosRetiro, setCestosRetiro] = useState("");
+  const [biotachosDejo, setBiotachosDejo] = useState("");
+  const [biotachosRetiro, setBiotachosRetiro] = useState("");
   const [montoEfectivo, setMontoEfectivo] = useState("0");
   const [montoTransferencia, setMontoTransferencia] = useState("0");
   const [montoQr, setMontoQr] = useState("0");
@@ -85,6 +89,10 @@ export function OperarioRecoleccionCampoModal({
     setBolsasNuevas(countToString(recoleccion.bolsas_nuevas));
     setBiotachosNuevos(countToString(recoleccion.biotachos_nuevos));
     setCestos(countToString(recoleccion.cestos));
+    setCestosDejo(countToString(recoleccion.cestos_dejo));
+    setCestosRetiro(countToString(recoleccion.cestos_retiro));
+    setBiotachosDejo(countToString(recoleccion.biotachos_dejo));
+    setBiotachosRetiro(countToString(recoleccion.biotachos_retiro));
     setMontoEfectivo(moneyToString(recoleccion.monto_efectivo));
     setMontoTransferencia(moneyToString(recoleccion.monto_transferencia));
     setMontoQr(moneyToString(recoleccion.monto_qr));
@@ -119,6 +127,7 @@ export function OperarioRecoleccionCampoModal({
       ),
     [recoleccion?.unidad, recoleccion?.tipo_servicio],
   );
+  const esLogistica = contadoresRules.logistica;
 
   const parseCount = (value: string) =>
     value.trim() === "" ? 0 : Number.parseInt(value, 10) || 0;
@@ -195,10 +204,25 @@ export function OperarioRecoleccionCampoModal({
       bolsas_nuevas: bolsasNuevas === "" ? null : Number.parseInt(bolsasNuevas, 10),
       biotachos_nuevos: biotachosNuevos === "" ? null : Number.parseInt(biotachosNuevos, 10),
       cestos: cestos === "" ? null : Number.parseInt(cestos, 10),
-      monto_efectivo: montoEfectivo.trim() === "" ? 0 : Number(montoEfectivo.replace(",", ".")),
-      monto_transferencia:
-        montoTransferencia.trim() === "" ? 0 : Number(montoTransferencia.replace(",", ".")),
-      monto_qr: montoQr.trim() === "" ? 0 : Number(montoQr.replace(",", ".")),
+      cestos_dejo: cestosDejo === "" ? null : Number.parseInt(cestosDejo, 10),
+      cestos_retiro: cestosRetiro === "" ? null : Number.parseInt(cestosRetiro, 10),
+      biotachos_dejo: biotachosDejo === "" ? null : Number.parseInt(biotachosDejo, 10),
+      biotachos_retiro: biotachosRetiro === "" ? null : Number.parseInt(biotachosRetiro, 10),
+      monto_efectivo: esLogistica
+        ? null
+        : montoEfectivo.trim() === ""
+          ? 0
+          : Number(montoEfectivo.replace(",", ".")),
+      monto_transferencia: esLogistica
+        ? null
+        : montoTransferencia.trim() === ""
+          ? 0
+          : Number(montoTransferencia.replace(",", ".")),
+      monto_qr: esLogistica
+        ? null
+        : montoQr.trim() === ""
+          ? 0
+          : Number(montoQr.replace(",", ".")),
       nombre_firmante: nombreFirmante.trim(),
       observaciones_recolector: observacionesRecolector.trim() || null,
     };
@@ -275,7 +299,45 @@ export function OperarioRecoleccionCampoModal({
             compact
           />
 
-          {!esCancelacion && (
+          {!esCancelacion && esLogistica && (
+            <fieldset className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
+              <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                Logística
+              </legend>
+              <p className="mb-3 text-xs text-zinc-500">
+                Parada {recoleccion.tipo_servicio}: registrá cuántos cestos y biotachos se
+                dejaron o retiraron. Sin cobro.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <NumberField
+                  label="Cestos dejados"
+                  value={cestosDejo}
+                  onChange={setCestosDejo}
+                  required
+                />
+                <NumberField
+                  label="Cestos retirados"
+                  value={cestosRetiro}
+                  onChange={setCestosRetiro}
+                  required
+                />
+                <NumberField
+                  label="Biotachos dejados"
+                  value={biotachosDejo}
+                  onChange={setBiotachosDejo}
+                  required
+                />
+                <NumberField
+                  label="Biotachos retirados"
+                  value={biotachosRetiro}
+                  onChange={setBiotachosRetiro}
+                  required
+                />
+              </div>
+            </fieldset>
+          )}
+
+          {!esCancelacion && !esLogistica && (
             <>
               <fieldset className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
                 <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">

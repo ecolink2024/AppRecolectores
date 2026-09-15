@@ -85,6 +85,36 @@ export function OperarioRecoleccionDetalleModal({
               <p className="font-medium text-zinc-700 dark:text-zinc-300">Cancelación</p>
               <p className="mt-1 text-orange-800 dark:text-orange-300">{detalle.cancelacion}</p>
             </div>
+          ) : detalle.es_logistica ? (
+            <div>
+              <p className="font-medium text-zinc-700 dark:text-zinc-300">Logística</p>
+              <dl className="mt-2 space-y-1 text-zinc-600 dark:text-zinc-400">
+                <div className="flex justify-between gap-4">
+                  <dt>Cestos dejados</dt>
+                  <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
+                    {detalle.cestos_dejo ?? "0"}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt>Cestos retirados</dt>
+                  <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
+                    {detalle.cestos_retiro ?? "0"}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt>Biotachos dejados</dt>
+                  <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
+                    {detalle.biotachos_dejo ?? "0"}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt>Biotachos retirados</dt>
+                  <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
+                    {detalle.biotachos_retiro ?? "0"}
+                  </dd>
+                </div>
+              </dl>
+            </div>
           ) : (
             <>
               <div>

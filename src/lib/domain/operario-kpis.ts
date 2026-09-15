@@ -1,5 +1,6 @@
 import { rutaEstadoOperarioLabel } from "@/lib/domain/constants";
 import { calcDuracionJornadaMinutos } from "@/lib/domain/operario-historial-ruta";
+import { isParadaClienteMetricas } from "@/lib/domain/parada-categoria";
 import { getInicioJornadaAt } from "@/lib/domain/recolector-ruta";
 import { rutaImpactaKpis } from "@/lib/domain/ruta-estado-transiciones";
 import {
@@ -344,6 +345,7 @@ function buildPorUnidadNegocio(recolecciones: RecoleccionRow[]): KpiUnidadNegoci
   }
 
   for (const rec of recolecciones) {
+    if (!isParadaClienteMetricas(rec)) continue;
     const unidadLabel = kpiUnidadNegocioLabel(rec.unidad);
     let acc = map.get(unidadLabel);
     if (!acc) {
@@ -409,6 +411,7 @@ function buildPorTipoServicio(recolecciones: RecoleccionRow[]): KpiTipoServicioR
   }
 
   for (const rec of recolecciones) {
+    if (!isParadaClienteMetricas(rec)) continue;
     applyParadaPorTipoServicio(map, rec);
   }
 
@@ -631,6 +634,7 @@ export function buildOperarioKpis(
     .filter((row) => row.count > 0)
     .sort((a, b) => b.count - a.count);
 
+  let ingresadas = 0;
   let exitosas = 0;
   let canceladasRec = 0;
   let omitidas = 0;
@@ -646,6 +650,9 @@ export function buildOperarioKpis(
   const porZonaMap = new Map<string, ZonaAccumulator>();
 
   for (const rec of recsImpacto) {
+    if (!isParadaClienteMetricas(rec)) continue;
+
+    ingresadas += 1;
     const list = recByRuta.get(rec.ruta_id) ?? [];
     list.push(rec);
     recByRuta.set(rec.ruta_id, list);
@@ -695,7 +702,6 @@ export function buildOperarioKpis(
   const porTipoServicio = buildPorTipoServicio(recsImpacto);
 
   const totalRecaudado = efectivo + transferencia + qr;
-  const ingresadas = recsImpacto.length;
 
   const porRecolectorMap = new Map<string, KpiRecolectorRow>();
 
@@ -851,6 +857,7 @@ export function buildSerieMensualRecaudacion(
     entry.rutas += 1;
     const paradas = recByRuta.get(ruta.id) ?? [];
     for (const p of paradas) {
+      if (!isParadaClienteMetricas(p)) continue;
       if (p.estado_operativo !== "visitada") continue;
       entry.recaudado += recaudadoPagosRecoleccion(p);
       entry.totalPrecio += totalPrecioRecoleccion(p);

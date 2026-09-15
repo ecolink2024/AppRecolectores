@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { puedeAgregarRecoleccion } from "@/lib/domain/ruta-estado-transiciones";
+import { categoriaFromTipoServicio } from "@/lib/domain/parada-categoria";
 import {
   buildRutaExternalKey,
   buildRutaNombre,
@@ -67,6 +68,7 @@ function toRecoleccionRow(
     nombre: item.nombre,
     unidad: item.unidad,
     tipo_servicio: item.tipo_servicio,
+    categoria_parada: categoriaFromTipoServicio(item.tipo_servicio),
     frecuencia: item.frecuencia,
     barrio: item.barrio,
     direccion: item.direccion,

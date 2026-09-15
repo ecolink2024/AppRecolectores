@@ -5,6 +5,7 @@ import {
   RUTA_TURNOS,
   type RutaEstado,
 } from "@/lib/domain/constants";
+import { categoriaFromTipoServicio } from "@/lib/domain/parada-categoria";
 import type { RecoleccionOperativaEstado, RutaTurno } from "@/types/database";
 
 function str(value: unknown): string {
@@ -40,6 +41,7 @@ export type RecoleccionFieldsPayload = {
   telefono_normalizado: string;
   unidad: string | null;
   tipo_servicio: string | null;
+  categoria_parada: "cliente" | "logistica";
   frecuencia: string | null;
   precio: string | null;
   deuda: string | null;
@@ -122,7 +124,8 @@ export function parseRecoleccionFields(body: Record<string, unknown>):
     if (!matched) {
       return {
         ok: false,
-        error: "Tipo de cliente inválido (use Reciclaje, Mixto, Orgánico o Punto)",
+        error:
+          "Tipo de cliente inválido (use Reciclaje, Mixto, Orgánico, Punto, Proveedor o Cooperativa)",
       };
     }
     tipo_servicio = matched;
@@ -137,6 +140,7 @@ export function parseRecoleccionFields(body: Record<string, unknown>):
       telefono_normalizado: phone.value,
       unidad: optionalStr(body.unidad),
       tipo_servicio,
+      categoria_parada: categoriaFromTipoServicio(tipo_servicio),
       frecuencia: optionalStr(body.frecuencia),
       precio: optionalStr(body.precio),
       deuda: optionalStr(body.deuda),

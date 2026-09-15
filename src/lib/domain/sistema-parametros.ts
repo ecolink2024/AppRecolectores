@@ -1,3 +1,5 @@
+import { isTipoServicioLogistica } from "@/lib/domain/parada-categoria";
+
 export const PRECIO_BOLSA_EXTRA_CLAVE = "bolsa_extra" as const;
 export const PRECIO_RETIRO_RECICLABLE_MIXTO_CLAVE = "retiro_reciclable_mixto" as const;
 export const PRECIO_BOLSA_PUNTO_CLAVE = "bolsa_punto" as const;
@@ -160,6 +162,8 @@ export function calcPrecioEmpresaPunto(input: PrecioCobroInput): number {
 }
 
 export function calcPrecioTotalCobrarConReglas(input: PrecioCobroInput): number {
+  if (isTipoServicioLogistica(input.tipoServicio)) return 0;
+
   const bolsas = sanitizeBolsasLlenas(input.bolsasLlenas);
   const regla = resolvePrecioCobroRegla(input.unidad, input.tipoServicio);
 
@@ -227,8 +231,48 @@ export function buildPrecioCobroDetalle(input: PrecioCobroInput): PrecioCobroDet
   const bolsasLlenas = sanitizeBolsasLlenas(input.bolsasLlenas);
   const bolsasLlenasPunto = sanitizeBolsasLlenas(input.bolsasLlenasPunto);
   const bolsasNuevasVendidas = sanitizeBolsasLlenas(input.bolsasNuevasVendidas);
-  const regla = resolvePrecioCobroRegla(input.unidad, input.tipoServicio);
   const precioRetiroLabel = formatParametroMoney(input.precioRetiro);
+
+  if (isTipoServicioLogistica(input.tipoServicio)) {
+    const zeroLabel = formatParametroMoney(0);
+    return {
+      regla: "estandar",
+      precioRetiro: input.precioRetiro,
+      precioBolsaExtra: input.precioBolsaExtra,
+      precioRetiroReciclableMixto: input.precioRetiroReciclableMixto,
+      precioBolsaPunto: input.precioBolsaPunto,
+      precioBolsaLlenaPunto: input.precioBolsaLlenaPunto,
+      bolsasLlenas,
+      bolsasLlenasPunto,
+      bolsasNuevasVendidas,
+      bolsasConTarifaMixto: 0,
+      bolsasExtra: 0,
+      montoRetiroMixto: 0,
+      montoBolsaExtra: 0,
+      montoBolsaLlenaPunto: 0,
+      montoBolsaPunto: 0,
+      precioTotal: 0,
+      precioRetiroLabel,
+      precioBolsaExtraLabel: formatParametroMoney(input.precioBolsaExtra),
+      precioRetiroReciclableMixtoLabel: formatParametroMoney(
+        input.precioRetiroReciclableMixto,
+      ),
+      precioBolsaPuntoLabel: formatParametroMoney(input.precioBolsaPunto),
+      precioBolsaLlenaPuntoLabel: formatParametroMoney(input.precioBolsaLlenaPunto),
+      montoRetiroMixtoLabel: zeroLabel,
+      montoBolsaExtraLabel: zeroLabel,
+      montoBolsaLlenaPuntoLabel: zeroLabel,
+      montoBolsaPuntoLabel: zeroLabel,
+      precioTotalLabel: zeroLabel,
+      bolsaExtraDetalleLabel: null,
+      retiroMixtoDetalleLabel: null,
+      bolsaLlenaPuntoDetalleLabel: null,
+      bolsaPuntoDetalleLabel: null,
+      ayudaCobro: "Parada logística (Proveedor/Cooperativa): sin cobro de servicio.",
+    };
+  }
+
+  const regla = resolvePrecioCobroRegla(input.unidad, input.tipoServicio);
   const precioBolsaExtraLabel = formatParametroMoney(input.precioBolsaExtra);
   const precioRetiroReciclableMixtoLabel = formatParametroMoney(
     input.precioRetiroReciclableMixto,

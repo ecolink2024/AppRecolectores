@@ -5,7 +5,9 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 **Manual de uso (no técnico):** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
-**Cambios recientes (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`; **renombre UI de parámetros** (`PARAMETRO_PRECIO_UI`: Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos `ayudaCobro`** actualizados en `buildPrecioCobroDetalle`; **Maps por tramos** (`chunkDireccionesForMaps`, `MAPS_MAX_PARADAS_POR_TRAMO = 8`, panel **Siguiente tramo** en `recolector-ruta-detalle.tsx`).
+**Cambios recientes (sep 2026):** paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, `cestos_dejo`/`cestos_retiro`/`biotachos_dejo`/`biotachos_retiro`, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs/agregados vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto, `fetchRecoleccionesForRutaIds`.
+
+**Cambios previos (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`; **renombre UI de parámetros** (`PARAMETRO_PRECIO_UI`: Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos `ayudaCobro`** actualizados en `buildPrecioCobroDetalle`; **Maps por tramos** (`chunkDireccionesForMaps`, `MAPS_MAX_PARADAS_POR_TRAMO = 8`, panel **Siguiente tramo** en `recolector-ruta-detalle.tsx`).
 
 **Cambios previos (jun 2026):** **Operativo vs Historial** (`completada` en historial al finalizar recolector); **reactivar** (`DELETE .../reactivar`) y **cierre operario** solo en Historial; **editar carga del recolector** desde el panel en rutas Realizadas (`PATCH .../campo`, `puedeEditarCargaStaff`); eliminación de **suspendida** (`20260608120000`); KPIs **solo historial** (`RUTA_ESTADOS_HISTORIAL`, `pendientesCierre`); **Preparación de insumos**; tablas operario con scroll; **Ver detalle**; **Obs. recolector** y **cestos**; tipo **Punto**; Maps con GPS; firmas en Storage; WhatsApp **Avisar**; **dos montos** en rutas/KPIs; gráfico mensual dual; `force-dynamic` en `/panel/kpis`; `revalidatePath` al eliminar ruta.
 
@@ -116,11 +118,13 @@ Valores canónicos guardados (texto exacto):
 | Concepto | Columna DB | Valores válidos (código) |
 |----------|------------|---------------------------|
 | Unidad | `unidad` | `Hogar`, `Empresa`, `Puntos` |
-| Tipo de cliente | `tipo_servicio` | `Reciclaje`, `Mixto`, `Organico`, `Punto` |
+| Tipo de cliente | `tipo_servicio` | `Reciclaje`, `Mixto`, `Organico`, `Punto`, `Proveedor`, `Cooperativa` |
+| Categoría parada | `categoria_parada` | `cliente` (default) \| `logistica` |
 
-`parseTipoServicio()` normaliza alias (`punto`, `puntos`, acentos) → **`Punto`** al importar o editar.
+`parseTipoServicio()` normaliza alias (`punto`, `puntos`, acentos) → **`Punto`** al importar o editar. Proveedor/Cooperativa setean `categoria_parada = logistica`.
 
-> **No confundir:** Unidad **`Puntos`** (plural) ≠ tipo **`Punto`** (singular). Empresa + Punto = `unidad = 'Empresa'` **y** `tipo_servicio = 'Punto'`.
+> **No confundir:** Unidad **`Puntos`** (plural) ≠ tipo **`Punto`** (singular). Empresa + Punto = `unidad = 'Empresa'` **y** `tipo_servicio = 'Punto'`.  
+> Paradas **logísticas** no entran a KPIs ni a totales de servicios/recaudación (`isParadaClienteMetricas` en `parada-categoria.ts`).
 
 #### Columnas por fase (resumen)
 
@@ -419,23 +423,26 @@ Componentes en `src/components/panel/operario/`:
 | `operario-kpis-filtro-fechas.tsx` | Presets y rango `desde`/`hasta` → `/panel/kpis?...` |
 | `operario-kpi-recaudacion-chart.tsx` | Gráfico barras **mensuales** (total precio + recaudado; ventana 12 meses) |
 | `operario-kpi-por-zona-table.tsx` | Desglose por zona |
+| `operario-kpi-por-unidad-negocio-table.tsx` | Matriz unidad × tipo (Exit./Canc.; sticky columna unidad) |
+| `operario-kpi-por-tipo-servicio-table.tsx` | Totales por tipo (Reciclaje, Orgánico, Punto; sin fila Mixto) |
 | Modales de edición de ruta y recolección | |
 | `operario-parametros-sistema.tsx` | Orquesta secciones de precios (`PARAMETRO_PRECIO_ORDEN`) |
 | `operario-parametro-precio-section.tsx` | Bloque reutilizable por parámetro (form + historial) |
 
 Datos:
 
-- `src/lib/data/operario-dashboard.ts` — Operativo / Historial. Historial: `.in("estado", RUTA_ESTADOS_HISTORIAL)` y `.gte/.lte` sobre `rutas.fecha` (no sobre `cierre_recolector_at`). `resolveKpiFiltroFechas` recorta `hasta` a hoy, así que rutas con `fecha` futura no aparecen. Limit 5000 en historial / 200 en operativo
+- `src/lib/data/operario-dashboard.ts` — Operativo / Historial. Historial: `.in("estado", RUTA_ESTADOS_HISTORIAL)` y `.gte/.lte` sobre `rutas.fecha` (no sobre `cierre_recolector_at`). `resolveKpiFiltroFechas` recorta `hasta` a hoy, así que rutas con `fecha` futura no aparecen. Limit 5000 en historial / 200 en operativo. Paradas vía `fetchRecoleccionesForRutaIds()` (paginación 1000)
 - `src/lib/domain/operario-dashboard.ts` — filas de tabla, agregados de ruta y helpers de detalle:
   - `buildRutaOperarioRows()` — suma bolsas/biotachos visitadas, `monto_a_recaudar`, `total_recaudado` (efectivo + transferencia + QR)
   - `buildRutaDetalle()` + `buildRecoleccionesPorUnidadTipo()` — desglose exitosas / pendientes / canceladas por `(unidad, tipo_servicio)`
   - `buildRecoleccionOperarioDetalleCarga()` — retiro y cobro para modal de parada
   - `parseInsumosFromJson()`, `insumosOperarioCompletados()` — preparación operario (`ruta-insumos.ts`)
 - `src/lib/domain/mapa-puntos.ts` — `MapaRecoleccionItem.horaProgramada`, `formatHoraProgramadaMapa()`
-- `src/lib/data/operario-kpis.ts` — KPIs del período: rutas `.in("estado", RUTA_ESTADOS_HISTORIAL)` por `fecha` en rango, `.limit(5000)` + recolecciones
+- `src/lib/data/operario-kpis.ts` — KPIs del período: rutas `.in("estado", RUTA_ESTADOS_HISTORIAL)` por `fecha` en rango, `.limit(5000)` + recolecciones vía `fetchRecoleccionesForRutaIds()`
 - `src/lib/data/operario-kpis-serie-mensual.ts` — serie mensual 48 meses (fetch independiente del filtro de fechas)
+- `src/lib/data/ruta-recolecciones-fetch.ts` — `fetchRecoleccionesForRutaIds()`: chunks de 1000 IDs (límite default PostgREST/Supabase por request)
 
-Dominio KPI: `src/lib/domain/operario-kpis.ts` (`resolveKpiFiltroFechas`, `buildOperarioKpis`, `buildSerieMensualRecaudacion`, `recaudadoPagosRecoleccion`, `totalPrecioRecoleccion`, constante `KPI_LABEL_SERVICIOS` = `"Recolecciones (servicios)"`).
+Dominio KPI: `src/lib/domain/operario-kpis.ts` (`resolveKpiFiltroFechas`, `buildOperarioKpis`, `buildPorUnidadNegocio`, `buildPorTipoServicio`, `buildSerieMensualRecaudacion`, `recaudadoPagosRecoleccion`, `totalPrecioRecoleccion`, `KPI_TIPOS_SERVICIO_COLUMNAS`, helpers Mixto `kpiMixtoVisitadaTiposColumna` / `kpiTiposColumnaExitCanc`, constante `KPI_LABEL_SERVICIOS` = `"Recolecciones (servicios)"`).
 
 Exportación CSV (cliente):
 
@@ -727,7 +734,19 @@ Otros criterios:
 - Gráfico: `operario-kpi-recaudacion-chart.tsx` — barras agrupadas azul/verde, ventana `KPI_RECAUDACION_MENSUAL_VENTANA` (12) con offset
 - Invalidación: `DELETE` de ruta y `POST .../cierre-operario` hacen `revalidatePath` de `/panel`, `/panel/historial`, `/panel/kpis`
 
-Export: `operario-kpis-export.ts` — resumen del período + sección mensual con ambos montos.
+Export: `operario-kpis-export.ts` — resumen del período + secciones **POR UNIDAD DE NEGOCIO** / **POR TIPO DE SERVICIO** + serie mensual con ambos montos.
+
+**Reclasificación Mixto en KPIs** (solo paradas `tipo_servicio = 'Mixto'` en rutas `cerrada`, visitadas):
+
+| Caso | Fila unidad (Exit./Canc. total) | Columnas Reciclaje / Orgánico |
+|------|----------------------------------|-------------------------------|
+| Visitada, `bolsas_llenas >= 1` | +1 exitoso | +1 Reciclaje (máx. +1 aunque sean 2+ bolsas) |
+| Visitada, `biotachos_llenos >= 1` | +1 exitoso | +1 Orgánico |
+| Visitada, ambos contadores > 0 | +1 exitoso | +1 Reciclaje **y** +1 Orgánico |
+| Visitada, 0/0 o contadores null | +1 exitoso | sin incremento en columnas tipo |
+| Cancelada | +1 cancelado | sin incremento en columnas tipo |
+
+No existe columna/fila **Mixto** en KPIs (`KPI_TIPOS_SERVICIO_COLUMNAS`: Reciclaje, Orgánico, Punto, Sin dato). Tipos de planilla distintos de Mixto van directo a su columna/fila. La suma de columnas Exit. puede superar exitosos de fila cuando un mixto retiró ambos materiales.
 
 #### Validación de pagos en campo
 
@@ -841,6 +860,7 @@ npm run start    # Servidor de producción local
 | Contadores retiro por tipo cliente | `getRecoleccionCampoContadoresRules` en `src/lib/domain/recolector-recoleccion-campo.ts` |
 | Insumos (lista y conteo) | `INSUMO_TIPOS`/`parseInsumosFromJson` en `ruta-insumos.ts`; `contarInsumosInicio`→`insumosPorTipo` en `operario-historial-ruta.ts` |
 | KPIs y filtros de fecha | `src/lib/domain/operario-kpis.ts` |
+| Fetch recolecciones paginado | `src/lib/data/ruta-recolecciones-fetch.ts` |
 | Fetch KPIs (período) | `src/lib/data/operario-kpis.ts` |
 | Serie mensual KPIs | `src/lib/data/operario-kpis-serie-mensual.ts` |
 | Export CSV KPIs / Historial | `operario-kpis-export.ts`, `operario-historial-export.ts`, `csv-download.ts` |
