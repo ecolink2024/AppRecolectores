@@ -101,7 +101,7 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
   lines.push(...sectionTitle("POR UNIDAD DE NEGOCIO"));
   lines.push(
     row([
-      "Paradas por unidad y tipo: exitosos/cancelados por celda. Mixto de planilla → Reciclaje/Orgánico según bolsas/biotachos (+1 por tipo). Solo rutas cerradas.",
+      "Paradas por unidad y tipo: exitosos/cancelados por celda. Mixto visitada → Reciclaje/Orgánico según bolsas/biotachos (+1 por tipo). Mixto cancelada → Orgánico Canc. Solo rutas cerradas.",
     ]),
   );
   lines.push(
@@ -134,7 +134,7 @@ export function buildOperarioKpisCsv(kpis: OperarioKpis, serieMensual: KpiSerieM
   lines.push(...sectionTitle("POR TIPO DE SERVICIO"));
   lines.push(
     row([
-      "Sin fila Mixto: planilla Mixto repartida a Reciclaje/Orgánico según campo. Cancelada mixta solo en totales generales.",
+      "Sin fila Mixto: visitada repartida a Reciclaje/Orgánico según campo; cancelada → Orgánico Canc.",
     ]),
   );
   lines.push(row(["Tipo de servicio", "Total servicios", "Exitosos", "Cancelados"]));

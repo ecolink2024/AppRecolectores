@@ -134,7 +134,9 @@ En planilla, la columna **Tipo de servicio / Tipo de cliente** admite:
 - **Montos, materiales y “Rutas en el período”** cuentan sobre todo rutas **Cerradas** (después del Cierre operario).
 - Una ruta **Pendiente de cierre** (Realizada) se ve, pero **no** mueve recaudación hasta cerrarla.
 - Hay tablas **Por unidad de negocio** y **Por tipo de servicio**.
-- **Mixto** no tiene columna propia en esas tablas: se reparte a Reciclaje u Orgánico según bolsas/biotachos cargados en campo.
+- **Mixto** no tiene columna/fila propia:
+  - **Visitada:** se reparte a Reciclaje y/o Orgánico según bolsas/biotachos en campo (+1 por tipo si hubo retiro).
+  - **Cancelada:** suma siempre en **Orgánico (Canc.)** y en cancelados totales de la unidad; **no** en Reciclaje.
 - **Proveedor y Cooperativa no entran** a esas métricas.
 
 ---

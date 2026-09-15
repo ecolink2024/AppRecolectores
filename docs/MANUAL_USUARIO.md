@@ -18,9 +18,9 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (septiembre 2026):** tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): aparecen en la ruta; el recolector solo carga cestos/biotachos dejó o retiró + firma/cancelación (**sin cobro**). **No entran** a KPIs ni a totales de servicios/recaudación. En planilla: mismos encabezados; solo sumar esos valores al desplegable de Tipo de servicio.
+**Novedades recientes (septiembre 2026):** en KPIs, **Mixto cancelada** suma siempre como **Orgánico (Canc.)** (además del cancelado total de la unidad). Tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): aparecen en la ruta; el recolector solo carga cestos/biotachos dejó o retiró + firma/cancelación (**sin cobro**). **No entran** a KPIs ni a totales de servicios/recaudación. En planilla: mismos encabezados; solo sumar esos valores al desplegable de Tipo de servicio.
 
-**Novedades previas (agosto–septiembre 2026):** tablas KPI **Por unidad de negocio** y **Por tipo de servicio** (exitosos/cancelados por celda; ver reglas de Mixto abajo). En KPIs **no hay columna/fila Mixto**: las paradas Mixto de planilla se reparten a **Reciclaje** u **Orgánico** según lo cargado en campo (`bolsas llenas` / `biotachos llenos`). Corrección en **Historial/KPIs**: si el rango de fechas traía más de ~1000 paradas en total, la app podía mostrar **menos filas** en la tabla de recolecciones de una ruta (ahora carga todas).
+**Novedades previas (agosto–septiembre 2026):** tablas KPI **Por unidad de negocio** y **Por tipo de servicio** (exitosos/cancelados por celda; ver reglas de Mixto abajo). En KPIs **no hay columna/fila Mixto**: las paradas Mixto **visitadas** se reparten a **Reciclaje** u **Orgánico** según lo cargado en campo (`bolsas llenas` / `biotachos llenos`); las **canceladas** van a Orgánico (Canc.). Corrección en **Historial/KPIs**: si el rango de fechas traía más de ~1000 paradas en total, la app podía mostrar **menos filas** en la tabla de recolecciones de una ruta (ahora carga todas).
 
 **Novedades previas (agosto 2026):** al **enviar pendientes** desde la planilla, las filas nuevas se **suman** a la ruta de esa fecha/turno/recolector (no pisan paradas ni carga de campo). Si el **teléfono** ya está en la ruta, esa fila no entra; si la ruta está **Realizada** o **Cerrada**, hay que reactivarla para agregar. Al marcar **Descarga realizada** al finalizar (o al editar la jornada), aparece un texto opcional de detalle. Al **cancelar una parada**, el motivo es un desplegable (Por el cliente, Por no tener respuestas, Por fuera de horario pactado, Por ecolink).
 
@@ -181,7 +181,7 @@ Mismo criterio que Historial: se filtra por **fecha de la ruta**, no por el día
 - **Rutas** por estado: **Pendiente cierre**, **Realizadas**, **Cerradas**, **Canceladas** (las pendientes no suman a montos ni a “Rutas en el período”)
 - **Recolecciones (servicios):** ingresadas (todas las paradas de esas rutas), exitosas, canceladas, omitidas, pendientes, índice de exitosas
 - **Por unidad de negocio:** matriz Hogar / Empresa / Puntos con **Exit.** y **Canc.** por tipo (Reciclaje, Orgánico, Punto, Sin dato). Ver [Mixto en KPIs](#mixto-en-kpis-sin-columna-propia) abajo
-- **Por tipo de servicio:** totales por Reciclaje, Orgánico, Punto (sin fila Mixto; incluye paradas Mixto reclasificadas)
+- **Por tipo de servicio:** totales por Reciclaje, Orgánico, Punto (sin fila Mixto; Mixto visitada reclasificada; Mixto cancelada → Orgánico Canc.)
 - **Por zona:** servicios, tipo de servicio, frecuencia, **bolsas llenas** (solo llenas, sin contar nuevas), efectivo, transferencia, QR, ingreso total
 - **Por recolector:** agendadas, realizadas, % éxito, ingresos (monto real recaudado)
 - **Finanzas:** desglose por medio de pago + resumen de los dos montos + promedio por recolección exitosa
@@ -207,17 +207,24 @@ Si un cliente pagó de más o de menos respecto al precio, los dos montos pueden
 
 #### Mixto en KPIs (sin columna propia)
 
-En planilla el cliente puede ser **Mixto**, pero en las tablas KPI **no hay columna ni fila “Mixto”**. Cada parada Mixto **visitada** en rutas **Cerradas** se reparte según lo que cargó el recolector:
+En planilla el cliente puede ser **Mixto**, pero en las tablas KPI **no hay columna ni fila “Mixto”**. Solo rutas **Cerradas**.
 
-| Retiro en campo | Suma en KPI |
-|-----------------|-------------|
+**Si está visitada**, se reparte según lo que cargó el recolector:
+
+| Retiro en campo | Suma en KPI (Exit.) |
+|-----------------|---------------------|
 | `bolsas llenas` ≥ 1 (aunque sean 2 o más) | **+1** en Reciclaje |
 | `biotachos llenos` ≥ 1 | **+1** en Orgánico |
 | Ambos | **+1** Reciclaje **y** **+1** Orgánico |
-| Ambos en 0, o sin datos cargados | Cuenta en **totales de fila** (exitosos/cancelados de la unidad), **no** en columnas Reciclaje/Orgánico |
-| Mixto **cancelada** | Cuenta en **cancelados total** de la unidad; **no** en columnas por tipo |
+| Ambos en 0, o sin datos cargados | Cuenta en **totales de fila** (exitosos de la unidad), **no** en columnas Reciclaje/Orgánico |
 
-**Importante:** en **Por unidad de negocio**, las columnas Reciclaje/Orgánico cuentan **retiros de material**, no paradas. Una sola parada Mixto con bolsas y biotachos suma **1** en exitosos de fila pero **+1** en Reciclaje **y** **+1** en Orgánico — la suma de columnas puede ser **mayor** que exitosos de fila. Eso es correcto.
+**Si está cancelada:**
+
+| | |
+|--|--|
+| Mixto **cancelada** | **+1** en cancelados total de la unidad **y** **+1 Canc.** en columna/fila **Orgánico** (siempre Orgánico; **nunca** Reciclaje). No importa bolsas/biotachos. |
+
+**Importante:** en **Por unidad de negocio**, las columnas Reciclaje/Orgánico (exitosos) cuentan **retiros de material**, no paradas. Una sola parada Mixto visitada con bolsas y biotachos suma **1** en exitosos de fila pero **+1** en Reciclaje **y** **+1** en Orgánico — la suma de columnas Exit. puede ser **mayor** que exitosos de fila. Eso es correcto.
 
 Reciclaje / Orgánico / Punto **de planilla** (no Mixto) siguen yendo a su columna o fila como antes.
 
@@ -445,7 +452,7 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 ### 4.2 Historial y KPIs
 
 - **Historial:** rutas realizadas, cerradas o canceladas **cuya fecha de ruta cae en el rango** (por defecto últimos 30 días hasta hoy); **Cierre operario** y **Reactivar** en la tabla; **Descargar historial (CSV)** incluye ambos montos por ruta; al elegir una ruta, la tabla de paradas muestra el total en el pie y scroll interno si hay muchas filas
-- **KPIs:** indicadores del historial; **montos y “Rutas en el período” solo tras Cierre operario** (Pendiente cierre se ve pero no suma); tablas **Por unidad de negocio** y **Por tipo de servicio** (Mixto reclasificado — ver [§3.3](#33-kpis-indicadores)); usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
+- **KPIs:** indicadores del historial; **montos y “Rutas en el período” solo tras Cierre operario** (Pendiente cierre se ve pero no suma); tablas **Por unidad de negocio** y **Por tipo de servicio** (Mixto visitada reclasificada; Mixto cancelada → Orgánico Canc. — ver [§3.3](#33-kpis-indicadores)); usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
 
@@ -805,7 +812,8 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### Los números de KPI Hogar no coinciden con una sola ruta del Historial
 
 - La fila **Hogar** en **Por unidad de negocio** agrupa **todas** las paradas Hogar del período (todas las rutas cerradas del rango)
-- Las columnas **Reciclaje / Orgánico** pueden sumar **más** que exitosos de fila si hubo mixtos que retiraron ambos materiales (ver [Mixto en KPIs](#mixto-en-kpis-sin-columna-propia))
+- Las columnas **Reciclaje / Orgánico** (Exit.) pueden sumar **más** que exitosos de fila si hubo mixtos que retiraron ambos materiales
+- Un **Mixto cancelado** suma en **Orgánico Canc.** (y en cancelados totales de la unidad), no en Reciclaje — ver [Mixto en KPIs](#mixto-en-kpis-sin-columna-propia)
 
 ### El total a cobrar no coincide con lo que esperaba (recolector / operario)
 
@@ -903,7 +911,8 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Monto a recaudar** | Monto total por servicios prestados (suma de precios en visitadas) |
 | **Total recaudado** | Monto real recaudado (pagos en campo: efectivo + transferencia + QR) |
 | **Unidad** | Hogar, Empresa o Puntos (planilla / columna DB `unidad`). En Empresa el cobro no varía por bolsas llenas |
-| **Tipo de servicio** (planilla / `tipo_servicio`) | Reciclaje, Mixto, Orgánico o **Punto**. En las **tarjetas del recolector** se muestra con esta etiqueta |
+| **Tipo de servicio** (planilla / `tipo_servicio`) | Reciclaje, Mixto, Orgánico, **Punto**, Proveedor o Cooperativa. En las **tarjetas del recolector** se muestra con esta etiqueta |
+| **Mixto en KPIs** | Sin columna propia: visitada → Reciclaje/Orgánico según campo; **cancelada → siempre Orgánico (Canc.)** |
 | **Tipo de cliente** (tarjeta recolector) | En las cards de parada: Hogar / Empresa / Puntos (mismo dato que **Unidad**). En el panel staff, «Tipo de cliente» a veces nombra al `tipo_servicio` de la planilla |
 | **Empresa + Punto** | En base: Unidad `Empresa` + Tipo `Punto`; retiro en campo con bolsas hogar / punto / vendidas |
 | **Obs. operario** | Columna `observaciones` — planilla o panel operario |

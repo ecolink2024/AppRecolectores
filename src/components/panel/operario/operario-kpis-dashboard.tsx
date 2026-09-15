@@ -303,7 +303,7 @@ export function OperarioKpisDashboard({
           {kpis.porUnidadNegocio.length > 0 && (
             <Section
               title="Por unidad de negocio"
-              subtitle="Exitosos y cancelados por unidad × tipo. Mixto de planilla se reparte a Reciclaje/Orgánico según bolsas y biotachos en campo (+1 por tipo si hubo retiro). Cada parada cuenta una vez en totales de fila. Solo rutas cerradas."
+              subtitle="Exitosos y cancelados por unidad × tipo. Mixto visitada se reparte a Reciclaje/Orgánico según bolsas y biotachos (+1 por tipo si hubo retiro). Mixto cancelada suma solo en Orgánico (Canc.). Cada parada cuenta una vez en totales de fila. Solo rutas cerradas."
             >
               <OperarioKpiPorUnidadNegocioTable filas={kpis.porUnidadNegocio} />
             </Section>
@@ -312,7 +312,7 @@ export function OperarioKpisDashboard({
           {kpis.porTipoServicio.length > 0 && (
             <Section
               title="Por tipo de servicio"
-              subtitle="Mixto de planilla no aparece: se suma en Reciclaje u Orgánico según campo. Totales de fila = una parada; columnas por tipo pueden sumar más si hubo ambos materiales. Solo rutas cerradas."
+              subtitle="Mixto visitada no aparece como fila: se suma en Reciclaje u Orgánico según campo. Mixto cancelada suma en Orgánico (Canc.). Totales de fila = una parada; columnas por tipo pueden sumar más si hubo ambos materiales. Solo rutas cerradas."
             >
               <OperarioKpiPorTipoServicioTable filas={kpis.porTipoServicio} />
             </Section>

@@ -5,7 +5,7 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 **Manual de uso (no técnico):** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
-**Cambios recientes (sep 2026):** paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, `cestos_dejo`/`cestos_retiro`/`biotachos_dejo`/`biotachos_retiro`, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs/agregados vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto, `fetchRecoleccionesForRutaIds`.
+**Cambios recientes (sep 2026):** KPI Mixto **cancelada** → siempre Orgánico (Canc.) en por unidad/tipo; paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, campos dejo/retiro, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto visitada, `fetchRecoleccionesForRutaIds`.
 
 **Cambios previos (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`; **renombre UI de parámetros** (`PARAMETRO_PRECIO_UI`: Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos `ayudaCobro`** actualizados en `buildPrecioCobroDetalle`; **Maps por tramos** (`chunkDireccionesForMaps`, `MAPS_MAX_PARADAS_POR_TRAMO = 8`, panel **Siguiente tramo** en `recolector-ruta-detalle.tsx`).
 
@@ -424,7 +424,7 @@ Componentes en `src/components/panel/operario/`:
 | `operario-kpi-recaudacion-chart.tsx` | Gráfico barras **mensuales** (total precio + recaudado; ventana 12 meses) |
 | `operario-kpi-por-zona-table.tsx` | Desglose por zona |
 | `operario-kpi-por-unidad-negocio-table.tsx` | Matriz unidad × tipo (Exit./Canc.; sticky columna unidad) |
-| `operario-kpi-por-tipo-servicio-table.tsx` | Totales por tipo (Reciclaje, Orgánico, Punto; sin fila Mixto) |
+| `operario-kpi-por-tipo-servicio-table.tsx` | Totales por tipo (Reciclaje, Orgánico, Punto; sin fila Mixto; Mixto cancelada → Orgánico Canc.) |
 | Modales de edición de ruta y recolección | |
 | `operario-parametros-sistema.tsx` | Orquesta secciones de precios (`PARAMETRO_PRECIO_ORDEN`) |
 | `operario-parametro-precio-section.tsx` | Bloque reutilizable por parámetro (form + historial) |
@@ -442,7 +442,7 @@ Datos:
 - `src/lib/data/operario-kpis-serie-mensual.ts` — serie mensual 48 meses (fetch independiente del filtro de fechas)
 - `src/lib/data/ruta-recolecciones-fetch.ts` — `fetchRecoleccionesForRutaIds()`: chunks de 1000 IDs (límite default PostgREST/Supabase por request)
 
-Dominio KPI: `src/lib/domain/operario-kpis.ts` (`resolveKpiFiltroFechas`, `buildOperarioKpis`, `buildPorUnidadNegocio`, `buildPorTipoServicio`, `buildSerieMensualRecaudacion`, `recaudadoPagosRecoleccion`, `totalPrecioRecoleccion`, `KPI_TIPOS_SERVICIO_COLUMNAS`, helpers Mixto `kpiMixtoVisitadaTiposColumna` / `kpiTiposColumnaExitCanc`, constante `KPI_LABEL_SERVICIOS` = `"Recolecciones (servicios)"`).
+Dominio KPI: `src/lib/domain/operario-kpis.ts` (`resolveKpiFiltroFechas`, `buildOperarioKpis`, `buildPorUnidadNegocio`, `buildPorTipoServicio`, `buildSerieMensualRecaudacion`, `recaudadoPagosRecoleccion`, `totalPrecioRecoleccion`, `KPI_TIPOS_SERVICIO_COLUMNAS`, helpers Mixto `kpiMixtoVisitadaTiposColumna` / `kpiTiposColumnaExitCanc` — Mixto cancelada → Orgánico, constante `KPI_LABEL_SERVICIOS` = `"Recolecciones (servicios)"`).
 
 Exportación CSV (cliente):
 
@@ -736,7 +736,7 @@ Otros criterios:
 
 Export: `operario-kpis-export.ts` — resumen del período + secciones **POR UNIDAD DE NEGOCIO** / **POR TIPO DE SERVICIO** + serie mensual con ambos montos.
 
-**Reclasificación Mixto en KPIs** (solo paradas `tipo_servicio = 'Mixto'` en rutas `cerrada`, visitadas):
+**Reclasificación Mixto en KPIs** (paradas `tipo_servicio = 'Mixto'` en rutas `cerrada`):
 
 | Caso | Fila unidad (Exit./Canc. total) | Columnas Reciclaje / Orgánico |
 |------|----------------------------------|-------------------------------|
@@ -744,7 +744,7 @@ Export: `operario-kpis-export.ts` — resumen del período + secciones **POR UNI
 | Visitada, `biotachos_llenos >= 1` | +1 exitoso | +1 Orgánico |
 | Visitada, ambos contadores > 0 | +1 exitoso | +1 Reciclaje **y** +1 Orgánico |
 | Visitada, 0/0 o contadores null | +1 exitoso | sin incremento en columnas tipo |
-| Cancelada | +1 cancelado | sin incremento en columnas tipo |
+| Cancelada | +1 cancelado | +1 Canc. en **Orgánico** (siempre; no Reciclaje) |
 
 No existe columna/fila **Mixto** en KPIs (`KPI_TIPOS_SERVICIO_COLUMNAS`: Reciclaje, Orgánico, Punto, Sin dato). Tipos de planilla distintos de Mixto van directo a su columna/fila. La suma de columnas Exit. puede superar exitosos de fila cuando un mixto retiró ambos materiales.
 

@@ -292,14 +292,16 @@ function kpiMixtoVisitadaTiposColumna(rec: RecoleccionRow): KpiTipoServicioColum
   return tipos;
 }
 
-/** Tipos de columna que reciben exit./canc. para esta parada (Mixto cancelada → ninguno). */
+/** Tipos de columna que reciben exit./canc. para esta parada.
+ * Mixto visitada → Reciclaje/Orgánico según campo; Mixto cancelada → siempre Orgánico (solo Canc.). */
 function kpiTiposColumnaExitCanc(rec: RecoleccionRow): KpiTipoServicioColumnaKey[] {
   const estado = rec.estado_operativo as RecoleccionOperativaEstado;
   const planilla = kpiTipoServicioKey(rec.tipo_servicio);
 
   if (planilla === "Mixto") {
-    if (estado !== "visitada") return [];
-    return kpiMixtoVisitadaTiposColumna(rec);
+    if (estado === "cancelada") return ["Organico"];
+    if (estado === "visitada") return kpiMixtoVisitadaTiposColumna(rec);
+    return [];
   }
 
   if (estado !== "visitada" && estado !== "cancelada") return [];
@@ -392,6 +394,10 @@ function applyParadaPorTipoServicio(
         acc.total += 1;
         acc.exitosas += 1;
       }
+    } else if (estado === "cancelada") {
+      const acc = map.get("Organico")!;
+      acc.total += 1;
+      acc.canceladas += 1;
     }
     return;
   }
