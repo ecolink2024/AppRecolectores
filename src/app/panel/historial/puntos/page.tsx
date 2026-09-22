@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { OperarioHistorialPuntosTable } from "@/components/panel/operario/operario-historial-puntos-table";
@@ -60,9 +59,7 @@ export default async function PanelHistorialPuntosPage({ searchParams }: Props) 
             {formatRutaFecha(filtroFechas.hasta)}. Recolecciones Empresa + Punto.
           </p>
         </div>
-        <Suspense fallback={null}>
-          <OperarioHistorialSubnav />
-        </Suspense>
+        <OperarioHistorialSubnav />
         <OperarioKpisFiltroFechas
           desde={filtroFechas.desde}
           hasta={filtroFechas.hasta}

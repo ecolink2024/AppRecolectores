@@ -1,7 +1,5 @@
-import Link from "next/link";
-
-import { logoutAction } from "@/app/login/actions";
 import { RecolectorShell } from "@/components/panel/recolector/recolector-shell";
+import { PanelStaffNav } from "@/components/panel/panel-staff-nav";
 import { ROLE_LABELS, type UserRole } from "@/lib/auth/constants";
 import { canManageUsers } from "@/lib/auth/permissions";
 import { isStaffRole } from "@/lib/domain/constants";
@@ -17,20 +15,6 @@ export function PanelShell({ children, role, userName }: Props) {
     return <RecolectorShell userName={userName}>{children}</RecolectorShell>;
   }
 
-  const links = [{ href: "/panel", label: isStaffRole(role) ? "Operativo" : "Inicio" }];
-
-  if (isStaffRole(role)) {
-    links.push(
-      { href: "/panel/kpis", label: "KPIs" },
-      { href: "/panel/historial", label: "Historial" },
-      { href: "/panel/parametros", label: "Parámetros" },
-    );
-  }
-
-  if (canManageUsers({ role })) {
-    links.push({ href: "/panel/usuarios", label: "Usuarios" });
-  }
-
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
@@ -43,25 +27,7 @@ export function PanelShell({ children, role, userName }: Props) {
               {userName} · {ROLE_LABELS[role]}
             </p>
           </div>
-          <nav className="flex flex-wrap items-center gap-4">
-            {links.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium text-zinc-700 hover:text-emerald-800 dark:text-zinc-300"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <form action={logoutAction}>
-              <button
-                type="submit"
-                className="text-sm text-zinc-500 underline hover:text-zinc-800"
-              >
-                Salir
-              </button>
-            </form>
-          </nav>
+          <PanelStaffNav canManageUsers={canManageUsers({ role })} />
         </div>
       </header>
       <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6">{children}</main>

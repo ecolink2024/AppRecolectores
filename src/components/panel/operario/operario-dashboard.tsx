@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { OperarioHistorialRutasTable } from "@/components/panel/operario/operario-historial-rutas-table";
 import { OperarioHistorialSubnav } from "@/components/panel/operario/operario-historial-subnav";
@@ -227,11 +227,7 @@ export function OperarioDashboard({
         )}
       </div>
 
-      {isHistorial && (
-        <Suspense fallback={null}>
-          <OperarioHistorialSubnav />
-        </Suspense>
-      )}
+      {isHistorial && <OperarioHistorialSubnav />}
 
       {isHistorial && filtroFechas && (
         <OperarioKpisFiltroFechas
