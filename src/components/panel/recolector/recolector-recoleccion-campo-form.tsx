@@ -483,6 +483,8 @@ function RecoleccionCampoSoloLectura({
   cobroDetalle: ReturnType<typeof buildPrecioCobroDetalle>;
   whatsappHref: string;
 }) {
+  const contadoresRules = getRecoleccionCampoContadoresRules(data.unidad, data.tipoServicio);
+
   return (
     <div className="space-y-4">
       <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
