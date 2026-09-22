@@ -14,11 +14,10 @@ type NavLink = {
 const STAFF_LINKS: NavLink[] = [
   { href: "/panel", label: "Operativo", match: (path) => path === "/panel" },
   { href: "/panel/kpis", label: "KPIs" },
-  { href: "/panel/historial", label: "Historial", match: (path) => path === "/panel/historial" },
   {
-    href: "/panel/historial/puntos",
-    label: "Puntos",
-    match: (path) => path.startsWith("/panel/historial/puntos"),
+    href: "/panel/historial",
+    label: "Historial",
+    match: (path) => path === "/panel/historial" || path.startsWith("/panel/historial/"),
   },
   { href: "/panel/parametros", label: "Parámetros" },
 ];

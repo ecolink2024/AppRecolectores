@@ -497,6 +497,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      punto_pagos: {
+        Row: {
+          id: string;
+          fecha: string;
+          nombre: string;
+          celular: string;
+          telefono_normalizado: string;
+          servicio: string;
+          cantidad: number;
+          monto: number;
+          recoleccion_id: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          fecha: string;
+          nombre: string;
+          celular: string;
+          telefono_normalizado: string;
+          servicio: string;
+          cantidad: number;
+          monto: number;
+          recoleccion_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          fecha?: string;
+          nombre?: string;
+          celular?: string;
+          telefono_normalizado?: string;
+          servicio?: string;
+          cantidad?: number;
+          monto?: number;
+          recoleccion_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
