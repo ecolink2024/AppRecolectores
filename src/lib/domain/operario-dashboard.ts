@@ -19,6 +19,7 @@ import {
   isParadaClienteMetricas,
   isParadaLogistica,
 } from "@/lib/domain/parada-categoria";
+import { getRecoleccionCampoContadoresRules } from "@/lib/domain/recolector-recoleccion-campo";
 import { getInicioJornadaAt } from "@/lib/domain/recolector-ruta";
 import {
   insumosOperarioCompletados,
@@ -552,11 +553,14 @@ export function buildRecoleccionOperarioDetalleCarga(
     };
   }
 
+  const rules = getRecoleccionCampoContadoresRules(item.unidad, item.tipo_servicio);
+  const muestraBiotachos = rules.biotachosLlenosRequired || rules.biotachosNuevosRequired;
+
   return {
     tieneCarga: true,
     bolsas: formatCantidadBolsasDetalle(item) ?? "0",
-    biotachos: formatCantidadBiotachosDetalle(item) ?? "0",
-    cestos: String(item.cestos ?? 0),
+    biotachos: muestraBiotachos ? formatCantidadBiotachosDetalle(item) ?? "0" : null,
+    cestos: rules.cestosRequired ? String(item.cestos ?? 0) : null,
     efectivo: formatMoney(item.monto_efectivo ?? 0),
     transferencia: formatMoney(item.monto_transferencia ?? 0),
     qr: formatMoney(item.monto_qr ?? 0),

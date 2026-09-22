@@ -552,10 +552,18 @@ function RecoleccionCampoSoloLectura({
                   />
                 </>
               )}
-              <ReadOnlyRow label="Biotachos llenos" value={data.biotachosLlenos || "0"} />
-              <ReadOnlyRow label="Bolsas nuevas" value={data.bolsasNuevas || "0"} />
-              <ReadOnlyRow label="Biotachos nuevos" value={data.biotachosNuevos || "0"} />
-              <ReadOnlyRow label="Cestos" value={data.cestos || "0"} />
+              {contadoresRules.biotachosLlenosRequired && (
+                <ReadOnlyRow label="Biotachos llenos" value={data.biotachosLlenos || "0"} />
+              )}
+              {contadoresRules.bolsasNuevasRequired && (
+                <ReadOnlyRow label="Bolsas nuevas" value={data.bolsasNuevas || "0"} />
+              )}
+              {contadoresRules.biotachosNuevosRequired && (
+                <ReadOnlyRow label="Biotachos nuevos" value={data.biotachosNuevos || "0"} />
+              )}
+              {contadoresRules.cestosRequired && (
+                <ReadOnlyRow label="Cestos" value={data.cestos || "0"} />
+              )}
             </dl>
           </section>
 

@@ -52,7 +52,7 @@ Cada fila **Pendiente** enviada **crea** una parada en `ruta_recolecciones` (si 
 | Observaciones | `observaciones` | Notas operario/planilla |
 | Recolector | (ruta) | Agrupa en `rutas.asignado_a` por email resuelto |
 
-Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo. Qué contadores se muestran depende del tipo: Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo; **Proveedor/Cooperativa** solo cestos/biotachos dejó/retiró (sin cobro). No hace falta columna nueva en Sheets para logística: solo el valor en Tipo de servicio.
+Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo. Qué contadores se muestran depende del tipo: Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo; **Empresa + Punto** bolsas (hogar/punto/vendidas/nuevas) sin biotachos ni cestos; **Proveedor/Cooperativa** solo cestos/biotachos dejó/retiró (sin cobro). No hace falta columna nueva en Sheets para logística: solo el valor en Tipo de servicio.
 
 ### Cómo se suma a una ruta existente
 

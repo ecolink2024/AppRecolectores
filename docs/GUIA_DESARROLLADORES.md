@@ -5,7 +5,7 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 **Manual de uso (no técnico):** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
-**Cambios recientes (sep 2026):** KPI Mixto **cancelada** → siempre Orgánico (Canc.) en por unidad/tipo; paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, campos dejo/retiro, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto visitada, `fetchRecoleccionesForRutaIds`.
+**Cambios recientes (sep 2026):** Empresa + Punto **sin biotachos ni cestos** en el form de campo (`getRecoleccionCampoContadoresRules`); KPI Mixto **cancelada** → siempre Orgánico (Canc.) en por unidad/tipo; paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, campos dejo/retiro, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto visitada, `fetchRecoleccionesForRutaIds`.
 
 **Cambios previos (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`; **renombre UI de parámetros** (`PARAMETRO_PRECIO_UI`: Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos `ayudaCobro`** actualizados en `buildPrecioCobroDetalle`; **Maps por tramos** (`chunkDireccionesForMaps`, `MAPS_MAX_PARADAS_POR_TRAMO = 8`, panel **Siguiente tramo** en `recolector-ruta-detalle.tsx`).
 
@@ -145,7 +145,8 @@ Valores canónicos guardados (texto exacto):
 | `bolsas_llenas` | INT | Bolsas llenas **hogar** → **sí** entra al `precio_total` |
 | `bolsas_llenas_punto` | INT | Bolsas llenas **punto** → solo registro; **no** suma al total automático |
 | `bolsas_nuevas_vendidas` | INT | Bolsas nuevas vendidas → **sí** entra al `precio_total` |
-| `bolsas_nuevas`, `biotachos_llenos`, `biotachos_nuevos`, `cestos` | INT | Retiro general (como otras unidades) |
+| `bolsas_nuevas` | INT | Bolsas nuevas entregadas |
+| `biotachos_llenos`, `biotachos_nuevos`, `cestos` | INT | No aplican a Empresa + Punto (quedan `null`) |
 | `precio_total` | NUMERIC | Calculado al guardar campo |
 | `monto_efectivo`, `monto_transferencia`, `monto_qr` | NUMERIC | Recaudación declarada |
 | `observaciones_recolector` | TEXT | Notas del recolector (≠ `observaciones`) |
@@ -505,7 +506,7 @@ Helpers de formato: `formatCantidadBolsasDetalle`, `formatCantidadBiotachosDetal
 |-----------------|-------|
 | `bolsas_llenas`, `biotachos_llenos`, `bolsas_nuevas`, `biotachos_nuevos` | Contadores retiro; reglas según unidad/tipo |
 | `bolsas_llenas_punto`, `bolsas_nuevas_vendidas` | Solo Empresa + Punto |
-| `cestos` | Cantidad de cestos retirados (obligatorio al guardar visita; puede ser 0) |
+| `cestos` | Cantidad de cestos retirados (si el tipo lo exige; puede ser 0). No aplica a Empresa + Punto |
 | `observaciones_recolector` | Texto opcional del recolector (distinto de `observaciones` de planilla) |
 | `monto_efectivo`, `monto_transferencia`, `monto_qr` | Recaudación |
 | `firma_png` → `firma_digital` | Canvas → upload Storage `firmas-recoleccion` |

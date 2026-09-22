@@ -152,7 +152,7 @@ Nombre cliente · Zona · **Biotachos llenos** · **Bolsas llenas** · **Cesto**
 
 Horario, turno y recolector se ven en la tabla de rutas de arriba (no se repiten en cada parada). **Cesto** muestra la cantidad entregada en campo (`—` si no hubo).
 
-> **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), **Cancelar recolección** con motivo en desplegable, observaciones y firma. Los contadores de retiro que se muestran **dependen del tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo). La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
+> **Editar carga (rutas Realizadas):** abre un formulario con los mismos campos que llena el recolector — retiro (bolsas/biotachos/cestos), cobro (efectivo/transferencia/QR), **Cancelar recolección** con motivo en desplegable, observaciones y firma. Los contadores de retiro que se muestran **dependen del tipo de cliente** (Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo; Empresa + Punto sin biotachos ni cestos). La firma existente se conserva salvo que actives **Reemplazar firma**. El total a cobrar se recalcula con los precios vigentes. Disponible solo antes del **Cierre operario**.
 
 **Horario programado**, **hora real** y **bolsas nuevas** de cada parada están en el popup **Info** (junto al nombre del cliente).
 
@@ -373,7 +373,7 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 
 | Unidad / tipo | Cómo se calcula el total |
 |---------------|---------------------------|
-| **Empresa** + tipo **Punto** | **(bolsas llenas hogar × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. **Bolsas llenas punto**: solo cantidad; el cobro en punto va en efectivo/transferencia/QR. Biotachos: registro |
+| **Empresa** + tipo **Punto** | **(bolsas llenas hogar × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. **Bolsas llenas punto**: solo cantidad; el cobro en punto va en efectivo/transferencia/QR. Sin biotachos ni cestos |
 | **Empresa** (otro tipo) | Siempre el **precio de retiro** de la planilla |
 | **Mixto** (`tipo de servicio`) | **0 bolsas:** retiro de planilla · **1 o 2 bolsas:** **Retiro reciclables - Hogar Mixto** · **3+:** ese precio + **Precio bolsa extra - Hogar** por cada bolsa desde la 3.ª |
 | **Resto** (Hogar Reciclaje, Puntos, etc.) | Retiro de planilla; las **2 primeras** bolsas llenas incluidas; desde la **3.ª**, **Precio bolsa extra - Hogar** por bolsa |
@@ -391,7 +391,7 @@ Para paradas con **Unidad = Empresa** y **Tipo de cliente = Punto** (en la app y
 | Dónde | Qué se guarda |
 |-------|----------------|
 | Al importar / editar parada | Unidad, tipo, precio de planilla (`precio`), observaciones del operario |
-| Al cargar en campo (recolector) | Bolsas llenas hogar, bolsas llenas punto (solo cantidad), bolsas nuevas vendidas, resto de retiro (biotachos, cestos…), total calculado, pagos, firma, **Tus observaciones** |
+| Al cargar en campo (recolector) | Bolsas llenas hogar, bolsas llenas punto (solo cantidad), bolsas nuevas vendidas, bolsas nuevas, total calculado, pagos, firma, **Tus observaciones**. Sin biotachos ni cestos |
 | Parámetros del sistema | Precio **bolsa llena hogar** y **bolsa punto** (historial global; no van en la fila del cliente) |
 
 El **precio de la planilla** queda registrado pero el total a cobrar en Empresa + Punto se calcula con los parámetros y las cantidades que carga el recolector, no con ese precio fijo.
@@ -618,7 +618,8 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    - **Reciclaje:** Bolsas llenas, Bolsas nuevas y Cestos (los **biotachos no aparecen**)
    - **Orgánico:** Biotachos llenos y Biotachos nuevos (las **bolsas y los cestos no aparecen**)
    - **Mixto:** aparecen **todos** los contadores
-   - **Punto** y otros: sin cambios (aparece todo; con Empresa + Punto se agregan bolsas llenas hogar, bolsas llenas punto y bolsas nuevas vendidas)
+   - **Punto** (sin Empresa): aparecen todos los contadores
+   - **Empresa + Punto:** bolsas llenas hogar, bolsas llenas punto, bolsas nuevas vendidas y bolsas nuevas. **No** aparecen biotachos ni cestos
 
    Contadores posibles: Bolsas llenas · Biotachos llenos · Bolsas nuevas · Biotachos nuevos · **Cestos** (solo se muestran los que aplican al tipo de cliente).
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):

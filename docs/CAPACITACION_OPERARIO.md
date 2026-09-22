@@ -148,7 +148,8 @@ En planilla, la columna **Tipo de servicio / Tipo de cliente** admite:
 | Reciclaje | Sí | No | Sí | Sí |
 | Orgánico | No | Sí | No | Sí |
 | Mixto | Sí | Sí | Sí | Sí (regla Mixto) |
-| Punto | Sí | Sí | Sí | Sí (especial si Empresa) |
+| Punto (otra unidad) | Sí | Sí | Sí | Sí |
+| Empresa + Punto | Sí | No | No | Sí (regla Empresa + Punto) |
 | Proveedor / Cooperativa | No | Dejó/retiró | Dejó/retiró | **No** |
 
 ---

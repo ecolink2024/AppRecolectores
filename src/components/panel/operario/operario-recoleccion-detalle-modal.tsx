@@ -126,18 +126,22 @@ export function OperarioRecoleccionDetalleModal({
                       {detalle.bolsas}
                     </dd>
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <dt>Biotachos</dt>
-                    <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
-                      {detalle.biotachos}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt>Cestos</dt>
-                    <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
-                      {detalle.cestos}
-                    </dd>
-                  </div>
+                  {detalle.biotachos != null && (
+                    <div className="flex justify-between gap-4">
+                      <dt>Biotachos</dt>
+                      <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
+                        {detalle.biotachos}
+                      </dd>
+                    </div>
+                  )}
+                  {detalle.cestos != null && (
+                    <div className="flex justify-between gap-4">
+                      <dt>Cestos</dt>
+                      <dd className="text-right font-medium text-zinc-900 dark:text-zinc-50">
+                        {detalle.cestos}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
               <div>

@@ -78,7 +78,8 @@ export function isTipoServicioOrganico(tipoServicio: string | null | undefined):
  * tipo de servicio del cliente:
  * - Reciclaje: no aplica biotachos (llenos ni nuevos).
  * - Orgánico: no aplica bolsas (llenas ni nuevas) ni cestos.
- * - Mixto y el resto (p. ej. Punto): aplican todos.
+ * - Mixto y tipo Punto (sin Empresa): aplican todos.
+ * - Empresa + Punto: bolsas (hogar / nuevas) sí; biotachos y cestos no.
  * - Logística (Proveedor/Cooperativa): no usa estos contadores de cliente.
  * Cuando un contador no aplica, no se muestra en el formulario ni es obligatorio.
  */
@@ -93,7 +94,7 @@ export type RecoleccionCampoContadoresRules = {
 };
 
 export function getRecoleccionCampoContadoresRules(
-  _unidad: string | null | undefined,
+  unidad: string | null | undefined,
   tipoServicio: string | null | undefined,
 ): RecoleccionCampoContadoresRules {
   if (isTipoServicioLogistica(tipoServicio)) {
@@ -109,13 +110,14 @@ export function getRecoleccionCampoContadoresRules(
 
   const organico = isTipoServicioOrganico(tipoServicio);
   const reciclaje = isTipoServicioReciclaje(tipoServicio);
+  const empresaPunto = isEmpresaPuntoCobro(unidad, tipoServicio);
 
   return {
     bolsasLlenasRequired: !organico,
     bolsasNuevasRequired: !organico,
-    biotachosLlenosRequired: !reciclaje,
-    biotachosNuevosRequired: !reciclaje,
-    cestosRequired: !organico,
+    biotachosLlenosRequired: !reciclaje && !empresaPunto,
+    biotachosNuevosRequired: !reciclaje && !empresaPunto,
+    cestosRequired: !organico && !empresaPunto,
     logistica: false,
   };
 }
