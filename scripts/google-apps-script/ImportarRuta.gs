@@ -11,6 +11,9 @@
  *
  * Si la ruta ya existe (fecha + turno + recolector) y no está finalizada,
  * las filas nuevas se suman. Teléfono repetido o ruta Realizada/Cerrada → Error.
+ *
+ * Al cierre operario, la app llama a doPost (Web App) y este script
+ * escribe Deuda en el ledger (otra planilla): col H teléfono, col L deuda.
  */
 
 const CONFIG = {
@@ -43,6 +46,12 @@ const CONFIG = {
   COLOR_ERROR: "#FFCDD2",
   COLOR_ERROR_CELDA: "#EF5350",
   COLOR_ENVIADA: "#E8F5E9",
+  DEUDA_LEDGER: {
+    SPREADSHEET_ID: "1mWYWFdoU3e2yeVIwi2Z90fr5ds-Jx0dEARJ5wR-WOvw",
+    SHEET_GID: 47039710,
+    COL_TELEFONO: 8,
+    COL_DEUDA: 12,
+  },
 };
 
 function onOpen() {
@@ -747,4 +756,106 @@ function importarRutas() {
 
 function importarRutaActiva() {
   enviarPendientes();
+}
+
+function jsonOutput_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
+    ContentService.MimeType.JSON,
+  );
+}
+
+function doGet() {
+  return jsonOutput_({ ok: true, service: "app-recolectores-deuda" });
+}
+
+function phoneMatchKey_(raw) {
+  let digits = String(raw || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.indexOf("54") === 0) digits = digits.slice(2);
+  if (digits.charAt(0) === "9" && digits.length >= 10) digits = digits.slice(1);
+  return digits;
+}
+
+function getLedgerSheet_() {
+  const cfg = CONFIG.DEUDA_LEDGER;
+  const ss = SpreadsheetApp.openById(cfg.SPREADSHEET_ID);
+  const gid = Number(cfg.SHEET_GID);
+  const sheets = ss.getSheets();
+  for (let i = 0; i < sheets.length; i++) {
+    if (sheets[i].getSheetId() === gid) return sheets[i];
+  }
+  throw new Error("No se encontró la pestaña del ledger (gid " + cfg.SHEET_GID + ")");
+}
+
+function aplicarDeudasLedger_(items) {
+  const cfg = CONFIG.DEUDA_LEDGER;
+  const sheet = getLedgerSheet_();
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return {
+      ok: true,
+      actualizadas: 0,
+      no_encontradas: (items || []).map(function (item) {
+        return item.telefono || item.telefono_normalizado || "";
+      }),
+    };
+  }
+
+  const phoneValues = sheet
+    .getRange(2, cfg.COL_TELEFONO, lastRow - 1, 1)
+    .getDisplayValues();
+  const keyToRows = {};
+  for (let i = 0; i < phoneValues.length; i++) {
+    const key = phoneMatchKey_(phoneValues[i][0]);
+    if (!key) continue;
+    if (!keyToRows[key]) keyToRows[key] = [];
+    keyToRows[key].push(i + 2);
+  }
+
+  const noEncontradas = [];
+  let actualizadas = 0;
+
+  for (let i = 0; i < (items || []).length; i++) {
+    const item = items[i];
+    const key =
+      item.phone_key ||
+      phoneMatchKey_(item.telefono_normalizado || item.telefono || "");
+    const rows = key ? keyToRows[key] : null;
+    if (!key || !rows || rows.length === 0) {
+      noEncontradas.push(item.telefono || item.telefono_normalizado || "");
+      continue;
+    }
+    const deuda = Number(item.deuda);
+    const valor = Number.isFinite(deuda) ? deuda : 0;
+    sheet.getRange(rows[0], cfg.COL_DEUDA).setValue(valor);
+    actualizadas += 1;
+  }
+
+  return { ok: true, actualizadas: actualizadas, no_encontradas: noEncontradas };
+}
+
+function doPost(e) {
+  try {
+    const raw = e && e.postData && e.postData.contents ? e.postData.contents : "";
+    const body = raw ? JSON.parse(raw) : {};
+    const expected = PropertiesService.getScriptProperties().getProperty("API_SECRET");
+    if (!expected || String(body.secret || "") !== expected) {
+      return jsonOutput_({ ok: false, error: "No autorizado" });
+    }
+    if (body.action !== "sync-deudas") {
+      return jsonOutput_({ ok: false, error: "Acción desconocida" });
+    }
+
+    const lock = LockService.getScriptLock();
+    if (!lock.tryLock(20000)) {
+      return jsonOutput_({ ok: false, error: "El ledger está ocupado; reintentá" });
+    }
+    try {
+      return jsonOutput_(aplicarDeudasLedger_(body.items || []));
+    } finally {
+      lock.releaseLock();
+    }
+  } catch (err) {
+    return jsonOutput_({ ok: false, error: String(err) });
+  }
 }

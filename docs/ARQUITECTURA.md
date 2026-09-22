@@ -43,7 +43,7 @@ Sistema interno para un **intermediario logístico** que conecta:
 | `src/lib/supabase/` | Clientes browser, server y admin |
 | `src/types/domain.ts` | Modelo de negocio (TypeScript) |
 | `src/types/database.ts` | Tipos generados desde Postgres |
-| `supabase/migrations/` | SQL versionado del esquema |
+| `supabase/migrations/` | SQL versionado del esquema (`rutas`, `ruta_recolecciones`, `punto_pagos`, …) |
 
 ## Flujo de despliegue
 

@@ -1,8 +1,9 @@
 # Capacitación operario — App Recolectores
 
-Documento para el equipo operativo. Explica cómo usar la app y la planilla en el día a día, incluyendo las novedades recientes (paradas logísticas Proveedor/Cooperativa, KPIs e Historial).
+Documento para el equipo operativo. Explica cómo usar la app y la planilla en el día a día: paradas logísticas, **Empresa + Punto**, Historial (Rutas y Puntos), pagos de punto y KPIs.
 
-**App en producción:** https://app-recolectores.vercel.app
+**App en producción:** https://app-recolectores.vercel.app  
+**Manual completo:** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
 ---
 
@@ -10,7 +11,7 @@ Documento para el equipo operativo. Explica cómo usar la app y la planilla en e
 
 | Rol | Qué hace |
 |-----|----------|
-| **Operario / Superadmin** | Planilla, Operativo, Historial (Rutas y Puntos), KPIs, preparación de insumos, cierre operario |
+| **Operario / Superadmin** | Planilla, Operativo, Historial (Rutas y Puntos, **Agregar pago**), KPIs, preparación de insumos, cierre operario |
 | **Recolector** | Carga en campo en el celular (retiro, cobro o logística, firma) |
 
 ---
@@ -102,19 +103,70 @@ En planilla, la columna **Tipo de servicio / Tipo de cliente** admite:
 **No confundir:**
 
 - **Punto** = tipo de servicio  
-- **Puntos** = valor de la columna **Unidad** (Hogar / Empresa / Puntos)
+- **Puntos** = valor de la columna **Unidad** (Hogar / Empresa / Puntos)  
+- **Empresa + Punto** = las **dos** juntas: Unidad **Empresa** y Tipo **Punto** (no es Unidad `Puntos`)
+
+---
+
+## 3b. Empresa + Punto (planilla, campo e Historial)
+
+### Cómo cargarla en la planilla
+
+Misma hoja `Rutas`. En **las dos** columnas:
+
+| Columna | Valor |
+|---------|--------|
+| **Unidad** | `Empresa` |
+| **Tipo de servicio** | `Punto` |
+
+Nombre, dirección, teléfono, día, hora y recolector como siempre. Precio es opcional (queda guardado pero **no** arma el total). No pongas bolsas ni montos en el sheet.
+
+Si Unidad = `Puntos` (plural) o Tipo no es `Punto`, **no** entra a este flujo.
+
+Validar → Enviar pendientes.
+
+### Qué ve el recolector
+
+- Aviso de cobro Empresa + Punto.
+- Contadores: bolsas llenas hogar, bolsas llenas punto, bolsas nuevas vendidas, bolsas nuevas.
+- **No** aparecen biotachos ni cestos.
+- Total = (bolsas llenas hogar × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). Bolsas llenas punto es solo cantidad.
+
+### Dónde lo ves vos (operario)
+
+1. Entrá a **Historial** (menú de arriba). **No** hay un ítem Puntos en esa barra.
+2. Debajo del título: botones **Rutas** y **Puntos**. Tocá **Puntos**.
+3. Dos bloques, mismo filtro de fechas:
+   - **Pagos de punto** — carga a mano (ver más abajo).
+   - **Recolecciones** — una fila por visita Empresa + Punto: fecha, punto, bolsas de clientes llenas, bolsas nuevas vendidas, bolsas llenas punto, monto, forma de pago, bolsas nuevas, observaciones.
+
+### Pagos de punto (Agregar pago)
+
+En Historial → **Puntos**, tocá **Agregar pago**. Se abre un formulario. **Todos los campos son obligatorios:**
+
+| Campo | Notas |
+|-------|--------|
+| Fecha | Día del pago |
+| Nombre | Persona / punto |
+| Celular | Teléfono argentino válido. Se guarda para emparejar **más adelante**; hoy **no** se vincula solo con la recolección |
+| Servicio | Bolsas llenas + nueva de regalo · Bolsa nueva · Propia del punto |
+| Cantidad | Número (puede ser **0**) |
+| Monto | Importe (puede ser **0**) |
+
+Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la planilla ni de la carga del recolector.
 
 ---
 
 ## 4. Flujo diario del operario
 
-1. Completar / revisar la **planilla** (clientes y, si aplica, Proveedor/Cooperativa).
+1. Completar / revisar la **planilla** (clientes, Empresa + Punto si aplica, y Proveedor/Cooperativa).
 2. **Enviar pendientes** a la app.
 3. En **Operativo**: preparación de insumos de la ruta.
 4. El recolector hace la jornada en el celular.
 5. Cuando finaliza, la ruta pasa a **Historial** como **Realizada**.
 6. El operario revisa, puede **Editar** datos de jornada o **Editar carga** de paradas.
-7. **Cierre operario** → la ruta queda **Cerrada** y recién ahí impacta fuerte en **KPIs** (montos y servicios de clientes).
+7. En Historial → **Puntos**: revisar recolecciones Empresa + Punto y, si hace falta, **Agregar pago**.
+8. **Cierre operario** → la ruta queda **Cerrada**; impacta KPIs; si hubo transferencia o QR, se actualiza la **Deuda** en la planilla de deudas (otra hoja; no cambia lo que ves en la app).
 
 ---
 
@@ -122,7 +174,8 @@ En planilla, la columna **Tipo de servicio / Tipo de cliente** admite:
 
 - Se filtra por **fecha de la ruta** (columna Día de la planilla), no por el día en que el recolector finalizó.
 - Por defecto: últimos 30 días.
-- Al elegir una ruta, la tabla de abajo muestra **todas** las paradas de **esa** ruta. Si hay muchas, desplazá hacia abajo dentro de la tabla.
+- Debajo del título: **Rutas** (jornadas) y **Puntos** (Empresa + Punto + pagos). Puntos **no** está en el menú de arriba.
+- Al elegir una ruta en **Rutas**, la tabla de abajo muestra **todas** las paradas de **esa** ruta. Si hay muchas, desplazá hacia abajo dentro de la tabla.
 - Un mismo día puede tener **varias rutas** (mañana/tarde, distintos recolectores). Cada tabla es de una sola ruta.
 - Botones en rutas **Realizadas**: Editar, Reactivar, Cierre operario.
 
@@ -166,6 +219,18 @@ En planilla, la columna **Tipo de servicio / Tipo de cliente** admite:
 
 ---
 
+## 8b. Checklist rápido — Empresa + Punto
+
+- [ ] Planilla: Unidad = **Empresa** y Tipo = **Punto** (no Unidad Puntos)  
+- [ ] Nombre, dirección, teléfono, día, hora, recolector  
+- [ ] Validar y enviar  
+- [ ] Recolector: bolsas (hogar / punto / vendidas / nuevas), cobro, firma. **Sin** biotachos ni cestos  
+- [ ] Historial → botón **Puntos** (no el menú de arriba)  
+- [ ] Recolecciones: fila por fecha con bolsas, monto, forma de pago, observaciones  
+- [ ] Si hay que registrar un pago aparte: **Agregar pago** (todos los campos; celular para el futuro)  
+
+---
+
 ## 9. Problemas frecuentes
 
 ### “Tipo de servicio inválido: Cooperativa”
@@ -183,6 +248,17 @@ En planilla, la columna **Tipo de servicio / Tipo de cliente** admite:
 ### El recolector no puede iniciar la ruta
 - Falta **Preparación de insumos** del operario en Operativo.
 
+### No encuentro el botón Puntos
+- Está **dentro de Historial**, debajo del título. No aparece en Operativo / KPIs / Parámetros / Usuarios.
+
+### El recolector ve biotachos o cestos en un punto
+- Revisá la parada: tiene que ser Unidad **Empresa** y Tipo **Punto**. Unidad **Puntos** o Tipo Reciclaje/Mixto muestra otros contadores.
+
+### Agregar pago no guarda
+- Completá los seis campos (cantidad y monto pueden ser 0).
+- Celular con formato argentino válido.
+- Si el error habla de tabla o relación: pedile al equipo técnico aplicar `punto_pagos` en Supabase.
+
 ---
 
 ## 10. Glosario breve
@@ -195,6 +271,9 @@ En planilla, la columna **Tipo de servicio / Tipo de cliente** admite:
 | **D n · R n** | Dejó n · Retiró n (cestos o biotachos) |
 | **Tipo de servicio** | Reciclaje, Mixto, Orgánico, Punto, Proveedor, Cooperativa |
 | **Unidad** | Hogar, Empresa o Puntos |
+| **Empresa + Punto** | Unidad Empresa + tipo Punto; sin biotachos ni cestos en campo |
+| **Historial · Puntos** | Vista bajo Historial (no en la navbar): recolecciones + pagos |
+| **Pago de punto** | Formulario Agregar pago (fecha, nombre, celular, servicio, cantidad, monto) |
 
 ---
 

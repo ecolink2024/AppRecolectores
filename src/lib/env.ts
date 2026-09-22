@@ -2,6 +2,7 @@ const optionalServerEnv = [
   "SUPABASE_SERVICE_ROLE_KEY",
   "SUPABASE_SECRET_KEY",
   "SHEETS_IMPORT_SECRET",
+  "SHEETS_DEUDA_WEBAPP_URL",
 ] as const;
 
 export type ServerEnv = {
@@ -82,6 +83,17 @@ export function getSheetsImportSecret(): string | undefined {
 
 export function isSheetsImportConfigured(): boolean {
   return isSupabaseAdminConfigured() && Boolean(getSheetsImportSecret());
+}
+
+/** URL del Web App de Apps Script que escribe deudas en el ledger (cierre operario). */
+export function getSheetsDeudaWebappUrl(): string | undefined {
+  const value = readEnv("SHEETS_DEUDA_WEBAPP_URL");
+  if (!value) return undefined;
+  return value.replace(/\/+$/, "");
+}
+
+export function isSheetsDeudaSyncConfigured(): boolean {
+  return Boolean(getSheetsDeudaWebappUrl() && getSheetsImportSecret());
 }
 
 /** Maps JavaScript API — solo cliente (restringir por dominio en Google Cloud). */

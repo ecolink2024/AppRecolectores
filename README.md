@@ -15,6 +15,8 @@ Documentación de arquitectura: [docs/ARQUITECTURA.md](./docs/ARQUITECTURA.md)
 
 - [Guía para desarrolladores](./docs/GUIA_DESARROLLADORES.md) — onboarding técnico, APIs, migraciones, deploy
 - [Manual de uso](./docs/MANUAL_USUARIO.md) — superadmin, operario y recolector (sin código)
+- [Capacitación operario](./docs/CAPACITACION_OPERARIO.md) — día a día: planilla, Historial (Rutas y Puntos), pagos de punto, KPIs
+- [Integración Google Sheets](./docs/SHEETS_INTEGRATION.md) — columnas, enums, Empresa + Punto
 
 ## Configuración local
 

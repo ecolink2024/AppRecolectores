@@ -1,5 +1,6 @@
 -- Pegar en Supabase → SQL Editor (idempotente, seguro re-ejecutar)
 -- Equivalente a: node scripts/apply-pending-migrations.mjs
+-- Incluye operativo, logística Proveedor/Cooperativa y tabla punto_pagos (Historial → Puntos).
 
 -- 20260524140000_fix_missing_operativo_columns.sql
 ALTER TABLE public.rutas

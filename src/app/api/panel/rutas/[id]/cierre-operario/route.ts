@@ -2,7 +2,9 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
+import { buildDeudaSheetItems } from "@/lib/domain/deuda-sheet-sync";
 import { puedeCierreOperario } from "@/lib/domain/ruta-estado-transiciones";
+import { syncDeudasLedger } from "@/lib/integrations/sheets-deuda-sync";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 
@@ -66,6 +68,15 @@ export async function POST(_request: Request, { params }: Props) {
       : updateError.message;
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
+
+  const { data: recolecciones } = await admin
+    .from("ruta_recolecciones")
+    .select(
+      "estado_operativo, monto_transferencia, monto_qr, deuda, telefono, telefono_normalizado, categoria_parada, tipo_servicio",
+    )
+    .eq("ruta_id", rutaId);
+
+  await syncDeudasLedger(buildDeudaSheetItems(recolecciones ?? []));
 
   revalidatePath("/panel");
   revalidatePath("/panel/historial");

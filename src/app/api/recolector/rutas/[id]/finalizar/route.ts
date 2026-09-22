@@ -64,7 +64,7 @@ export async function POST(request: Request, { params }: Props) {
 
   const { data: recolecciones, error: recError } = await admin
     .from("ruta_recolecciones")
-    .select("estado_operativo")
+    .select("estado_operativo, monto_efectivo")
     .eq("ruta_id", rutaId);
 
   if (recError) {
@@ -77,13 +77,9 @@ export async function POST(request: Request, { params }: Props) {
   }
 
   const now = new Date().toISOString();
+  const recoleccionesRuta = recolecciones ?? [];
 
-  const { data: recoleccionesMontos } = await admin
-    .from("ruta_recolecciones")
-    .select("monto_efectivo")
-    .eq("ruta_id", rutaId);
-
-  const montoEfectivo = (recoleccionesMontos ?? []).reduce((acc, item) => {
+  const montoEfectivo = recoleccionesRuta.reduce((acc, item) => {
     const n = item.monto_efectivo != null ? Number(item.monto_efectivo) : 0;
     return acc + (Number.isFinite(n) ? n : 0);
   }, 0);

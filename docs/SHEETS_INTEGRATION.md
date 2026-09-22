@@ -54,6 +54,23 @@ Cada fila **Pendiente** enviada **crea** una parada en `ruta_recolecciones` (si 
 
 Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo. Qué contadores se muestran depende del tipo: Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo; **Empresa + Punto** bolsas (hogar/punto/vendidas/nuevas) sin biotachos ni cestos; **Proveedor/Cooperativa** solo cestos/biotachos dejó/retiró (sin cobro). No hace falta columna nueva en Sheets para logística: solo el valor en Tipo de servicio.
 
+### Cómo enviar Empresa + Punto
+
+Una fila de `Rutas` con **ambas** columnas:
+
+| Columna | Valor canónico |
+|---------|----------------|
+| Unidad | `Empresa` |
+| Tipo de servicio | `Punto` |
+
+El resto igual que cualquier parada (Nombre, Direccion, Telefono, Dia, Hora, Recolector). `Precio` se persiste pero **no** entra al total de la regla `empresa_punto`. No hay columnas de bolsas/pagos en el sheet.
+
+**No** uses Unidad `Puntos` ni Tipo `Puntos` para este flujo. Alias de tipo `puntos` / `punto` se normalizan a `Punto` al importar (`parseTipoServicio`).
+
+Los **pagos de punto** del panel (Historial → Puntos → Agregar pago) **no** se importan por Sheets: viven en `punto_pagos`.
+
+Ver detalle del modelo (incl. Empresa + Punto e Historial Puntos): [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md) § Almacenamiento en `ruta_recolecciones` y § Historial Puntos.
+
 ### Cómo se suma a una ruta existente
 
 Si ya hay una ruta con la misma **fecha + turno + recolector**:
@@ -61,8 +78,6 @@ Si ya hay una ruta con la misma **fecha + turno + recolector**:
 - La ruta **no está** Realizada ni Cerrada → las filas nuevas se **agregan** (no se borran paradas existentes ni su carga de campo).
 - El **teléfono** ya está en esa ruta → esa fila no entra (Error en la planilla). El resto sí.
 - La ruta **ya está finalizada** (Realizada o Cerrada) → no se agrega nada. Hay que reactivarla para sumar paradas.
-
-Ver detalle del modelo (incl. Empresa + Punto): [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md) § Almacenamiento en `ruta_recolecciones`.
 
 ### Estado (automático — no editar)
 
@@ -82,6 +97,29 @@ Ver detalle del modelo (incl. Empresa + Punto): [GUIA_DESARROLLADORES.md](./GUIA
 5. Completar filas de datos
 6. **Validar todas las filas**
 7. **Enviar pendientes a la app**
+
+## Ledger de deudas (otra planilla)
+
+No es la hoja `Rutas`. Es [este spreadsheet](https://docs.google.com/spreadsheets/d/1mWYWFdoU3e2yeVIwi2Z90fr5ds-Jx0dEARJ5wR-WOvw/edit?gid=47039710#gid=47039710) (misma cuenta Google).
+
+Al **cierre operario** (Historial, rutas Realizadas), la app escribe ahí:
+
+- Columna **H**: teléfono (busca la fila)
+- Columna **L**: deuda nueva = deuda que ya estaba en la app + transferencia + QR (el efectivo no suma)
+
+La app **no** muestra esa deuda nueva.
+
+### Cómo activarlo
+
+1. Reemplazá el Apps Script de la planilla `Rutas` con `scripts/google-apps-script/ImportarRuta.gs` (incluye `doPost`).
+2. En el editor: **Implementar → Nueva implementación → Tipo: Aplicación web**.
+   - Ejecutar como: **Yo**
+   - Quién tiene acceso: **Cualquiera** (Vercel llama sin sesión de Google; el secreto va en el body)
+3. Copiá la URL que termina en `/exec`.
+4. En Vercel y `.env.local`: `SHEETS_DEUDA_WEBAPP_URL=` esa URL. El secreto es el mismo `SHEETS_IMPORT_SECRET` / **Configurar integración**.
+5. Redeploy. La cuenta dueña del script tiene que poder **editar** el ledger.
+
+Si falta la URL, el cierre operario funciona igual y no se escribe el ledger.
 
 ## API
 
