@@ -5,7 +5,7 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 **Manual de uso (no técnico):** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
 
-**Cambios recientes (sep 2026):** Empresa + Punto **sin biotachos ni cestos** en el form de campo (`getRecoleccionCampoContadoresRules`); KPI Mixto **cancelada** → siempre Orgánico (Canc.) en por unidad/tipo; paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, campos dejo/retiro, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto visitada, `fetchRecoleccionesForRutaIds`.
+**Cambios recientes (sep 2026):** Historial **Puntos** (`/panel/historial/puntos`, `buildHistorialPuntosRows`) lista recolecciones Empresa + Punto por fecha; Empresa + Punto **sin biotachos ni cestos** en el form de campo (`getRecoleccionCampoContadoresRules`); KPI Mixto **cancelada** → siempre Orgánico (Canc.) en por unidad/tipo; paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, campos dejo/retiro, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto visitada, `fetchRecoleccionesForRutaIds`.
 
 **Cambios previos (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`; **renombre UI de parámetros** (`PARAMETRO_PRECIO_UI`: Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos `ayudaCobro`** actualizados en `buildPrecioCobroDetalle`; **Maps por tramos** (`chunkDireccionesForMaps`, `MAPS_MAX_PARADAS_POR_TRAMO = 8`, panel **Siguiente tramo** en `recolector-ruta-detalle.tsx`).
 
@@ -309,6 +309,7 @@ Matriz resumida (`src/lib/auth/permissions.ts`):
 | `/panel` | Todos | Staff → dashboard operario. Recolector → home (Hoy / Última jornada) |
 | `/panel` | superadmin, admin | **Operativo:** `borrador`, `activa`, `en_curso` |
 | `/panel/historial` | superadmin, admin | **Historial:** `completada`, `cerrada`, `cancelada`; tablas ampliadas + export CSV; cierre operario / reactivar |
+| `/panel/historial/puntos` | superadmin, admin | Recolecciones Empresa + Punto del rango de fechas (`buildHistorialPuntosRows`) |
 | `/panel/kpis` | superadmin, admin | KPIs por período (solo rutas historial; presets o `?desde=&hasta=`) + export CSV |
 | `/panel/parametros` | superadmin, admin | Cuatro precios con historial (`operario-parametros-sistema.tsx`) |
 | `/panel/usuarios` | superadmin, admin | Alta y gestión de usuarios |
@@ -875,6 +876,7 @@ npm run start    # Servidor de producción local
 | Fetch precio activo / historial | `src/lib/data/sistema-parametros.ts` |
 | Cobro en campo (parse + reglas) | `src/lib/domain/recolector-recoleccion-campo.ts` |
 | Empresa + Punto (reglas y precios) | `src/lib/domain/sistema-parametros.ts` (`isEmpresaPuntoCobro`, `calcPrecioEmpresaPunto`) |
+| Historial Puntos (Empresa + Punto) | `src/lib/domain/historial-puntos.ts`; UI `operario-historial-puntos-table.tsx` / `operario-historial-subnav.tsx` |
 | Formulario campo recolector | `src/lib/domain/recolector-recoleccion-form.ts` |
 | Permisos | `src/lib/auth/permissions.ts` |
 

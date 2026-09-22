@@ -10,7 +10,7 @@ Documento para el equipo operativo. Explica cómo usar la app y la planilla en e
 
 | Rol | Qué hace |
 |-----|----------|
-| **Operario / Superadmin** | Planilla, Operativo, Historial, KPIs, preparación de insumos, cierre operario |
+| **Operario / Superadmin** | Planilla, Operativo, Historial (Rutas y Puntos), KPIs, preparación de insumos, cierre operario |
 | **Recolector** | Carga en campo en el celular (retiro, cobro o logística, firma) |
 
 ---

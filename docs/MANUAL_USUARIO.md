@@ -18,7 +18,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (septiembre 2026):** en KPIs, **Mixto cancelada** suma siempre como **Orgánico (Canc.)** (además del cancelado total de la unidad). Tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): aparecen en la ruta; el recolector solo carga cestos/biotachos dejó o retiró + firma/cancelación (**sin cobro**). **No entran** a KPIs ni a totales de servicios/recaudación. En planilla: mismos encabezados; solo sumar esos valores al desplegable de Tipo de servicio.
+**Novedades recientes (septiembre 2026):** en **Historial** hay una pestaña **Puntos** (`/panel/historial/puntos`) con las recolecciones **Empresa + Punto** del rango de fechas (bolsas, monto, forma de pago, observaciones). En KPIs, **Mixto cancelada** suma siempre como **Orgánico (Canc.)** (además del cancelado total de la unidad). Tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): aparecen en la ruta; el recolector solo carga cestos/biotachos dejó o retiró + firma/cancelación (**sin cobro**). **No entran** a KPIs ni a totales de servicios/recaudación. En planilla: mismos encabezados; solo sumar esos valores al desplegable de Tipo de servicio.
 
 **Novedades previas (agosto–septiembre 2026):** tablas KPI **Por unidad de negocio** y **Por tipo de servicio** (exitosos/cancelados por celda; ver reglas de Mixto abajo). En KPIs **no hay columna/fila Mixto**: las paradas Mixto **visitadas** se reparten a **Reciclaje** u **Orgánico** según lo cargado en campo (`bolsas llenas` / `biotachos llenos`); las **canceladas** van a Orgánico (Canc.). Corrección en **Historial/KPIs**: si el rango de fechas traía más de ~1000 paradas en total, la app podía mostrar **menos filas** en la tabla de recolecciones de una ruta (ahora carga todas).
 
@@ -83,7 +83,7 @@ El superadmin es la cuenta principal de administración (`somos@ecolink.com.ar`)
 |------|------|----------|
 | **Operativo** | `/panel` | Rutas pendientes o en proceso |
 | **KPIs** | `/panel/kpis` | Indicadores y exportación |
-| **Historial** | `/panel/historial` | Rutas realizadas (pendientes de cierre), cerradas o canceladas |
+| **Historial** | `/panel/historial` | Rutas realizadas (pendientes de cierre), cerradas o canceladas. Pestaña **Puntos** → recolecciones Empresa + Punto |
 | **Parámetros** | `/panel/parametros` | Precios globales con historial |
 | **Usuarios** | `/panel/usuarios` | Alta y gestión de cuentas |
 
@@ -97,7 +97,7 @@ Al ingresar llegás a **Operativo** (menú superior). Muestra rutas **pendientes
 
 Menú **Historial** → `/panel/historial`
 
-Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierre operario), **Cerradas** (con cierre operario) o **Canceladas**.
+Incluye rutas **Realizadas** (finalizadas por el recolector, pendientes de cierre operario), **Cerradas** (con cierre operario) o **Canceladas**. Arriba hay pestañas: **Rutas** (esta vista) y **Puntos** (recolecciones Empresa + Punto del mismo rango de fechas).
 
 **Filtro de fechas:** igual que en KPIs — **Desde / Hasta** + **Aplicar**, o atajos (7 días, 30 días, mes en curso, 90 días). Por defecto muestra los **últimos 30 días**.
 
@@ -120,6 +120,26 @@ En rutas **Realizadas**, el botón **Editar** de la ruta suma una sección **Dat
 En rutas **Realizadas** también podés **editar la carga que hizo el recolector** en cada parada (retiro, cobro, cancelación, firma y observaciones) con el botón **Editar carga** de la tabla de recolecciones — sin reactivar la ruta. Al guardar se recalcula el total de la ruta en Historial. En rutas **Cerradas** o **Canceladas** las paradas quedan de **solo consulta**. Para **agregar o quitar** paradas de una Realizada, primero **Reactivar** desde Historial. Los KPIs (recaudación, materiales, etc.) impactan recién al **Cierre operario**.
 
 **Descargar:** botón **Descargar historial (CSV)** (arriba a la derecha) exporta las rutas del **rango filtrado** y sus servicios en un archivo Excel-compatible.
+
+#### Historial · Puntos
+
+Pestaña **Puntos** → `/panel/historial/puntos`
+
+Muestra **todas** las recolecciones **Empresa + Punto** de las rutas del historial en el rango de fechas (una fila por recolección, más reciente primero). No mezcla Hogar ni Empresa de otro tipo.
+
+| Columna | Contenido |
+|---------|-----------|
+| Fecha | Fecha de la ruta |
+| Punto | Nombre del cliente / punto |
+| Bolsas de clientes llenas | Bolsas llenas hogar cargadas en campo |
+| Bolsas nuevas vendidas | Vendidas en campo (entran al cobro) |
+| Bolsas llenas punto | Solo cantidad (no suman al total automático) |
+| Monto | Precio total calculado de la visita |
+| Forma de pago | Efectivo, transferencia y/o QR (solo los que tienen monto) |
+| Bolsas nuevas | Bolsas nuevas entregadas |
+| Observaciones | Notas del recolector y, si hay, del operario |
+
+Si la parada fue **cancelada**, cantidades, monto y forma de pago quedan en **—**. El filtro de fechas es el mismo que en Historial / KPIs.
 
 #### Tabla de rutas (Historial)
 
