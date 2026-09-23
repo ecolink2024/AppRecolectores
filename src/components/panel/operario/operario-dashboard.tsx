@@ -30,6 +30,7 @@ import {
 } from "@/lib/domain/operario-dashboard";
 import { downloadHistorialCsv } from "@/lib/domain/operario-historial-export";
 import type { KpiFiltroFechas } from "@/lib/domain/operario-kpis";
+import { DEUDA_LEDGER_HABILITADO } from "@/lib/domain/deuda-ledger-flag";
 import { puedeEditarCargaStaff } from "@/lib/domain/ruta-estado-transiciones";
 
 
@@ -287,7 +288,9 @@ export function OperarioDashboard({
             onEditar={setEditRutaId}
             onCierreOperario={abrirCierreOperario}
             onReactivar={setReactivarRutaId}
-            onReenviarDeudas={(id) => void handleReenviarDeudas(id)}
+            onReenviarDeudas={
+              DEUDA_LEDGER_HABILITADO ? (id) => void handleReenviarDeudas(id) : undefined
+            }
             reenviandoDeudaId={reenviandoDeudaId}
           />
         ) : (
@@ -460,7 +463,9 @@ export function OperarioDashboard({
             title="Confirmar cierre operario"
             message={
               rutaACierreOperario
-                ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Si hubo transferencia o QR, se anota en la planilla de deudas. Si el servidor no está conectado a esa planilla, el cierre no se hace.`
+                ? DEUDA_LEDGER_HABILITADO
+                  ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Si hubo transferencia o QR, se anota en la planilla de deudas. Si el servidor no está conectado a esa planilla, el cierre no se hace.`
+                  : `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Esta acción confirma el cierre administrativo.`
                 : "La ruta pasará a Cerrada."
             }
             confirmLabel="Confirmar cierre"

@@ -7,6 +7,7 @@ import {
   DEUDA_SYNC_NO_CONFIGURADA,
   deudaSyncBloqueaCierre,
 } from "@/lib/data/deuda-ledger-ruta";
+import { DEUDA_LEDGER_HABILITADO } from "@/lib/domain/deuda-ledger-flag";
 import { puedeCierreOperario } from "@/lib/domain/ruta-estado-transiciones";
 import { avisoPlanillaDeudas, syncDeudasLedger } from "@/lib/integrations/sheets-deuda-sync";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -57,11 +58,13 @@ export async function POST(_request: Request, { params }: Props) {
     );
   }
 
-  const deudaItems = await cargarItemsDeudaRuta(admin, rutaId);
-  if (!deudaItems.ok) {
+  const deudaItems = DEUDA_LEDGER_HABILITADO
+    ? await cargarItemsDeudaRuta(admin, rutaId)
+    : null;
+  if (deudaItems && !deudaItems.ok) {
     return NextResponse.json({ ok: false, error: deudaItems.error }, { status: 500 });
   }
-  if (deudaSyncBloqueaCierre(deudaItems.items)) {
+  if (deudaItems?.ok && deudaSyncBloqueaCierre(deudaItems.items)) {
     return NextResponse.json({ ok: false, error: DEUDA_SYNC_NO_CONFIGURADA }, { status: 503 });
   }
 
@@ -81,8 +84,11 @@ export async function POST(_request: Request, { params }: Props) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 
-  const deudaSync = await syncDeudasLedger(deudaItems.items);
-  const deudaAviso = avisoPlanillaDeudas(deudaSync, { rutaCerrada: true });
+  const deudaSync =
+    DEUDA_LEDGER_HABILITADO && deudaItems?.ok
+      ? await syncDeudasLedger(deudaItems.items)
+      : null;
+  const deudaAviso = deudaSync ? avisoPlanillaDeudas(deudaSync, { rutaCerrada: true }) : null;
 
   revalidatePath("/panel");
   revalidatePath("/panel/historial");

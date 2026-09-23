@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
 import { escribirDeudasDeRuta } from "@/lib/data/deuda-ledger-ruta";
+import { DEUDA_LEDGER_HABILITADO } from "@/lib/domain/deuda-ledger-flag";
 import { avisoPlanillaDeudas } from "@/lib/integrations/sheets-deuda-sync";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -10,6 +11,13 @@ type Props = { params: Promise<{ id: string }> };
 
 /** Reintenta la planilla de deudas de una ruta ya cerrada, sin volver a cerrarla. */
 export async function POST(_request: Request, { params }: Props) {
+  if (!DEUDA_LEDGER_HABILITADO) {
+    return NextResponse.json(
+      { ok: false, error: "La planilla de deudas está en pausa." },
+      { status: 503 },
+    );
+  }
+
   const auth = await requireStaff();
   if (!auth.ok) {
     return NextResponse.json({ ok: false, error: auth.message }, { status: auth.status });
