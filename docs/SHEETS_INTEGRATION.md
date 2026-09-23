@@ -122,7 +122,7 @@ La app **no** muestra esa deuda nueva ni esa fecha.
 
 Si el script **ya está publicado**, no crees otra implementación: cambia la URL y hay que volver a pegarla. En **Implementar → Administrar implementaciones**, editá la aplicación web y elegí **Nueva versión**.
 
-Si falta la URL, el cierre operario funciona igual y no se escribe el ledger.
+Si falta la URL y la ruta tiene transferencia o QR, el cierre **no se hace** y el operario ve el error. Con la ruta ya **Cerrada**, **Reenviar deudas** en Historial vuelve a escribir la planilla. Si Google responde y algún teléfono no está en la columna H, el aviso lista esos números; el cierre igual queda hecho.
 
 ## API
 

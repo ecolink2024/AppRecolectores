@@ -213,7 +213,7 @@ Panel de métricas agregadas según el **período** elegido. Solo lectura.
 
 | Opción | Uso |
 |--------|-----|
-| **Desde / Hasta** + **Aplicar** | Cualquier rango (días, meses, años). **Hasta** no puede ser posterior a hoy |
+| **Desde / Hasta** + **Aplicar** | Cualquier rango, también fechas futuras. Los atajos siguen cortando en hoy |
 | Atajos (7 días, 30 días, mes en curso, 90 días) | Períodos frecuentes |
 
 Mismo criterio que Historial: se filtra por **fecha de la ruta**, no por el día del cierre.
@@ -380,6 +380,8 @@ Cuando el recolector **finalizó** la ruta, esta aparece en **Historial** con es
 3. La ruta pasa a **Cerrada** (sigue en Historial)
 
 Si alguna parada se cobró por **transferencia o QR**, en ese momento se suma ese monto a la **Deuda** del cliente y se pega en la planilla de deudas, junto con la **fecha de esa recolección** (no lo vas a ver cambiado dentro de la app). El recolector **finalizar** no escribe el ledger: así podés **Editar carga** antes y el monto que viaja es el ya revisado.
+
+Si el servidor **no está conectado** a esa planilla, el cierre **no se hace** y aparece el error en Historial. Si la ruta ya quedó **Cerrada** y la planilla no se actualizó (o faltó un teléfono), en la fila está **Reenviar deudas**. Si un teléfono no está en la planilla, el aviso lista cuál.
 
 El recolector ya no puede editar paradas desde que finalizó; el staff cierra operariamente desde Historial.
 
@@ -856,13 +858,13 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### No veo una ruta que acabo de finalizar en Historial
 
 - Historial **no lista por el día en que se finalizó**, sino por la **fecha de la ruta** (el `Dia` de la planilla)
-- El rango por defecto es **últimos 30 días hasta hoy**. El **Hasta** no pasa de hoy
-- Si la ruta está fechada **a futuro** (ej. 23/08 y hoy es 18/08), no entra en el filtro aunque ya esté Realizada. Tampoco está en Operativo
-- Ampliá **Hasta** no alcanza: la app lo recorta a hoy. Cuando llegue esa fecha, va a aparecer sola
+- El rango por defecto es **últimos 30 días hasta hoy**. Una ruta fechada a futuro no entra en ese atajo
+- Tampoco está en Operativo si ya está Realizada
+- En **Desde / Hasta** poné un **Hasta** que incluya el día de la ruta y tocá **Aplicar**
 
 ### El CSV de KPIs o Historial está vacío o incompleto
 
-- Verificá el **rango de fechas** (KPIs e Historial filtran por **fecha de la ruta**, y **Hasta** no puede ser posterior a hoy)
+- Verificá el **rango de fechas** (KPIs e Historial filtran por **fecha de la ruta**. Los atajos cortan en hoy; un rango a mano puede incluir días futuros)
 - KPIs incluye el historial de ese rango. **Pendiente cierre** se muestra pero no suma a montos ni a “Rutas en el período”; eso solo cuenta rutas **Cerradas**
 
 ### En Historial veo menos paradas que las que recuerdo

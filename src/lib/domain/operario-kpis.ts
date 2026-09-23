@@ -92,7 +92,6 @@ export function resolveKpiFiltroFechas(params: {
 }): KpiFiltroFechas {
   const desdeParam = params.desde?.trim();
   const hastaParam = params.hasta?.trim();
-  const hoy = todayIsoAr();
 
   if (
     desdeParam &&
@@ -107,8 +106,6 @@ export function resolveKpiFiltroFechas(params: {
       desde = hasta;
       hasta = tmp;
     }
-    if (hasta > hoy) hasta = hoy;
-    if (desde > hoy) desde = hoy;
 
     return {
       desde,

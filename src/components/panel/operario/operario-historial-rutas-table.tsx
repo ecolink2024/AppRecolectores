@@ -25,6 +25,8 @@ type Props = {
   onEditar: (id: string) => void;
   onCierreOperario?: (id: string) => void;
   onReactivar?: (id: string) => void;
+  onReenviarDeudas?: (id: string) => void;
+  reenviandoDeudaId?: string | null;
 };
 
 /** Primera columna fija al scroll horizontal */
@@ -57,6 +59,8 @@ export function OperarioHistorialRutasTable({
   onEditar,
   onCierreOperario,
   onReactivar,
+  onReenviarDeudas,
+  reenviandoDeudaId,
 }: Props) {
   if (rutas.length === 0) {
     return (
@@ -237,6 +241,19 @@ export function OperarioHistorialRutasTable({
                         className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900"
                       >
                         Reactivar
+                      </button>
+                    )}
+                    {onReenviarDeudas && ruta.estado === "cerrada" && (
+                      <button
+                        type="button"
+                        disabled={reenviandoDeudaId === ruta.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onReenviarDeudas(ruta.id);
+                        }}
+                        className="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-100 disabled:opacity-60 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200 dark:hover:bg-amber-900"
+                      >
+                        {reenviandoDeudaId === ruta.id ? "Enviando…" : "Reenviar deudas"}
                       </button>
                     )}
                     {onCierreOperario && puedeCierreOperario(ruta.estado) && (

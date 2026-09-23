@@ -11,7 +11,8 @@ export type DeudaSheetSyncResult = {
 
 /**
  * Escribe deudas en el ledger vía Apps Script (Web App).
- * No lanza: un fallo no debe bloquear el cierre de ruta.
+ * No lanza. Si falta la URL, el cierre se rechaza antes de marcar la ruta.
+ * Si Google falla después del cierre, el resultado vuelve en la respuesta.
  */
 export async function syncDeudasLedger(
   items: DeudaSheetItem[],
@@ -23,10 +24,10 @@ export async function syncDeudasLedger(
   const url = getSheetsDeudaWebappUrl();
   const secret = getSheetsImportSecret();
   if (!url || !secret) {
-    console.warn(
-      "[deuda-sheet] Falta SHEETS_DEUDA_WEBAPP_URL o SHEETS_IMPORT_SECRET; no se escribió el ledger.",
-    );
-    return { attempted: false, ok: true };
+    const error =
+      "El servidor no tiene conectada la planilla de deudas (SHEETS_DEUDA_WEBAPP_URL). Las transferencias y QR no se anotaron.";
+    console.error("[deuda-sheet]", error);
+    return { attempted: false, ok: false, error };
   }
 
   try {
@@ -86,4 +87,28 @@ export async function syncDeudasLedger(
     console.error("[deuda-sheet]", error);
     return { attempted: true, ok: false, error };
   }
+}
+
+/** Texto para el operario. Null si no hay nada que avisar. */
+export function avisoPlanillaDeudas(
+  result: DeudaSheetSyncResult,
+  options?: { rutaCerrada?: boolean },
+): string | null {
+  const noEncontradas = result.no_encontradas?.filter(Boolean) ?? [];
+  if (!result.ok) {
+    const detalle = result.error ?? "No se pudo escribir la planilla de deudas.";
+    if (options?.rutaCerrada) {
+      return `La ruta quedó cerrada, pero la planilla de deudas no se actualizó. ${detalle}`;
+    }
+    return detalle;
+  }
+  if (noEncontradas.length > 0) {
+    const lista = noEncontradas.join(", ");
+    const detalle = `Estos teléfonos no están en la planilla de deudas: ${lista}.`;
+    if (options?.rutaCerrada) {
+      return `La ruta quedó cerrada. ${detalle}`;
+    }
+    return detalle;
+  }
+  return null;
 }

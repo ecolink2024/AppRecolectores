@@ -2,9 +2,13 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { requireStaff } from "@/lib/auth/session";
-import { buildDeudaSheetItems } from "@/lib/domain/deuda-sheet-sync";
+import {
+  cargarItemsDeudaRuta,
+  DEUDA_SYNC_NO_CONFIGURADA,
+  deudaSyncBloqueaCierre,
+} from "@/lib/data/deuda-ledger-ruta";
 import { puedeCierreOperario } from "@/lib/domain/ruta-estado-transiciones";
-import { syncDeudasLedger } from "@/lib/integrations/sheets-deuda-sync";
+import { avisoPlanillaDeudas, syncDeudasLedger } from "@/lib/integrations/sheets-deuda-sync";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 
@@ -53,6 +57,14 @@ export async function POST(_request: Request, { params }: Props) {
     );
   }
 
+  const deudaItems = await cargarItemsDeudaRuta(admin, rutaId);
+  if (!deudaItems.ok) {
+    return NextResponse.json({ ok: false, error: deudaItems.error }, { status: 500 });
+  }
+  if (deudaSyncBloqueaCierre(deudaItems.items)) {
+    return NextResponse.json({ ok: false, error: DEUDA_SYNC_NO_CONFIGURADA }, { status: 503 });
+  }
+
   const now = new Date().toISOString();
   const updatePayload: RutaUpdate = {
     estado: "cerrada",
@@ -69,18 +81,18 @@ export async function POST(_request: Request, { params }: Props) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 
-  const { data: recolecciones } = await admin
-    .from("ruta_recolecciones")
-    .select(
-      "estado_operativo, monto_transferencia, monto_qr, deuda, telefono, telefono_normalizado, categoria_parada, tipo_servicio, dia",
-    )
-    .eq("ruta_id", rutaId);
-
-  await syncDeudasLedger(buildDeudaSheetItems(recolecciones ?? []));
+  const deudaSync = await syncDeudasLedger(deudaItems.items);
+  const deudaAviso = avisoPlanillaDeudas(deudaSync, { rutaCerrada: true });
 
   revalidatePath("/panel");
   revalidatePath("/panel/historial");
   revalidatePath("/panel/kpis");
 
-  return NextResponse.json({ ok: true, estado: "cerrada", cierre_operario_at: now });
+  return NextResponse.json({
+    ok: true,
+    estado: "cerrada",
+    cierre_operario_at: now,
+    deuda_sync: deudaSync,
+    deuda_aviso: deudaAviso,
+  });
 }

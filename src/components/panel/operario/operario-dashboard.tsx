@@ -81,7 +81,9 @@ export function OperarioDashboard({
   const [cierreOperarioPaso, setCierreOperarioPaso] = useState<1 | 2>(1);
   const [reactivando, setReactivando] = useState(false);
   const [cerrandoOperario, setCerrandoOperario] = useState(false);
+  const [reenviandoDeudaId, setReenviandoDeudaId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [descargandoHistorial, setDescargandoHistorial] = useState(false);
 
   const selectedRuta = rutasVisibles.find((r) => r.id === selectedRutaId) ?? null;
@@ -148,13 +150,18 @@ export function OperarioDashboard({
 
     setCerrandoOperario(true);
     setActionError(null);
+    setActionNotice(null);
 
     try {
       const response = await fetch(
         `/api/panel/rutas/${cierreOperarioRutaId}/cierre-operario`,
         { method: "POST" },
       );
-      const body = (await response.json()) as { ok?: boolean; error?: string };
+      const body = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        deuda_aviso?: string | null;
+      };
 
       if (!response.ok || !body.ok) {
         throw new Error(body.error ?? "No se pudo registrar el cierre operario");
@@ -163,6 +170,8 @@ export function OperarioDashboard({
       if (selectedRutaId === cierreOperarioRutaId) setSelectedRutaId(null);
       setCierreOperarioRutaId(null);
       setCierreOperarioPaso(1);
+      setActionNotice(null);
+      setActionError(body.deuda_aviso ?? null);
       refreshData();
     } catch (err) {
       setActionError(
@@ -177,6 +186,31 @@ export function OperarioDashboard({
     setCierreOperarioRutaId(rutaId);
     setCierreOperarioPaso(1);
     setActionError(null);
+    setActionNotice(null);
+  }
+
+  async function handleReenviarDeudas(rutaId: string) {
+    setReenviandoDeudaId(rutaId);
+    setActionError(null);
+    setActionNotice(null);
+    try {
+      const response = await fetch(`/api/panel/rutas/${rutaId}/deuda-ledger`, { method: "POST" });
+      const body = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        message?: string;
+        deuda_aviso?: string | null;
+      };
+      if (!response.ok || !body.ok) {
+        throw new Error(body.error ?? "No se pudo reenviar la planilla de deudas");
+      }
+      if (body.deuda_aviso) setActionError(body.deuda_aviso);
+      else setActionNotice(body.message ?? "Planilla de deudas actualizada.");
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Error al reenviar deudas");
+    } finally {
+      setReenviandoDeudaId(null);
+    }
   }
 
   function handleDescargarHistorial() {
@@ -253,6 +287,8 @@ export function OperarioDashboard({
             onEditar={setEditRutaId}
             onCierreOperario={abrirCierreOperario}
             onReactivar={setReactivarRutaId}
+            onReenviarDeudas={(id) => void handleReenviarDeudas(id)}
+            reenviandoDeudaId={reenviandoDeudaId}
           />
         ) : (
           <OperarioRutasTable
@@ -272,6 +308,11 @@ export function OperarioDashboard({
         )}
       </section>
 
+      {actionNotice && (
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+          {actionNotice}
+        </p>
+      )}
       {actionError && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
           {actionError}
@@ -419,7 +460,7 @@ export function OperarioDashboard({
             title="Confirmar cierre operario"
             message={
               rutaACierreOperario
-                ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Esta acción confirma el cierre administrativo.`
+                ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Si hubo transferencia o QR, se anota en la planilla de deudas. Si el servidor no está conectado a esa planilla, el cierre no se hace.`
                 : "La ruta pasará a Cerrada."
             }
             confirmLabel="Confirmar cierre"

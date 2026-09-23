@@ -447,7 +447,7 @@ Al **cierre operario** (`POST /api/panel/rutas/[id]/cierre-operario`):
 2. **No** se actualiza `ruta_recolecciones.deuda` (la app sigue mostrando la deuda importada).
 3. `syncDeudasLedger` POST al Web App de Apps Script (`SHEETS_DEUDA_WEBAPP_URL` + `SHEETS_IMPORT_SECRET`).
 4. El script abre el spreadsheet ledger (`1mWYWFdoU3e2yeVIwi2Z90fr5ds-Jx0dEARJ5wR-WOvw`, gid `47039710`), busca el teléfono en **columna H**, escribe el total en **columna L** y el día de la parada (`dia`, `YYYY-MM-DD`) en **columna M**. Si hay varias paradas del mismo teléfono en el cierre, la fecha que queda es la más nueva.
-5. Si el script no está desplegado o el teléfono no está en el ledger, el cierre operario **igual** termina OK (queda log en servidor).
+5. Si el servidor no tiene `SHEETS_DEUDA_WEBAPP_URL` y hay transferencias o QR, el cierre responde 503 y **no** pasa la ruta a `cerrada`. Si Google falla después de cerrar, la respuesta trae `deuda_aviso` y en Historial se puede reenviar con `POST /api/panel/rutas/[id]/deuda-ledger`. Si un teléfono no está en la columna H, el aviso lista esos números.
 
 ### Panel operario
 

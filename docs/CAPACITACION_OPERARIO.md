@@ -166,7 +166,7 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 5. Cuando finaliza, la ruta pasa a **Historial** como **Realizada**.
 6. El operario revisa, puede **Editar** datos de jornada o **Editar carga** de paradas.
 7. En Historial → **Puntos**: revisar recolecciones Empresa + Punto y, si hace falta, **Agregar pago**.
-8. **Cierre operario** → la ruta queda **Cerrada**; impacta KPIs; si hubo transferencia o QR, se actualiza la **Deuda** y la **fecha de la recolección** en la planilla de deudas (otra hoja; no cambia lo que ves en la app).
+8. **Cierre operario** → la ruta queda **Cerrada** e impacta KPIs. Si hubo transferencia o QR, se actualizan la **Deuda** y la **fecha** en la planilla de deudas. Si el servidor no está conectado a esa planilla, el cierre no se hace y ves el error. En una ruta ya cerrada, **Reenviar deudas** vuelve a escribir la planilla.
 
 ---
 
