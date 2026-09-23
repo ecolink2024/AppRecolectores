@@ -106,8 +106,9 @@ Al **cierre operario** (Historial, rutas Realizadas), la app escribe ahí:
 
 - Columna **H**: teléfono (busca la fila)
 - Columna **L**: deuda nueva = deuda que ya estaba en la app + transferencia + QR (el efectivo no suma)
+- Columna **M**: fecha de la recolección (día de la parada). Si el mismo teléfono se cobró más de una vez en ese cierre, queda la fecha más nueva.
 
-La app **no** muestra esa deuda nueva.
+La app **no** muestra esa deuda nueva ni esa fecha.
 
 ### Cómo activarlo
 
@@ -117,7 +118,9 @@ La app **no** muestra esa deuda nueva.
    - Quién tiene acceso: **Cualquiera** (Vercel llama sin sesión de Google; el secreto va en el body)
 3. Copiá la URL que termina en `/exec`.
 4. En Vercel y `.env.local`: `SHEETS_DEUDA_WEBAPP_URL=` esa URL. El secreto es el mismo `SHEETS_IMPORT_SECRET` / **Configurar integración**.
-5. Redeploy. La cuenta dueña del script tiene que poder **editar** el ledger.
+5. Redeploy de la app si la URL va en Vercel. La cuenta dueña del script tiene que poder **editar** el ledger.
+
+Si el script **ya está publicado**, no crees otra implementación: cambia la URL y hay que volver a pegarla. En **Implementar → Administrar implementaciones**, editá la aplicación web y elegí **Nueva versión**.
 
 Si falta la URL, el cierre operario funciona igual y no se escribe el ledger.
 

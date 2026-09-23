@@ -13,7 +13,7 @@
  * las filas nuevas se suman. Teléfono repetido o ruta Realizada/Cerrada → Error.
  *
  * Al cierre operario, la app llama a doPost (Web App) y este script
- * escribe Deuda en el ledger (otra planilla): col H teléfono, col L deuda.
+ * escribe en el ledger (otra planilla): col H teléfono, col L deuda, col M fecha.
  */
 
 const CONFIG = {
@@ -51,6 +51,7 @@ const CONFIG = {
     SHEET_GID: 47039710,
     COL_TELEFONO: 8,
     COL_DEUDA: 12,
+    COL_FECHA: 13,
   },
 };
 
@@ -768,6 +769,14 @@ function doGet() {
   return jsonOutput_({ ok: true, service: "app-recolectores-deuda" });
 }
 
+/** `YYYY-MM-DD` → Date local del script, para que Sheets la muestre como fecha. */
+function parseFechaLedger_(raw) {
+  const s = String(raw || "").trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+}
+
 function phoneMatchKey_(raw) {
   let digits = String(raw || "").replace(/\D/g, "");
   if (!digits) return "";
@@ -827,7 +836,12 @@ function aplicarDeudasLedger_(items) {
     }
     const deuda = Number(item.deuda);
     const valor = Number.isFinite(deuda) ? deuda : 0;
-    sheet.getRange(rows[0], cfg.COL_DEUDA).setValue(valor);
+    const fila = rows[0];
+    sheet.getRange(fila, cfg.COL_DEUDA).setValue(valor);
+    const fecha = parseFechaLedger_(item.fecha);
+    if (fecha) {
+      sheet.getRange(fila, cfg.COL_FECHA).setValue(fecha);
+    }
     actualizadas += 1;
   }
 

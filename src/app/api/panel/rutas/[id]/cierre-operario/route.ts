@@ -72,7 +72,7 @@ export async function POST(_request: Request, { params }: Props) {
   const { data: recolecciones } = await admin
     .from("ruta_recolecciones")
     .select(
-      "estado_operativo, monto_transferencia, monto_qr, deuda, telefono, telefono_normalizado, categoria_parada, tipo_servicio",
+      "estado_operativo, monto_transferencia, monto_qr, deuda, telefono, telefono_normalizado, categoria_parada, tipo_servicio, dia",
     )
     .eq("ruta_id", rutaId);
 

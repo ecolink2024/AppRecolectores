@@ -10,6 +10,8 @@ export type RecoleccionDeudaSyncInput = {
   telefono_normalizado?: string | null;
   categoria_parada?: string | null;
   tipo_servicio?: string | null;
+  /** Día de la recolección, `YYYY-MM-DD`. */
+  dia?: string | null;
 };
 
 export type DeudaSheetItem = {
@@ -17,6 +19,8 @@ export type DeudaSheetItem = {
   telefono_normalizado: string;
   phone_key: string;
   deuda: number;
+  /** Día de la recolección, `YYYY-MM-DD`, o null si no vino. */
+  fecha: string | null;
 };
 
 function num(value: number | string | null | undefined): number {
@@ -36,6 +40,14 @@ export function phoneMatchKey(raw: string | null | undefined): string {
   if (digits.startsWith("54")) digits = digits.slice(2);
   if (digits.startsWith("9") && digits.length >= 10) digits = digits.slice(1);
   return digits;
+}
+
+/** Día de recolección en `YYYY-MM-DD`. Acepta un ISO con hora y se queda con la fecha. */
+export function parseFechaRecoleccion(value: string | null | undefined): string | null {
+  const match = String(value ?? "")
+    .trim()
+    .match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : null;
 }
 
 export function parseDeudaMonto(value: string | number | null | undefined): number {
@@ -75,9 +87,13 @@ export function buildDeudaSheetItems(
     if (!key) continue;
 
     const deuda = roundMoney(parseDeudaMonto(item.deuda) + cobroDigital);
+    const fecha = parseFechaRecoleccion(item.dia);
     const existing = byKey.get(key);
     if (existing) {
       existing.deuda = roundMoney(existing.deuda + cobroDigital);
+      if (fecha && (!existing.fecha || fecha > existing.fecha)) {
+        existing.fecha = fecha;
+      }
       continue;
     }
 
@@ -86,6 +102,7 @@ export function buildDeudaSheetItems(
       telefono_normalizado: normalized.ok ? normalized.value : telefono,
       phone_key: key,
       deuda,
+      fecha,
     });
   }
 

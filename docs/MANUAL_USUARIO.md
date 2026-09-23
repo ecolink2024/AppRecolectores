@@ -379,7 +379,7 @@ Cuando el recolector **finalizó** la ruta, esta aparece en **Historial** con es
 2. Confirmá en dos pasos
 3. La ruta pasa a **Cerrada** (sigue en Historial)
 
-Si alguna parada se cobró por **transferencia o QR**, en ese momento se suma ese monto a la **Deuda** del cliente y se pega en la planilla de deudas (no lo vas a ver cambiado dentro de la app). El recolector **finalizar** no escribe el ledger: así podés **Editar carga** antes y el monto que viaja es el ya revisado.
+Si alguna parada se cobró por **transferencia o QR**, en ese momento se suma ese monto a la **Deuda** del cliente y se pega en la planilla de deudas, junto con la **fecha de esa recolección** (no lo vas a ver cambiado dentro de la app). El recolector **finalizar** no escribe el ledger: así podés **Editar carga** antes y el monto que viaja es el ya revisado.
 
 El recolector ya no puede editar paradas desde que finalizó; el staff cierra operariamente desde Historial.
 

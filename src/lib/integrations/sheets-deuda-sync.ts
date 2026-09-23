@@ -41,6 +41,7 @@ export async function syncDeudasLedger(
           telefono_normalizado: item.telefono_normalizado,
           phone_key: item.phone_key,
           deuda: item.deuda,
+          fecha: item.fecha,
         })),
       }),
       signal: AbortSignal.timeout(15000),
