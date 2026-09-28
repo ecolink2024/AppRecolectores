@@ -26,7 +26,6 @@ export async function fetchOperarioDashboardData(
   opciones?: { fechas?: HistorialFechaFiltro },
 ) {
   const admin = createAdminClient();
-  const limit = filtro === "historial" ? 5000 : 200;
   const fechas = filtro === "historial" ? opciones?.fechas : undefined;
 
   let query = admin.from("rutas").select("*");
@@ -39,12 +38,12 @@ export async function fetchOperarioDashboardData(
     query = query
       .order("fecha", { ascending: false })
       .order("turno", { ascending: true })
-      .limit(limit);
+      .limit(5000);
   } else {
     query = query
+      .not("estado", "in", "(completada,cerrada,cancelada)")
       .order("fecha", { ascending: true })
-      .order("turno", { ascending: true })
-      .limit(limit);
+      .order("turno", { ascending: true });
   }
 
   const { data: rutas, error: rutasError } = await query;
