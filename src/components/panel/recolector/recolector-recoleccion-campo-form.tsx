@@ -317,15 +317,15 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
               </h2>
               {data.esEmpresaPunto && (
                 <p className="mb-3 text-xs text-violet-800 dark:text-violet-300">
-                  Empresa + Punto: el total automático usa bolsas llenas hogar y bolsas nuevas
-                  vendidas (Parámetros). Bolsas llenas punto: solo cantidad; el monto en punto va
+                  Empresa + Punto: el total automático usa bolsas de clientes llenas y bolsas nuevas
+                  vendidas (Parámetros). Bolsas del punto: solo cantidad; el monto en punto va
                   en los pagos.
                 </p>
               )}
               <div className="grid grid-cols-2 gap-3">
                 {contadoresRules.bolsasLlenasRequired && (
                   <Field
-                    label={data.esEmpresaPunto ? "Bolsas llenas hogar" : "Bolsas llenas"}
+                    label={data.esEmpresaPunto ? "Bolsas de clientes llenas" : "Bolsas llenas"}
                     value={bolsasLlenas}
                     onChange={setBolsasLlenas}
                     required={contadoresRules.bolsasLlenasRequired}
@@ -334,7 +334,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
                 {data.esEmpresaPunto && (
                   <>
                     <Field
-                      label="Bolsas llenas punto (solo cantidad)"
+                      label="Bolsas del punto"
                       value={bolsasLlenasPunto}
                       onChange={setBolsasLlenasPunto}
                       required
@@ -357,7 +357,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
                 )}
                 {contadoresRules.bolsasNuevasRequired && (
                   <Field
-                    label="Bolsas nuevas"
+                    label={data.esEmpresaPunto ? "Bolsas nuevas que" : "Bolsas nuevas"}
                     value={bolsasNuevas}
                     onChange={setBolsasNuevas}
                     required={contadoresRules.bolsasNuevasRequired}
@@ -542,12 +542,12 @@ function RecoleccionCampoSoloLectura({
             </h2>
             <dl className="space-y-2 text-sm">
               <ReadOnlyRow
-                label={data.esEmpresaPunto ? "Bolsas llenas hogar" : "Bolsas llenas"}
+                label={data.esEmpresaPunto ? "Bolsas de clientes llenas" : "Bolsas llenas"}
                 value={data.bolsasLlenas || "0"}
               />
               {data.esEmpresaPunto && (
                 <>
-                  <ReadOnlyRow label="Bolsas llenas punto" value={data.bolsasLlenasPunto || "0"} />
+                  <ReadOnlyRow label="Bolsas del punto" value={data.bolsasLlenasPunto || "0"} />
                   <ReadOnlyRow
                     label="Bolsas nuevas vendidas"
                     value={data.bolsasNuevasVendidas || "0"}
@@ -558,7 +558,10 @@ function RecoleccionCampoSoloLectura({
                 <ReadOnlyRow label="Biotachos llenos" value={data.biotachosLlenos || "0"} />
               )}
               {contadoresRules.bolsasNuevasRequired && (
-                <ReadOnlyRow label="Bolsas nuevas" value={data.bolsasNuevas || "0"} />
+                <ReadOnlyRow
+                  label={data.esEmpresaPunto ? "Bolsas nuevas que" : "Bolsas nuevas"}
+                  value={data.bolsasNuevas || "0"}
+                />
               )}
               {contadoresRules.biotachosNuevosRequired && (
                 <ReadOnlyRow label="Biotachos nuevos" value={data.biotachosNuevos || "0"} />
