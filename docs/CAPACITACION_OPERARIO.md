@@ -130,7 +130,7 @@ Validar → Enviar pendientes.
 - Aviso de cobro Empresa + Punto.
 - Contadores: bolsas llenas hogar, bolsas llenas punto, bolsas nuevas vendidas, bolsas nuevas.
 - **No** aparecen biotachos ni cestos.
-- Total = (bolsas llenas hogar × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). Bolsas llenas punto es solo cantidad.
+- Total de referencia = (bolsas de clientes llenas × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). La suma de los pagos puede ser menor. Bolsas del punto es solo cantidad.
 
 ### Dónde lo ves vos (operario)
 

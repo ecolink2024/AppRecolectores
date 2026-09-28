@@ -420,7 +420,7 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 
 | Unidad / tipo | Cómo se calcula el total |
 |---------------|---------------------------|
-| **Empresa** + tipo **Punto** | **(bolsas llenas hogar × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. **Bolsas llenas punto**: solo cantidad; el cobro en punto va en efectivo/transferencia/QR. Sin biotachos ni cestos |
+| **Empresa** + tipo **Punto** | Total de referencia: **(bolsas de clientes llenas × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. La suma de efectivo, transferencia y QR **puede ser menor**. **Bolsas del punto**: solo cantidad. Sin biotachos ni cestos |
 | **Empresa** (otro tipo) | Siempre el **precio de retiro** de la planilla |
 | **Mixto** (`tipo de servicio`) | **0 bolsas:** retiro de planilla · **1 o 2 bolsas:** **Retiro reciclables - Hogar Mixto** · **3+:** ese precio + **Precio bolsa extra - Hogar** por cada bolsa desde la 3.ª |
 | **Resto** (Hogar Reciclaje, Puntos, etc.) | Retiro de planilla; las **2 primeras** bolsas llenas incluidas; desde la **3.ª**, **Precio bolsa extra - Hogar** por bolsa |
@@ -442,7 +442,7 @@ Para paradas con **Unidad = Empresa** y **Tipo de cliente = Punto** (en la app y
 | Historial → Puntos | Las visitas aparecen en la tabla de recolecciones; los **pagos de punto** se cargan aparte con **Agregar pago** (no vienen de la planilla) |
 | Parámetros del sistema | Precio **bolsa llena hogar** y **bolsa punto** (historial global; no van en la fila del cliente) |
 
-El **precio de la planilla** queda registrado pero el total a cobrar en Empresa + Punto se calcula con los parámetros y las cantidades que carga el recolector, no con ese precio fijo.
+El **precio de la planilla** queda registrado pero el total de referencia en Empresa + Punto se calcula con los parámetros y las cantidades que carga el recolector, no con ese precio fijo. Ese total se guarda igual aunque los pagos sumen menos.
 
 ### 3.10 Gestión de usuarios
 
@@ -673,7 +673,7 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    Contadores posibles: Bolsas llenas · Biotachos llenos · Bolsas nuevas · Biotachos nuevos · **Cestos** (solo se muestran los que aplican al tipo de cliente).
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):
    - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, **Precio bolsa extra - Hogar** (Parámetros)
-   - **Empresa + Punto:** el total mínimo sale de **bolsas llenas hogar** y **bolsas nuevas vendidas** (Parámetros). **Bolsas llenas punto** es solo cantidad; el cobro de esa visita lo cargás acá en efectivo/transferencia/QR. El operario puede cargar **pagos de punto** aparte en Historial → Puntos (no es este formulario)
+   - **Empresa + Punto:** el total de referencia sale de **bolsas de clientes llenas** y **bolsas nuevas vendidas** (Parámetros). La suma de los pagos **puede ser menor** que ese total. **Bolsas del punto** es solo cantidad; el cobro de esa visita lo cargás acá en efectivo/transferencia/QR. El operario puede cargar **pagos de punto** aparte en Historial → Puntos (no es este formulario)
    - **Empresa** (sin Punto): siempre el precio de retiro de la planilla
    - **Mixto:** con 0 bolsas, precio de retiro de la planilla; con **1 o 2** bolsas, **Retiro reciclables - Hogar Mixto**; desde la **3.ª**, se suma **Precio bolsa extra - Hogar**
 
@@ -685,7 +685,7 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    - Monto efectivo
    - Monto transferencia
    - Monto QR
-   - **La suma de los tres no puede ser menor al total a cobrar** (puede ser mayor)
+   - **La suma de los tres no puede ser menor al total a cobrar** (puede ser mayor), salvo en **Empresa + Punto**, donde sí puede ser menor
 4. **Nombre del firmante** (obligatorio)
 5. Pedile al cliente que **firme en el recuadro** (con el dedo; podés usar **Limpiar** para repetir)
 6. Tocá **Guardar recolección** → la parada queda como **Visitada**
@@ -911,7 +911,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### No puedo cargar una parada
 
 - ¿Iniciaste la ruta? Sin inicio de ruta solo podés **ver** el detalle, no cargar
-- Revisá que la suma de pagos **no sea menor** al total (puede ser mayor)
+- Revisá que la suma de pagos **no sea menor** al total (puede ser mayor). En **Empresa + Punto** sí puede ser menor
 - Si cancelás, marcá **Cancelar recolección**, elegí el motivo, firmante y firma
 
 ### No veo retiro ni cobro en una parada (operario)

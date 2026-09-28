@@ -319,7 +319,7 @@ export function parseRecoleccionCampoBody(
 
   const sumaPagos = monto_efectivo + monto_transferencia + monto_qr;
 
-  if (sumaPagos + 0.01 < precio_total) {
+  if (!empresaPunto && sumaPagos + 0.01 < precio_total) {
     return {
       ok: false,
       error: `La suma de los pagos (${sumaPagos}) no puede ser menor al total a cobrar (${precio_total})`,

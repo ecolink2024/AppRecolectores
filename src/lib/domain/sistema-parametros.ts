@@ -333,7 +333,7 @@ export function buildPrecioCobroDetalle(input: PrecioCobroInput): PrecioCobroDet
           ? `${bolsasNuevasVendidas} bolsa(s) nueva(s) vendida(s) × ${precioBolsaPuntoLabel}`
           : null,
       ayudaCobro:
-        "Empresa + Punto: total mínimo = (bolsas llenas hogar × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). Bolsas llenas punto: solo cantidad; el cobro en punto va en efectivo/transferencia/QR.",
+        "Empresa + Punto: el total de referencia es (bolsas de clientes llenas × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). La suma de los pagos puede ser menor. Bolsas del punto: solo cantidad; el cobro en punto va en efectivo/transferencia/QR.",
     };
   }
 

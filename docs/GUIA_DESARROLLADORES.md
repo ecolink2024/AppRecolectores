@@ -813,7 +813,7 @@ No existe columna/fila **Mixto** en KPIs (`KPI_TIPOS_SERVICIO_COLUMNAS`: Recicla
 En `recolector-recoleccion-campo.ts`:
 
 - Efectivo, transferencia y QR: obligatorios, mínimo 0 (default `"0"` en el form)
-- Suma de los tres montos **≥ total a cobrar** (puede ser mayor, no menor)
+- Suma de los tres montos **≥ total a cobrar** (puede ser mayor, no menor), salvo **Empresa + Punto**: ahí la suma puede ser menor. `precio_total` sigue siendo el calculado; los pagos quedan como se cargaron.
 
 #### Recolecciones manuales (operario)
 

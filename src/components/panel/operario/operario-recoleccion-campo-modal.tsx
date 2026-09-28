@@ -409,7 +409,9 @@ export function OperarioRecoleccionCampoModal({
                   </span>
                 </p>
                 <p className="mb-3 text-xs text-zinc-500">
-                  La suma de los tres montos no puede ser menor al total (puede ser mayor).
+                  {esEmpresaPunto
+                    ? "En Empresa + Punto la suma puede ser menor al total de referencia (también puede ser mayor)."
+                    : "La suma de los tres montos no puede ser menor al total (puede ser mayor)."}{" "}
                   Referencia: Precio bolsa extra - Hogar {formatParametroMoney(precios.bolsaExtra)}.
                 </p>
                 <div className="grid grid-cols-3 gap-3">
