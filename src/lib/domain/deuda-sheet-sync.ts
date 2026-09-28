@@ -1,4 +1,5 @@
 import { isParadaLogistica } from "@/lib/domain/parada-categoria";
+import { isTipoServicioMixto } from "@/lib/domain/sistema-parametros";
 import { normalizeArgPhone } from "@/lib/integrations/sheet-recoleccion-validation";
 
 export type RecoleccionDeudaSyncInput = {
@@ -50,20 +51,22 @@ export function parseFechaRecoleccion(value: string | null | undefined): string 
   return match ? match[1] : null;
 }
 
+/** Deuda importada con signo. Un negativo resta; vacío o inválido vale 0. */
 export function parseDeudaMonto(value: string | number | null | undefined): number {
   if (value === null || value === undefined) return 0;
   if (typeof value === "number") {
-    return Number.isFinite(value) && value > 0 ? value : 0;
+    return Number.isFinite(value) ? value : 0;
   }
   const s = String(value).trim().replace(/\$/g, "").replace(/\s/g, "");
   if (!s) return 0;
   const n = Number(s.replace(",", "."));
-  return Number.isFinite(n) && n > 0 ? n : 0;
+  return Number.isFinite(n) ? n : 0;
 }
 
 /**
  * Deuda a escribir en el ledger (otra planilla): deuda importada + transferencia + QR.
- * No incluye efectivo. No cambia lo que se muestra en la app.
+ * Si la deuda importada es negativa, resta. No incluye efectivo. Mixto no se escribe.
+ * No cambia lo que se muestra en la app.
  */
 export function buildDeudaSheetItems(
   recolecciones: RecoleccionDeudaSyncInput[],
@@ -73,6 +76,7 @@ export function buildDeudaSheetItems(
   for (const item of recolecciones) {
     if (item.estado_operativo !== "visitada") continue;
     if (isParadaLogistica(item)) continue;
+    if (isTipoServicioMixto(item.tipo_servicio)) continue;
 
     const transferencia = Math.max(0, num(item.monto_transferencia));
     const qr = Math.max(0, num(item.monto_qr));

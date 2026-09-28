@@ -443,7 +443,7 @@ Doc: [SHEETS_INTEGRATION.md](./SHEETS_INTEGRATION.md)
 
 Al **cierre operario** (`POST /api/panel/rutas/[id]/cierre-operario`):
 
-1. Para cada parada **visitada** (no logística) con transferencia y/o QR > 0: `deuda_ledger = deuda_importada + monto_transferencia + monto_qr` (el efectivo no suma).
+1. Para cada parada **visitada** (no logística, no **Mixto**) con transferencia y/o QR > 0: `deuda_ledger = deuda_importada + monto_transferencia + monto_qr` (el efectivo no suma). Si `deuda_importada` es negativa, resta. Mixto no se escribe: la celda de la planilla queda como está.
 2. **No** se actualiza `ruta_recolecciones.deuda` (la app sigue mostrando la deuda importada).
 3. `syncDeudasLedger` POST al Web App de Apps Script (`SHEETS_DEUDA_WEBAPP_URL` + `SHEETS_IMPORT_SECRET`).
 4. El script abre el spreadsheet ledger (`1mWYWFdoU3e2yeVIwi2Z90fr5ds-Jx0dEARJ5wR-WOvw`, gid `47039710`), busca el teléfono en **columna H**, escribe el total en **columna L** y el día de la parada (`dia`, `YYYY-MM-DD`) en **columna M**. Si hay varias paradas del mismo teléfono en el cierre, la fecha que queda es la más nueva.
@@ -673,7 +673,7 @@ Componentes en `src/components/panel/recolector/`:
 | `recolector-ruta-detalle.tsx` | Detalle, **Maps** (ruta + por parada), **Avisar** (WhatsApp), lista de paradas (cards: Barrio, **Tipo de servicio** ← `tipo_servicio`, **Tipo de cliente** ← `unidad`), botón **Finalizar ruta** |
 | `recolector-finalizar-ruta-form.tsx` | Formulario de cierre antes de finalizar |
 | `recolector-inicio-ruta-form.tsx` | Km + insumos |
-| `recolector-recoleccion-campo-form.tsx` | Carga por parada (contadores según `getRecoleccionCampoContadoresRules`; Empresa + Punto sin biotachos/cestos) |
+| `recolector-recoleccion-campo-form.tsx` | Carga por parada (contadores según `getRecoleccionCampoContadoresRules`; Empresa + Punto: etiquetas **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas**, **Bolsas nuevas que**; sin biotachos/cestos; la suma de pagos puede ser menor al `precio_total`) |
 | `recolector-recoleccion-sheet.tsx` | Preview read-only (ruta no iniciada); enlace **WhatsApp** por parada |
 
 Dominio: `src/lib/domain/recolector-ruta.ts`, `recolector-recoleccion-form.ts`, `recolector-rutas-list.ts`, `ruta-estado-transiciones.ts`

@@ -128,9 +128,9 @@ Validar → Enviar pendientes.
 ### Qué ve el recolector
 
 - Aviso de cobro Empresa + Punto.
-- Contadores: bolsas llenas hogar, bolsas llenas punto, bolsas nuevas vendidas, bolsas nuevas.
+- Contadores: **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**.
 - **No** aparecen biotachos ni cestos.
-- Total de referencia = (bolsas de clientes llenas × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). La suma de los pagos puede ser menor. Bolsas del punto es solo cantidad.
+- Total de referencia = (bolsas de clientes llenas × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). La suma de efectivo, transferencia y QR puede ser menor. Bolsas del punto es solo cantidad.
 
 ### Dónde lo ves vos (operario)
 
@@ -166,7 +166,7 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 5. Cuando finaliza, la ruta pasa a **Historial** como **Realizada**.
 6. El operario revisa, puede **Editar** datos de jornada o **Editar carga** de paradas.
 7. En Historial → **Puntos**: revisar recolecciones Empresa + Punto y, si hace falta, **Agregar pago**.
-8. **Cierre operario** → la ruta queda **Cerrada** e impacta KPIs. Si hubo transferencia o QR, se actualizan la **Deuda** y la **fecha** en la planilla de deudas. Si el servidor no está conectado a esa planilla, el cierre no se hace y ves el error. En una ruta ya cerrada, **Reenviar deudas** vuelve a escribir la planilla.
+8. **Cierre operario** → la ruta queda **Cerrada** e impacta KPIs. Si hubo transferencia o QR, se actualizan la **Deuda** y la **fecha** en la planilla de deudas. Si la deuda importada de la ruta es negativa, se resta. Las paradas **Mixto** no pisan esa planilla. Si el servidor no está conectado a esa planilla, el cierre no se hace y ves el error. En una ruta ya cerrada, **Reenviar deudas** vuelve a escribir la planilla.
 
 ---
 
@@ -224,7 +224,7 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 - [ ] Planilla: Unidad = **Empresa** y Tipo = **Punto** (no Unidad Puntos)  
 - [ ] Nombre, dirección, teléfono, día, hora, recolector  
 - [ ] Validar y enviar  
-- [ ] Recolector: bolsas (hogar / punto / vendidas / nuevas), cobro, firma. **Sin** biotachos ni cestos  
+- [ ] Recolector: bolsas de clientes llenas, bolsas del punto, bolsas nuevas vendidas y bolsas nuevas que; cobro (puede ser menor al total) y firma. **Sin** biotachos ni cestos  
 - [ ] Historial → botón **Puntos** (no el menú de arriba)  
 - [ ] Recolecciones: fila por fecha con bolsas, monto, forma de pago, observaciones  
 - [ ] Si hay que registrar un pago aparte: **Agregar pago** (todos los campos; celular para el futuro)  

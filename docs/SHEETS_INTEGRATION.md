@@ -52,7 +52,7 @@ Cada fila **Pendiente** enviada **crea** una parada en `ruta_recolecciones` (si 
 | Observaciones | `observaciones` | Notas operario/planilla |
 | Recolector | (ruta) | Agrupa en `rutas.asignado_a` por email resuelto |
 
-Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo. Qué contadores se muestran depende del tipo: Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo; **Empresa + Punto** bolsas (hogar/punto/vendidas/nuevas) sin biotachos ni cestos; **Proveedor/Cooperativa** solo cestos/biotachos dejó/retiró (sin cobro). No hace falta columna nueva en Sheets para logística: solo el valor en Tipo de servicio.
+Los contadores de retiro (`bolsas_llenas`, `bolsas_llenas_punto`, `bolsas_nuevas_vendidas`, `cestos`, etc.) y los montos de cobro **no** vienen de la planilla: los carga el recolector en campo. Qué contadores se muestran depende del tipo: Reciclaje sin biotachos; Orgánico sin bolsas ni cestos; Mixto todo; **Empresa + Punto** muestra **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que** (sin biotachos ni cestos; la suma de los pagos puede ser menor al total de referencia); **Proveedor/Cooperativa** solo cestos/biotachos dejó/retiró (sin cobro). No hace falta columna nueva en Sheets para logística: solo el valor en Tipo de servicio.
 
 ### Cómo enviar Empresa + Punto
 
@@ -105,7 +105,7 @@ No es la hoja `Rutas`. Es [este spreadsheet](https://docs.google.com/spreadsheet
 Al **cierre operario** (Historial, rutas Realizadas), la app escribe ahí:
 
 - Columna **H**: teléfono (busca la fila)
-- Columna **L**: deuda nueva = deuda que ya estaba en la app + transferencia + QR (el efectivo no suma)
+- Columna **L**: deuda nueva = deuda que ya estaba en la app + transferencia + QR (el efectivo no suma). Si esa deuda importada es negativa, resta. Las paradas **Mixto** no se escriben: no se pisa la deuda ni la fecha.
 - Columna **M**: fecha de la recolección (día de la parada). Si el mismo teléfono se cobró más de una vez en ese cierre, queda la fecha más nueva.
 
 La app **no** muestra esa deuda nueva ni esa fecha.

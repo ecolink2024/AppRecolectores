@@ -19,7 +19,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (septiembre 2026):** **Empresa + Punto** (Unidad `Empresa` + Tipo `Punto`): en campo **no** pide biotachos ni cestos; el cobro usa bolsas llenas hogar y bolsas nuevas vendidas (Parámetros). En **Historial** hay botones **Rutas** y **Puntos** (Puntos **no** está en el menú de arriba). En Puntos ves las recolecciones Empresa + Punto del rango y **Pagos de punto**: botón **Agregar pago** (fecha, nombre, celular, servicio, cantidad, monto; todos obligatorios). El empareje por celular viene después. En KPIs, **Mixto cancelada** suma siempre como **Orgánico (Canc.)**. Tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): sin cobro; **no entran** a KPIs. En planilla: mismos encabezados; para Empresa + Punto usá Unidad **Empresa** y Tipo **Punto**.
+**Novedades recientes (septiembre 2026):** **Empresa + Punto** (Unidad `Empresa` + Tipo `Punto`): en campo **no** pide biotachos ni cestos. Los contadores se llaman **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**. El total de referencia usa bolsas de clientes llenas y bolsas nuevas vendidas (Parámetros). La suma de efectivo, transferencia y QR **puede ser menor** que ese total; el total calculado igual se guarda. En **Historial** hay botones **Rutas** y **Puntos** (Puntos **no** está en el menú de arriba). En Puntos ves las recolecciones Empresa + Punto del rango y **Pagos de punto**: botón **Agregar pago** (fecha, nombre, celular, servicio, cantidad, monto; todos obligatorios). El empareje por celular viene después. En KPIs, **Mixto cancelada** suma siempre como **Orgánico (Canc.)**. Tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): sin cobro; **no entran** a KPIs. En planilla: mismos encabezados; para Empresa + Punto usá Unidad **Empresa** y Tipo **Punto**.
 
 **Novedades previas (agosto–septiembre 2026):** tablas KPI **Por unidad de negocio** y **Por tipo de servicio** (exitosos/cancelados por celda; ver reglas de Mixto abajo). En KPIs **no hay columna/fila Mixto**: las paradas Mixto **visitadas** se reparten a **Reciclaje** u **Orgánico** según lo cargado en campo (`bolsas llenas` / `biotachos llenos`); las **canceladas** van a Orgánico (Canc.). Corrección en **Historial/KPIs**: si el rango de fechas traía más de ~1000 paradas en total, la app podía mostrar **menos filas** en la tabla de recolecciones de una ruta (ahora carga todas).
 
@@ -152,12 +152,12 @@ Tabla de **todas** las paradas **Unidad = Empresa** y **Tipo = Punto** de las ru
 |---------|-----------|
 | Fecha | Fecha de la ruta |
 | Punto | Nombre del cliente / punto |
-| Bolsas de clientes llenas | Bolsas llenas hogar cargadas en campo |
-| Bolsas nuevas vendidas | Vendidas en campo (entran al cobro) |
-| Bolsas llenas punto | Solo cantidad (no suman al total automático) |
+| Bolsas de clientes llenas | Lo que el recolector cargó en **Bolsas de clientes llenas** |
+| Bolsas nuevas vendidas | Vendidas en campo (entran al total de referencia) |
+| Bolsas llenas punto | **Bolsas del punto**: solo cantidad (no suman al total de referencia) |
 | Monto | Precio total calculado de la visita |
 | Forma de pago | Efectivo, transferencia y/o QR (solo los que tienen monto) |
-| Bolsas nuevas | Bolsas nuevas entregadas |
+| Bolsas nuevas | **Bolsas nuevas que** cargó el recolector |
 | Observaciones | Notas del recolector y, si hay, del operario |
 
 Si la parada fue **cancelada**, cantidades, monto y forma de pago quedan en **—**.
@@ -379,7 +379,7 @@ Cuando el recolector **finalizó** la ruta, esta aparece en **Historial** con es
 2. Confirmá en dos pasos
 3. La ruta pasa a **Cerrada** (sigue en Historial)
 
-Si alguna parada se cobró por **transferencia o QR**, en ese momento se suma ese monto a la **Deuda** del cliente y se pega en la planilla de deudas, junto con la **fecha de esa recolección** (no lo vas a ver cambiado dentro de la app). El recolector **finalizar** no escribe el ledger: así podés **Editar carga** antes y el monto que viaja es el ya revisado.
+Si alguna parada se cobró por **transferencia o QR**, en ese momento se suma ese monto a la **Deuda** del cliente y se pega en la planilla de deudas, junto con la **fecha de esa recolección** (no lo vas a ver cambiado dentro de la app). Si la deuda que vino en la planilla de rutas es **negativa**, ese número se resta en lugar de sumarse. Las paradas **Mixto** no modifican esa planilla: la deuda y la fecha quedan como estaban. El recolector **finalizar** no escribe el ledger: así podés **Editar carga** antes y el monto que viaja es el ya revisado.
 
 Si el servidor **no está conectado** a esa planilla, el cierre **no se hace** y aparece el error en Historial. Si la ruta ya quedó **Cerrada** y la planilla no se actualizó (o faltó un teléfono), en la fila está **Reenviar deudas**. Si un teléfono no está en la planilla, el aviso lista cuál.
 
@@ -414,7 +414,7 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 | **Precio bolsa extra - Hogar** | Hogar con tipo **Reciclaje** o **Mixto**: se suma a partir de la **3.ª bolsa llena** (cuando entrega tercera bolsa o más) |
 | **Retiro reciclables - Hogar Mixto** | Hogar con tipo **Mixto**: precio fijo con **1 o 2 bolsas** de reciclables; desde la **3.ª**, se suma **Precio bolsa extra - Hogar** |
 | **Precio bolsa punto** | Cobro **Empresa + Punto**: × **bolsas nuevas vendidas** |
-| **Precio bolsa llena hogar** (clave `bolsa_llena_punto`) | Cobro **Empresa + Punto**: × **bolsas llenas hogar** |
+| **Precio bolsa llena hogar** (clave `bolsa_llena_punto`) | Cobro **Empresa + Punto**: × **bolsas de clientes llenas** |
 
 **Reglas de cobro en campo** (recolector), según datos de la parada:
 
@@ -438,7 +438,7 @@ Para paradas con **Unidad = Empresa** y **Tipo de cliente = Punto** (en la app y
 | Dónde | Qué se guarda |
 |-------|----------------|
 | Al importar / editar parada | Unidad, tipo, precio de planilla (`precio`), observaciones del operario |
-| Al cargar en campo (recolector) | Bolsas llenas hogar, bolsas llenas punto (solo cantidad), bolsas nuevas vendidas, bolsas nuevas, total calculado, pagos, firma, **Tus observaciones**. **Sin biotachos ni cestos** |
+| Al cargar en campo (recolector) | Bolsas de clientes llenas, bolsas del punto (solo cantidad), bolsas nuevas vendidas, bolsas nuevas que, total calculado, pagos (la suma puede ser menor al total), firma, **Tus observaciones**. **Sin biotachos ni cestos** |
 | Historial → Puntos | Las visitas aparecen en la tabla de recolecciones; los **pagos de punto** se cargan aparte con **Agregar pago** (no vienen de la planilla) |
 | Parámetros del sistema | Precio **bolsa llena hogar** y **bolsa punto** (historial global; no van en la fila del cliente) |
 
@@ -668,7 +668,7 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    - **Orgánico:** Biotachos llenos y Biotachos nuevos (las **bolsas y los cestos no aparecen**)
    - **Mixto:** aparecen **todos** los contadores
    - **Punto** (sin Empresa): aparecen todos los contadores
-   - **Empresa + Punto:** bolsas llenas hogar, bolsas llenas punto, bolsas nuevas vendidas y bolsas nuevas. **No** aparecen biotachos ni cestos
+   - **Empresa + Punto:** **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**. **No** aparecen biotachos ni cestos
 
    Contadores posibles: Bolsas llenas · Biotachos llenos · Bolsas nuevas · Biotachos nuevos · **Cestos** (solo se muestran los que aplican al tipo de cliente).
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):
@@ -990,7 +990,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Tipo de servicio** (planilla / `tipo_servicio`) | Reciclaje, Mixto, Orgánico, **Punto**, Proveedor o Cooperativa. En las **tarjetas del recolector** se muestra con esta etiqueta |
 | **Mixto en KPIs** | Sin columna propia: visitada → Reciclaje/Orgánico según campo; **cancelada → siempre Orgánico (Canc.)** |
 | **Tipo de cliente** (tarjeta recolector) | En las cards de parada: Hogar / Empresa / Puntos (mismo dato que **Unidad**). En el panel staff, «Tipo de cliente» a veces nombra al `tipo_servicio` de la planilla |
-| **Empresa + Punto** | Unidad `Empresa` + Tipo `Punto`; en campo: bolsas hogar / punto / vendidas / nuevas; **sin biotachos ni cestos** |
+| **Empresa + Punto** | Unidad `Empresa` + Tipo `Punto`. En campo: **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas**, **Bolsas nuevas que**. Sin biotachos ni cestos. La suma de los pagos puede ser menor al total de referencia |
 | **Historial · Puntos** | Vista staff bajo Historial: recolecciones Empresa + Punto + pagos de punto |
 | **Pago de punto** | Alta manual (fecha, nombre, celular, servicio, cantidad, monto). Empareje por celular: pendiente |
 | **Obs. operario** | Columna `observaciones` — planilla o panel operario |
