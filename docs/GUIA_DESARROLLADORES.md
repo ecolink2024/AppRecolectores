@@ -5,10 +5,10 @@ Documentación de onboarding técnico para quien se sume al proyecto. Cubre stac
 **Producción:** https://app-recolectores.vercel.app  
 
 - [Manual de uso](./MANUAL_USUARIO.md) — superadmin, operario y recolector
-- [Capacitación operario](./CAPACITACION_OPERARIO.md) — planilla, Historial Puntos, pagos de punto
+- [Capacitación operario](./CAPACITACION_OPERARIO.md) — planilla, Historial Puntos
 - [Integración Google Sheets](./SHEETS_INTEGRATION.md) — columnas, enums, Empresa + Punto
 
-**Cambios recientes (sep 2026):** Historial **Puntos** (`/panel/historial/puntos`, tabs internas; **no** en navbar): recolecciones Empresa + Punto (`buildHistorialPuntosRows`) + **pagos de punto** (`punto_pagos`, `POST /api/panel/punto-pagos`; empareje por celular pendiente). Empresa + Punto **sin biotachos ni cestos** (`getRecoleccionCampoContadoresRules`). KPI Mixto **cancelada** → siempre Orgánico (Canc.) en por unidad/tipo; paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, campos dejo/retiro, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto visitada, `fetchRecoleccionesForRutaIds`.
+**Cambios recientes (sep 2026):** Historial **Puntos** (`/panel/historial/puntos`, tabs internas; **no** en navbar): recolecciones Puntos + Reciclaje (`buildHistorialPuntosRows`). Empresa + Punto **sin biotachos ni cestos** (`getRecoleccionCampoContadoresRules`). KPI Mixto **cancelada** → siempre Orgánico (Canc.) en por unidad/tipo; paradas **logísticas** Proveedor/Cooperativa (`categoria_parada`, campos dejo/retiro, migración `20260915140000`); helpers `parada-categoria.ts`; form campo sin cobro; exclusión de KPIs vía `isParadaClienteMetricas`; Sheet solo amplía el desplegable de tipos. También: tablas KPI por unidad/tipo, reclasificación Mixto visitada, `fetchRecoleccionesForRutaIds`.
 
 **Cambios previos (jul 2026):** **editar datos de jornada (staff)** desde `Editar` de rutas Realizadas (`PATCH .../jornada`: km inicial/final, `insumos_inicio`, descarga, combustible, otros gastos; recalcula `total_efectivo`); **contadores de retiro por tipo de cliente** (`getRecoleccionCampoContadoresRules`: Reciclaje sin biotachos, Orgánico sin bolsas ni cestos, Mixto todo; nuevo flag `cestosRequired`); **nueva lista `INSUMO_TIPOS`** (Bolsa Nueva, Cesto, Biotacho, Bolsa de Punto, Planilla Empresas, Planilla de Punto, Cartel Empresa) con conteo genérico `insumosPorTipo`; **renombre UI de parámetros** (`PARAMETRO_PRECIO_UI`: Precio bolsa extra - Hogar, Retiro reciclables - Hogar Mixto) y **textos `ayudaCobro`** actualizados en `buildPrecioCobroDetalle`; **Maps por tramos** (`chunkDireccionesForMaps`, `MAPS_MAX_PARADAS_POR_TRAMO = 8`, panel **Siguiente tramo** en `recolector-ruta-detalle.tsx`).
 
@@ -179,7 +179,7 @@ Implementación: `isEmpresaPuntoCobro()`, `calcPrecioEmpresaPunto()` en `src/lib
 
 Contadores de campo (`getRecoleccionCampoContadoresRules` en `recolector-recoleccion-campo.ts`): si `isEmpresaPuntoCobro`, **no** exige biotachos ni cestos (`biotachosLlenosRequired` / `biotachosNuevosRequired` / `cestosRequired` = false). El form y `RecoleccionCampoSoloLectura` usan esas reglas; no mezclar Unidad `Puntos` con este caso.
 
-### Historial Puntos y `punto_pagos`
+### Historial Puntos
 
 Vista staff **dentro de Historial**, no en el menú superior (`panel-staff-nav.tsx`: Operativo / KPIs / Historial / Parámetros / Usuarios). Historial queda activo también en `/panel/historial/*`. Tabs internas: `operario-historial-subnav.tsx` (Rutas | Puntos) — **sin** `useSearchParams` (evitar `Suspense` con fallback vacío).
 
@@ -188,31 +188,9 @@ Vista staff **dentro de Historial**, no en el menú superior (`panel-staff-nav.t
 | Ruta | Qué muestra |
 |------|-------------|
 | `/panel/historial` | Jornadas `completada` / `cerrada` / `cancelada` |
-| `/panel/historial/puntos` | Pagos de punto + recolecciones Puntos + Reciclaje del mismo rango (`resolveKpiFiltroFechas`) |
+| `/panel/historial/puntos` | Recolecciones Puntos + Reciclaje del mismo rango (`resolveKpiFiltroFechas`) |
 
-**Recolecciones (no es una tabla nueva):** `buildHistorialPuntosRows` filtra `isPuntosReciclajeCobro` (unidad Puntos y tipo Reciclaje) sobre las paradas de las rutas del historial en el rango. Columnas: fecha, punto, bolsas clientes llenas (`bolsas_llenas`), vendidas, llenas punto, monto (`precio_total`), forma de pago (efectivo/transferencia/QR), bolsas nuevas, observaciones (recolector + operario). Canceladas → cantidades/monto/`—`.
-
-**Pagos de punto (tabla propia):** no se mezclan con `ruta_recolecciones`. Carga manual del operario; empareje por celular **pendiente**.
-
-```
-punto_pagos
-  fecha, nombre, celular, telefono_normalizado,
-  servicio (bolsas_llenas_regalo | bolsa_nueva | propia_punto),
-  cantidad (>= 0), monto (>= 0),
-  recoleccion_id NULL, created_by, created_at
-```
-
-Migración: `20260922120000_punto_pagos.sql` (también en `supabase/apply-pending-operativo.sql`). RLS staff (`is_staff`) SELECT/INSERT. Índices: `fecha DESC`, `telefono_normalizado`.
-
-| Pieza | Archivo |
-|-------|---------|
-| Dominio / parse | `src/lib/domain/punto-pagos.ts` (`parsePuntoPagoBody`: **todos** los campos obligatorios; cantidad/monto pueden ser 0; celular vía `normalizeArgPhone`) |
-| Fetch | `src/lib/data/punto-pagos.ts` |
-| Alta | `POST /api/panel/punto-pagos` (`requireStaff`, `createAdminClient`, `revalidatePath` historial/puntos) |
-| UI | `operario-punto-pagos-panel.tsx` (desplegable **Agregar pago** + tabla) |
-| Página | `src/app/panel/historial/puntos/page.tsx` (`force-dynamic`) |
-
-Pendiente de producto: setear `recoleccion_id` emparejando `telefono_normalizado` con paradas Empresa + Punto.
+**Recolecciones (no es una tabla nueva):** `buildHistorialPuntosRows` filtra `isPuntosReciclajeCobro` (unidad Puntos y tipo Reciclaje) sobre las paradas de las rutas del historial en el rango. Columnas: fecha, punto, bolsas clientes llenas (`bolsas_llenas`), vendidas, llenas punto, monto (`precio_total`), forma de pago (efectivo/transferencia/QR), bolsas nuevas, observaciones (recolector + operario). Canceladas → cantidades/monto/`—`. Página: `src/app/panel/historial/puntos/page.tsx` (`force-dynamic`). UI: `operario-historial-puntos-table.tsx`.
 
 ### Aplicar migraciones
 
@@ -260,7 +238,7 @@ node scripts/apply-pending-migrations.mjs
 | `20260608120000_remove_ruta_suspendida.sql` | Normaliza rutas `suspendida` → `activa`/`en_curso`; funcionalidad suspendida removida de UI/API |
 | `20260818120000_ruta_descarga_detalle.sql` | `descarga_detalle` en `rutas` (texto opcional al marcar descarga) |
 | `20260915140000_ruta_recoleccion_logistica.sql` | `categoria_parada`, dejo/retiro cestos y biotachos (Proveedor/Cooperativa) |
-| `20260922120000_punto_pagos.sql` | Tabla `punto_pagos` (pagos de Historial → Puntos; `recoleccion_id` para empareje futuro) |
+| `20260922120000_punto_pagos.sql` | Tabla `punto_pagos` (ya no se usa en la app; el panel de pagos se quitó) |
 
 Columnas de **cierre operario** en `rutas` (desde `20260523120000` / `20260524140000`): `cierre_operario_at`, `cierre_operario_por`.
 
@@ -288,7 +266,7 @@ src/
     login/
     panel/                  # UI autenticada
       historial/            # Rutas completada / cerrada / cancelada (staff)
-        puntos/             # Empresa + Punto + pagos de punto (staff)
+        puntos/             # Recolecciones Puntos + Reciclaje (staff)
       kpis/                 # Indicadores agregados (staff)
       mis-rutas/            # Recolector
       parametros/           # Parámetros de sistema (staff)
@@ -353,7 +331,7 @@ Matriz resumida (`src/lib/auth/permissions.ts`):
 | `/panel` | Todos | Staff → dashboard operario. Recolector → home (Hoy / Última jornada) |
 | `/panel` | superadmin, admin | **Operativo:** `borrador`, `activa`, `en_curso` |
 | `/panel/historial` | superadmin, admin | **Historial · Rutas:** `completada`, `cerrada`, `cancelada`; tablas ampliadas + export CSV; cierre operario / reactivar. Tabs internas Rutas / Puntos (`operario-historial-subnav.tsx`). **No** hay ítem Puntos en `panel-staff-nav` |
-| `/panel/historial/puntos` | superadmin, admin | Historial · Puntos: `punto_pagos` + recolecciones Puntos + Reciclaje (`buildHistorialPuntosRows`); mismo filtro de fechas |
+| `/panel/historial/puntos` | superadmin, admin | Historial · Puntos: recolecciones Puntos + Reciclaje (`buildHistorialPuntosRows`); mismo filtro de fechas |
 | `/panel/kpis` | superadmin, admin | KPIs por período (solo rutas historial; presets o `?desde=&hasta=`) + export CSV |
 | `/panel/parametros` | superadmin, admin | Cuatro precios con historial (`operario-parametros-sistema.tsx`) |
 | `/panel/usuarios` | superadmin, admin | Alta y gestión de usuarios |
@@ -401,7 +379,6 @@ Aliases que redirigen: `/panel/rutas`, `/panel/recolecciones`, `/admin/usuarios`
 | GET | `/api/panel/rutas/[id]/mapa` | Paradas geocodificadas + `horaProgramada` para lista lateral |
 | POST | `/api/panel/rutas/[id]/insumos-operario` | Guardar preparación de insumos (`{ insumos[] }`; bloqueado si ruta ya inició) |
 | GET/POST | `/api/panel/parametros/[clave]` | Historial y alta de precio (`bolsa-extra`, `retiro-reciclable-mixto`, `bolsa-punto`, `bolsa-llena-punto`) |
-| POST | `/api/panel/punto-pagos` | Alta de pago de punto. Body: `{ fecha, nombre, celular, servicio, cantidad, monto }` (todos requeridos). `servicio`: `bolsas_llenas_regalo` \| `bolsa_nueva` \| `propia_punto`. Staff only |
 
 ### Recolector
 
@@ -463,7 +440,6 @@ Componentes en `src/components/panel/operario/`:
 | `operario-dashboard.tsx` | Orquestador Operativo / Historial; subnav Rutas/Puntos si `isHistorial`; cierre operario, export historial; subtítulo de sección Ruta con conteo |
 | `operario-historial-subnav.tsx` | Tabs **Rutas** / **Puntos** (pathname; no `useSearchParams`) |
 | `operario-historial-puntos-table.tsx` | Tabla recolecciones Puntos + Reciclaje |
-| `operario-punto-pagos-panel.tsx` | Formulario desplegable Agregar pago + tabla `punto_pagos` |
 | `operario-scrollable-table.tsx` | Contenedor reutilizable: `max-h` + `overflow-auto`, thead sticky (`OPERARIO_TABLE_HEAD_STICKY`), pie opcional con conteo de filas |
 | `operario-rutas-table.tsx` | Tabla Operativo: recolecciones, exitosas, bolsas/biotachos, montos, insumos, **Ver detalle** |
 | `operario-historial-rutas-table.tsx` | Tabla Historial: columnas ampliadas, insumos, **Editar / Reactivar / Cierre operario**; primeras columnas sticky en scroll horizontal |
@@ -934,8 +910,7 @@ npm run start    # Servidor de producción local
 | Fetch precio activo / historial | `src/lib/data/sistema-parametros.ts` |
 | Cobro en campo (parse + reglas) | `src/lib/domain/recolector-recoleccion-campo.ts` |
 | Empresa + Punto (reglas y precios) | `src/lib/domain/sistema-parametros.ts` (`isEmpresaPuntoCobro`, `calcPrecioEmpresaPunto`) |
-| Historial Puntos (Empresa + Punto) | `src/lib/domain/historial-puntos.ts`; UI `operario-historial-puntos-table.tsx` / `operario-historial-subnav.tsx` |
-| Pagos de punto | `src/lib/domain/punto-pagos.ts`; API `POST /api/panel/punto-pagos`; UI `operario-punto-pagos-panel.tsx` |
+| Historial Puntos (Puntos + Reciclaje) | `src/lib/domain/historial-puntos.ts`; UI `operario-historial-puntos-table.tsx` / `operario-historial-subnav.tsx` |
 | Deuda → ledger Sheets | `src/lib/domain/deuda-sheet-sync.ts`; `src/lib/integrations/sheets-deuda-sync.ts`; disparo en `POST .../cierre-operario` |
 | Formulario campo recolector | `src/lib/domain/recolector-recoleccion-form.ts` |
 | Navbar staff | `src/components/panel/panel-staff-nav.tsx` (sin ítem Puntos; Historial cubre `/panel/historial/*`) |

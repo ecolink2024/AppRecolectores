@@ -1,6 +1,6 @@
 # Capacitación operario — App Recolectores
 
-Documento para el equipo operativo. Explica cómo usar la app y la planilla en el día a día: paradas logísticas, **Empresa + Punto**, Historial (Rutas y Puntos), pagos de punto y KPIs.
+Documento para el equipo operativo. Explica cómo usar la app y la planilla en el día a día: paradas logísticas, **Puntos + Reciclaje**, Historial (Rutas y Puntos) y KPIs.
 
 **App en producción:** https://app-recolectores.vercel.app  
 **Manual completo:** [MANUAL_USUARIO.md](./MANUAL_USUARIO.md)
@@ -11,7 +11,7 @@ Documento para el equipo operativo. Explica cómo usar la app y la planilla en e
 
 | Rol | Qué hace |
 |-----|----------|
-| **Operario / Superadmin** | Planilla, Operativo, Historial (Rutas y Puntos, **Agregar pago**), KPIs, preparación de insumos, cierre operario |
+| **Operario / Superadmin** | Planilla, Operativo, Historial (Rutas y Puntos), KPIs, preparación de insumos, cierre operario |
 | **Recolector** | Carga en campo en el celular (retiro, cobro o logística, firma) |
 
 ---
@@ -135,24 +135,7 @@ Validar → Enviar pendientes.
 
 1. Entrá a **Historial** (menú de arriba). **No** hay un ítem Puntos en esa barra.
 2. Debajo del título: botones **Rutas** y **Puntos**. Tocá **Puntos**.
-3. Dos bloques, mismo filtro de fechas:
-   - **Pagos de punto** — carga a mano (ver más abajo).
-   - **Recolecciones** — una fila por visita Puntos + Reciclaje: fecha, punto, bolsas de clientes llenas, bolsas nuevas vendidas, bolsas llenas punto, monto, forma de pago, bolsas nuevas, observaciones.
-
-### Pagos de punto (Agregar pago)
-
-En Historial → **Puntos**, tocá **Agregar pago**. Se abre un formulario. **Todos los campos son obligatorios:**
-
-| Campo | Notas |
-|-------|--------|
-| Fecha | Día del pago |
-| Nombre | Persona / punto |
-| Celular | Teléfono argentino válido. Se guarda para emparejar **más adelante**; hoy **no** se vincula solo con la recolección |
-| Servicio | Bolsas llenas + nueva de regalo · Bolsa nueva · Propia del punto |
-| Cantidad | Número (puede ser **0**) |
-| Monto | Importe (puede ser **0**) |
-
-Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la planilla ni de la carga del recolector.
+3. **Recolecciones**, mismo filtro de fechas: una fila por visita Puntos + Reciclaje (fecha, punto, bolsas de clientes llenas, bolsas nuevas vendidas, bolsas llenas punto, monto, forma de pago, bolsas nuevas, observaciones).
 
 ---
 
@@ -164,7 +147,7 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 4. El recolector hace la jornada en el celular.
 5. Cuando finaliza, la ruta pasa a **Historial** como **Realizada**.
 6. El operario revisa, puede **Editar** datos de jornada o **Editar carga** de paradas.
-7. En Historial → **Puntos**: revisar recolecciones Puntos + Reciclaje y, si hace falta, **Agregar pago**.
+7. En Historial → **Puntos**: revisar recolecciones Puntos + Reciclaje.
 8. **Cierre operario** → la ruta queda **Cerrada** e impacta KPIs. Si hubo transferencia o QR, se actualizan la **Deuda** y la **fecha** en la planilla de deudas. Si la deuda importada de la ruta es negativa, se resta. Las paradas **Mixto** no pisan esa planilla. Si el servidor no está conectado a esa planilla, el cierre no se hace y ves el error. En una ruta ya cerrada, **Reenviar deudas** vuelve a escribir la planilla.
 
 ---
@@ -173,7 +156,7 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 
 - Se filtra por **fecha de la ruta** (columna Día de la planilla), no por el día en que el recolector finalizó.
 - Por defecto: últimos 30 días.
-- Debajo del título: **Rutas** (jornadas) y **Puntos** (Empresa + Punto + pagos). Puntos **no** está en el menú de arriba.
+- Debajo del título: **Rutas** (jornadas) y **Puntos** (recolecciones Puntos + Reciclaje). Puntos **no** está en el menú de arriba.
 - Al elegir una ruta en **Rutas**, la tabla de abajo muestra **todas** las paradas de **esa** ruta. Si hay muchas, desplazá hacia abajo dentro de la tabla.
 - Un mismo día puede tener **varias rutas** (mañana/tarde, distintos recolectores). Cada tabla es de una sola ruta.
 - Botones en rutas **Realizadas**: Editar, Reactivar, Cierre operario.
@@ -226,7 +209,6 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 - [ ] Recolector: bolsas de clientes llenas, bolsas del punto, bolsas nuevas vendidas y bolsas nuevas que; cobro (puede ser menor al total) y firma. **Sin** biotachos ni cestos  
 - [ ] Historial → botón **Puntos** (no el menú de arriba)  
 - [ ] Recolecciones: fila por fecha con bolsas, monto, forma de pago, observaciones  
-- [ ] Si hay que registrar un pago aparte: **Agregar pago** (todos los campos; celular para el futuro)  
 
 ---
 
@@ -253,11 +235,6 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 ### El recolector ve biotachos o cestos en un punto
 - Revisá la parada: tiene que ser Unidad **Empresa** y Tipo **Punto**. Unidad **Puntos** o Tipo Reciclaje/Mixto muestra otros contadores.
 
-### Agregar pago no guarda
-- Completá los seis campos (cantidad y monto pueden ser 0).
-- Celular con formato argentino válido.
-- Si el error habla de tabla o relación: pedile al equipo técnico aplicar `punto_pagos` en Supabase.
-
 ---
 
 ## 10. Glosario breve
@@ -271,8 +248,7 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 | **Tipo de servicio** | Reciclaje, Mixto, Orgánico, Punto, Proveedor, Cooperativa |
 | **Unidad** | Hogar, Empresa o Puntos |
 | **Empresa + Punto** | Unidad Empresa + tipo Punto; sin biotachos ni cestos en campo |
-| **Historial · Puntos** | Vista bajo Historial (no en la navbar): recolecciones + pagos |
-| **Pago de punto** | Formulario Agregar pago (fecha, nombre, celular, servicio, cantidad, monto) |
+| **Historial · Puntos** | Vista bajo Historial (no en la navbar): recolecciones Puntos + Reciclaje |
 
 ---
 

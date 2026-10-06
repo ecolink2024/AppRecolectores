@@ -67,8 +67,6 @@ El resto igual que cualquier parada (Nombre, Direccion, Telefono, Dia, Hora, Rec
 
 **No** uses Unidad `Puntos` ni Tipo `Puntos` para este flujo. Alias de tipo `puntos` / `punto` se normalizan a `Punto` al importar (`parseTipoServicio`).
 
-Los **pagos de punto** del panel (Historial → Puntos → Agregar pago) **no** se importan por Sheets: viven en `punto_pagos`.
-
 Ver detalle del modelo (incl. Empresa + Punto e Historial Puntos): [GUIA_DESARROLLADORES.md](./GUIA_DESARROLLADORES.md) § Almacenamiento en `ruta_recolecciones` y § Historial Puntos.
 
 ### Cómo se suma a una ruta existente

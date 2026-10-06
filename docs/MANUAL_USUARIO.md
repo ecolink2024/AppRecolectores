@@ -19,7 +19,7 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 6. [Planilla Google Sheets](#6-planilla-google-sheets)
 7. [Problemas frecuentes](#7-problemas-frecuentes)
 
-**Novedades recientes (septiembre 2026):** **Empresa + Punto** (Unidad `Empresa` + Tipo `Punto`): en campo **no** pide biotachos ni cestos. Los contadores se llaman **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**. El total de referencia usa bolsas de clientes llenas y bolsas nuevas vendidas (Parámetros). La suma de efectivo, transferencia y QR **puede ser menor** que ese total; el total calculado igual se guarda. En **Historial** hay botones **Rutas** y **Puntos** (Puntos **no** está en el menú de arriba). En Puntos ves las recolecciones Puntos + Reciclaje del rango y **Pagos de punto**: botón **Agregar pago** (fecha, nombre, celular, servicio, cantidad, monto; todos obligatorios). El empareje por celular viene después. En KPIs, **Mixto cancelada** suma siempre como **Orgánico (Canc.)**. Tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): sin cobro; **no entran** a KPIs. En planilla: mismos encabezados; para Empresa + Punto usá Unidad **Empresa** y Tipo **Punto**.
+**Novedades recientes (septiembre 2026):** **Empresa + Punto** (Unidad `Empresa` + Tipo `Punto`): en campo **no** pide biotachos ni cestos. Los contadores se llaman **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**. El total de referencia usa bolsas de clientes llenas y bolsas nuevas vendidas (Parámetros). La suma de efectivo, transferencia y QR **puede ser menor** que ese total; el total calculado igual se guarda. En **Historial** hay botones **Rutas** y **Puntos** (Puntos **no** está en el menú de arriba). En Puntos ves las recolecciones Puntos + Reciclaje del rango. En KPIs, **Mixto cancelada** suma siempre como **Orgánico (Canc.)**. Tipos **Proveedor** y **Cooperativa** (paradas **logísticas**): sin cobro; **no entran** a KPIs. En planilla: mismos encabezados; para Empresa + Punto usá Unidad **Empresa** y Tipo **Punto**.
 
 **Novedades previas (agosto–septiembre 2026):** tablas KPI **Por unidad de negocio** y **Por tipo de servicio** (exitosos/cancelados por celda; ver reglas de Mixto abajo). En KPIs **no hay columna/fila Mixto**: las paradas Mixto **visitadas** se reparten a **Reciclaje** u **Orgánico** según lo cargado en campo (`bolsas llenas` / `biotachos llenos`); las **canceladas** van a Orgánico (Canc.). Corrección en **Historial/KPIs**: si el rango de fechas traía más de ~1000 paradas en total, la app podía mostrar **menos filas** en la tabla de recolecciones de una ruta (ahora carga todas).
 
@@ -59,7 +59,6 @@ Guía para usuarios de la app **sin conocimientos de programación**. Explica qu
 |---------|:----------:|:----------------:|:----------:|
 | Ver panel operativo (rutas, mapas, recolecciones) | ✅ | ✅ | ❌ |
 | Ver **Historial** (rutas y **Puntos**) | ✅ | ✅ | ❌ |
-| Cargar **pagos de punto** (Historial → Puntos) | ✅ | ✅ | ❌ |
 | Ver **KPIs** (indicadores y exportación) | ✅ | ✅ | ❌ |
 | Configurar **Parámetros** (precios del sistema) | ✅ | ✅ | ❌ |
 | Reactivar / cierre operario en rutas (Historial) | ✅ | ✅ | ❌ |
@@ -127,24 +126,9 @@ En rutas **Realizadas** también podés **editar la carga que hizo el recolector
 
 Botones **Rutas** / **Puntos** debajo del título de Historial (no hay ítem **Puntos** en el menú de arriba) → `/panel/historial/puntos`
 
-Usa el **mismo filtro de fechas** que Historial / KPIs. Hay dos bloques:
+Usa el **mismo filtro de fechas** que Historial / KPIs.
 
-**1) Pagos de punto** (carga manual del operario)
-
-Tocá **Agregar pago** para abrir el formulario. Todos los campos son obligatorios:
-
-| Campo | Qué poner |
-|-------|-----------|
-| Fecha | Día del pago |
-| Nombre | Nombre de la persona / punto |
-| Celular | Teléfono argentino (mismo criterio que la planilla). Se guarda para emparejar **más adelante** con recolecciones; **hoy no se vincula solo** |
-| Servicio | **Bolsas llenas + nueva de regalo**, **Bolsa nueva** o **Propia del punto** |
-| Cantidad | Número (podés poner **0**) |
-| Monto | Importe (podés poner **0**) |
-
-Al **Guardar pago** aparece una fila en la tabla (fecha, nombre, celular, servicio, cantidad, monto). Podés cargar varios seguidos. El rango de fechas de la página filtra también esta tabla.
-
-**2) Recolecciones Puntos + Reciclaje**
+**Recolecciones Puntos + Reciclaje**
 
 Tabla de **todas** las paradas **Unidad = Puntos** y **Tipo = Reciclaje** de las rutas del historial en el rango (una fila por recolección, más reciente primero). No mezcla Hogar ni Empresa.
 
@@ -162,7 +146,7 @@ Tabla de **todas** las paradas **Unidad = Puntos** y **Tipo = Reciclaje** de las
 
 Si la parada fue **cancelada**, cantidades, monto y forma de pago quedan en **—**.
 
-Para que una parada entre acá, en la planilla (o al alta) tiene que ir **Unidad = Empresa** y **Tipo de servicio = Punto**. Ver § 6.
+Para que una parada entre acá, en la planilla (o al alta) tiene que ir **Unidad = Puntos** y **Tipo de servicio = Reciclaje**. Ver § 6.
 
 #### Tabla de rutas (Historial)
 
@@ -439,7 +423,7 @@ Para paradas con **Unidad = Empresa** y **Tipo de cliente = Punto** (en la app y
 |-------|----------------|
 | Al importar / editar parada | Unidad, tipo, precio de planilla (`precio`), observaciones del operario |
 | Al cargar en campo (recolector) | Bolsas de clientes llenas, bolsas del punto (solo cantidad), bolsas nuevas vendidas, bolsas nuevas que, total calculado, pagos (la suma puede ser menor al total), firma, **Tus observaciones**. **Sin biotachos ni cestos** |
-| Historial → Puntos | Las visitas aparecen en la tabla de recolecciones; los **pagos de punto** se cargan aparte con **Agregar pago** (no vienen de la planilla) |
+| Historial → Puntos | Esa tabla lista **Puntos + Reciclaje**, no Empresa + Punto |
 | Parámetros del sistema | Precio **bolsa llena hogar** y **bolsa punto** (historial global; no van en la fila del cliente) |
 
 El **precio de la planilla** queda registrado pero el total de referencia en Empresa + Punto se calcula con los parámetros y las cantidades que carga el recolector, no con ese precio fijo. Ese total se guarda igual aunque los pagos sumen menos.
@@ -494,13 +478,13 @@ El operario usa el **mismo panel operativo** que el superadmin para seguir rutas
 7. **Ver mapa** para reordenar paradas (cada fila muestra la hora programada)
 8. Seguí el avance cuando el recolector carga en campo
 9. Cuando finaliza, la ruta pasa a **Historial** → **Cierre operario** o **Reactivar** si hace falta
-10. En Historial, botones **Rutas** (esta vista) y **Puntos** (recolecciones Puntos + Reciclaje y **Agregar pago**)
+10. En Historial, botones **Rutas** (esta vista) y **Puntos** (recolecciones Puntos + Reciclaje)
 11. **Historial** o **KPIs** para reportes; exportá CSV si necesitás Excel
 12. **Parámetros** cuando cambien precios
 
 ### 4.2 Historial y KPIs
 
-- **Historial:** rutas realizadas, cerradas o canceladas **cuya fecha de ruta cae en el rango** (por defecto últimos 30 días hasta hoy); botones **Rutas** y **Puntos** debajo del título (**Puntos** no está en el menú de arriba); **Cierre operario** y **Reactivar** en la tabla de Rutas; **Descargar historial (CSV)** incluye ambos montos por ruta; al elegir una ruta, la tabla de paradas muestra el total en el pie y scroll interno si hay muchas filas. En **Puntos**: pagos de punto + recolecciones Puntos + Reciclaje (detalle en [Historial · Puntos](#historial--puntos))
+- **Historial:** rutas realizadas, cerradas o canceladas **cuya fecha de ruta cae en el rango** (por defecto últimos 30 días hasta hoy); botones **Rutas** y **Puntos** debajo del título (**Puntos** no está en el menú de arriba); **Cierre operario** y **Reactivar** en la tabla de Rutas; **Descargar historial (CSV)** incluye ambos montos por ruta; al elegir una ruta, la tabla de paradas muestra el total en el pie y scroll interno si hay muchas filas. En **Puntos**: recolecciones Puntos + Reciclaje (detalle en [Historial · Puntos](#historial--puntos))
 - **KPIs:** indicadores del historial; **montos y “Rutas en el período” solo tras Cierre operario** (Pendiente cierre se ve pero no suma); tablas **Por unidad de negocio** y **Por tipo de servicio** (Mixto visitada reclasificada; Mixto cancelada → Orgánico Canc. — ver [§3.3](#33-kpis-indicadores)); usá **Desde/Hasta** para el rango; el gráfico mensual muestra siempre los últimos meses (sin depender del filtro); **Descargar KPIs (CSV)**
 
 ### 4.3 Cierre operario y reactivar
@@ -673,7 +657,7 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    Contadores posibles: Bolsas llenas · Biotachos llenos · Bolsas nuevas · Biotachos nuevos · **Cestos** (solo se muestran los que aplican al tipo de cliente).
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):
    - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, **Precio bolsa extra - Hogar** (Parámetros)
-   - **Puntos + Reciclaje:** el total de referencia sale de **bolsas de clientes llenas** y **bolsas nuevas vendidas** (Parámetros). La suma de los pagos **puede ser menor** que ese total. **Bolsas del punto** es solo cantidad; el cobro de esa visita lo cargás acá en efectivo/transferencia/QR. El operario puede cargar **pagos de punto** aparte en Historial → Puntos (no es este formulario)
+   - **Puntos + Reciclaje:** el total de referencia sale de **bolsas de clientes llenas** y **bolsas nuevas vendidas** (Parámetros). La suma de los pagos **puede ser menor** que ese total. **Bolsas del punto** es solo cantidad; el cobro de esa visita lo cargás acá en efectivo/transferencia/QR.
    - **Empresa** (sin Punto): siempre el precio de retiro de la planilla
    - **Mixto:** con 0 bolsas, precio de retiro de la planilla; con **1 o 2** bolsas, **Retiro reciclables - Hogar Mixto**; desde la **3.ª**, se suma **Precio bolsa extra - Hogar**
 
@@ -885,12 +869,6 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 - **Puntos no es un ítem del menú superior.** Entrá a **Historial** y, debajo del título, tocá el botón **Puntos**.
 - Tiene que ser cuenta **operario o superadmin** (el recolector no ve Historial).
 
-### El formulario Agregar pago no guarda / error de tabla
-
-- Avisá al equipo técnico: falta crear la tabla `punto_pagos` en Supabase (ejecutar `supabase/apply-pending-operativo.sql` en SQL Editor).
-- Revisá que el **celular** sea un teléfono argentino válido.
-- Completá **todos** los campos (cantidad y monto pueden ser 0, pero no vacíos).
-
 ### El total a cobrar no coincide con lo que esperaba (recolector / operario)
 
 - Revisá **Unidad** (Empresa = precio fijo de planilla) y **Tipo de servicio** (Mixto = regla especial)
@@ -992,8 +970,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Tipo de cliente** (tarjeta recolector) | En las cards de parada: Hogar / Empresa / Puntos (mismo dato que **Unidad**). En el panel staff, «Tipo de cliente» a veces nombra al `tipo_servicio` de la planilla |
 | **Empresa + Punto** | Unidad `Empresa` + Tipo `Punto`. En campo el total es el precio de retiro de la planilla |
 | **Puntos + Reciclaje** | Unidad `Puntos` + Tipo `Reciclaje`. En campo: **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas**, **Bolsas nuevas que**. Sin biotachos ni cestos. La suma de los pagos puede ser menor al total de referencia |
-| **Historial · Puntos** | Vista staff bajo Historial: recolecciones Puntos + Reciclaje + pagos de punto |
-| **Pago de punto** | Alta manual (fecha, nombre, celular, servicio, cantidad, monto). Empareje por celular: pendiente |
+| **Historial · Puntos** | Vista staff bajo Historial: recolecciones Puntos + Reciclaje |
 | **Obs. operario** | Columna `observaciones` — planilla o panel operario |
 | **Obs. recolector** | Columna `observaciones_recolector` — al guardar carga en campo |
 | **Cestos** | Columna `cestos` — cantidad retirada en campo |
