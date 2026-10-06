@@ -420,10 +420,10 @@ Desde acá configurás precios globales con historial de vigencia. Cada parámet
 
 | Unidad / tipo | Cómo se calcula el total |
 |---------------|---------------------------|
-| **Empresa** + tipo **Punto** | Total de referencia: **(bolsas de clientes llenas × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. La suma de efectivo, transferencia y QR **puede ser menor**. **Bolsas del punto**: solo cantidad. Sin biotachos ni cestos |
-| **Empresa** (otro tipo) | Siempre el **precio de retiro** de la planilla |
+| **Puntos** + tipo **Reciclaje** | Total de referencia: **(bolsas de clientes llenas × bolsa llena hogar) + (bolsas nuevas vendidas × bolsa punto)**. La suma de efectivo, transferencia y QR **puede ser menor**. **Bolsas del punto**: solo cantidad. Sin biotachos ni cestos |
+| **Empresa** (cualquier tipo, incluido Punto) | Siempre el **precio de retiro** de la planilla |
 | **Mixto** (`tipo de servicio`) | **0 bolsas:** retiro de planilla · **1 o 2 bolsas:** **Retiro reciclables - Hogar Mixto** · **3+:** ese precio + **Precio bolsa extra - Hogar** por cada bolsa desde la 3.ª |
-| **Resto** (Hogar Reciclaje, Puntos, etc.) | Retiro de planilla; las **2 primeras** bolsas llenas incluidas; desde la **3.ª**, **Precio bolsa extra - Hogar** por bolsa |
+| **Resto** (Hogar Reciclaje, Puntos con otro tipo, etc.) | Retiro de planilla; las **2 primeras** bolsas llenas incluidas; desde la **3.ª**, **Precio bolsa extra - Hogar** por bolsa |
 
 En **todos** los parámetros de precio:
 
@@ -668,12 +668,12 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    - **Orgánico:** Biotachos llenos y Biotachos nuevos (las **bolsas y los cestos no aparecen**)
    - **Mixto:** aparecen **todos** los contadores
    - **Punto** (sin Empresa): aparecen todos los contadores
-   - **Empresa + Punto:** **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**. **No** aparecen biotachos ni cestos
+   - **Puntos + Reciclaje:** **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**. **No** aparecen biotachos ni cestos
 
    Contadores posibles: Bolsas llenas · Biotachos llenos · Bolsas nuevas · Biotachos nuevos · **Cestos** (solo se muestran los que aplican al tipo de cliente).
 2. Revisá el **Precio total a cobrar** (el desglose cambia según unidad y tipo de servicio):
    - **Hogar / Puntos (estándar):** precio de retiro de la planilla; desde la **3.ª** bolsa llena, **Precio bolsa extra - Hogar** (Parámetros)
-   - **Empresa + Punto:** el total de referencia sale de **bolsas de clientes llenas** y **bolsas nuevas vendidas** (Parámetros). La suma de los pagos **puede ser menor** que ese total. **Bolsas del punto** es solo cantidad; el cobro de esa visita lo cargás acá en efectivo/transferencia/QR. El operario puede cargar **pagos de punto** aparte en Historial → Puntos (no es este formulario)
+   - **Puntos + Reciclaje:** el total de referencia sale de **bolsas de clientes llenas** y **bolsas nuevas vendidas** (Parámetros). La suma de los pagos **puede ser menor** que ese total. **Bolsas del punto** es solo cantidad; el cobro de esa visita lo cargás acá en efectivo/transferencia/QR. El operario puede cargar **pagos de punto** aparte en Historial → Puntos (no es este formulario)
    - **Empresa** (sin Punto): siempre el precio de retiro de la planilla
    - **Mixto:** con 0 bolsas, precio de retiro de la planilla; con **1 o 2** bolsas, **Retiro reciclables - Hogar Mixto**; desde la **3.ª**, se suma **Precio bolsa extra - Hogar**
 
@@ -685,7 +685,7 @@ No hace falta completar bolsas ni pagos. Podés dejar **Tus observaciones** si q
    - Monto efectivo
    - Monto transferencia
    - Monto QR
-   - **La suma de los tres no puede ser menor al total a cobrar** (puede ser mayor), salvo en **Empresa + Punto**, donde sí puede ser menor
+   - **La suma de los tres no puede ser menor al total a cobrar** (puede ser mayor), salvo en **Puntos + Reciclaje**, donde sí puede ser menor
 4. **Nombre del firmante** (obligatorio)
 5. Pedile al cliente que **firme en el recuadro** (con el dedo; podés usar **Limpiar** para repetir)
 6. Tocá **Guardar recolección** → la parada queda como **Visitada**
@@ -911,7 +911,7 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 ### No puedo cargar una parada
 
 - ¿Iniciaste la ruta? Sin inicio de ruta solo podés **ver** el detalle, no cargar
-- Revisá que la suma de pagos **no sea menor** al total (puede ser mayor). En **Empresa + Punto** sí puede ser menor
+- Revisá que la suma de pagos **no sea menor** al total (puede ser mayor). En **Puntos + Reciclaje** sí puede ser menor
 - Si cancelás, marcá **Cancelar recolección**, elegí el motivo, firmante y firma
 
 ### No veo retiro ni cobro en una parada (operario)
@@ -990,7 +990,8 @@ Documentación técnica de la integración: [SHEETS_INTEGRATION.md](./SHEETS_INT
 | **Tipo de servicio** (planilla / `tipo_servicio`) | Reciclaje, Mixto, Orgánico, **Punto**, Proveedor o Cooperativa. En las **tarjetas del recolector** se muestra con esta etiqueta |
 | **Mixto en KPIs** | Sin columna propia: visitada → Reciclaje/Orgánico según campo; **cancelada → siempre Orgánico (Canc.)** |
 | **Tipo de cliente** (tarjeta recolector) | En las cards de parada: Hogar / Empresa / Puntos (mismo dato que **Unidad**). En el panel staff, «Tipo de cliente» a veces nombra al `tipo_servicio` de la planilla |
-| **Empresa + Punto** | Unidad `Empresa` + Tipo `Punto`. En campo: **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas**, **Bolsas nuevas que**. Sin biotachos ni cestos. La suma de los pagos puede ser menor al total de referencia |
+| **Empresa + Punto** | Unidad `Empresa` + Tipo `Punto`. Sigue en Historial → Puntos. En campo el total es el precio de retiro de la planilla |
+| **Puntos + Reciclaje** | Unidad `Puntos` + Tipo `Reciclaje`. En campo: **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas**, **Bolsas nuevas que**. Sin biotachos ni cestos. La suma de los pagos puede ser menor al total de referencia |
 | **Historial · Puntos** | Vista staff bajo Historial: recolecciones Empresa + Punto + pagos de punto |
 | **Pago de punto** | Alta manual (fecha, nombre, celular, servicio, cantidad, monto). Empareje por celular: pendiente |
 | **Obs. operario** | Columna `observaciones` — planilla o panel operario |

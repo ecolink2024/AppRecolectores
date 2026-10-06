@@ -317,7 +317,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
               </h2>
               {data.esEmpresaPunto && (
                 <p className="mb-3 text-xs text-violet-800 dark:text-violet-300">
-                  Empresa + Punto: el total automático usa bolsas de clientes llenas y bolsas nuevas
+                  Puntos + Reciclaje: el total automático usa bolsas de clientes llenas y bolsas nuevas
                   vendidas (Parámetros). Bolsas del punto: solo cantidad; el monto en punto va
                   en los pagos.
                 </p>
@@ -392,7 +392,7 @@ export function RecolectorRecoleccionCampoForm({ data, rutaNombre, recolectorNom
               <p className="mb-3 text-xs text-zinc-500">
                 Los tres montos son obligatorios (podés poner <strong>0</strong>).{" "}
                 {data.esEmpresaPunto
-                  ? "En Empresa + Punto la suma puede ser menor al total de referencia (también puede ser mayor)."
+                  ? "En Puntos + Reciclaje la suma puede ser menor al total de referencia (también puede ser mayor)."
                   : "La suma no puede ser menor al total a cobrar (puede ser mayor)."}
               </p>
               <div className="space-y-3">

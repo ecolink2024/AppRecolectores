@@ -636,8 +636,8 @@ Resolución de regla (`resolvePrecioCobroRegla`): **Empresa** gana sobre Mixto s
 
 | Regla | Condición | Total |
 |-------|-----------|-------|
-| `empresa_punto` | `unidad === "Empresa"` y `tipo_servicio` Punto/Puntos | `bolsasLlenas × precioBolsaLlenaPunto + bolsasNuevasVendidas × precioBolsaPunto` (`bolsasLlenasPunto` no entra al total) |
-| `empresa` | `unidad === "Empresa"` (sin Punto) | `precioRetiro` |
+| `empresa_punto` | `unidad === "Puntos"` y `tipo_servicio === "Reciclaje"` | `bolsasLlenas × precioBolsaLlenaPunto + bolsasNuevasVendidas × precioBolsaPunto` (`bolsasLlenasPunto` no entra al total). La suma de pagos puede ser menor |
+| `empresa` | `unidad === "Empresa"` (incluye tipo Punto) | `precioRetiro` |
 | `mixto` | `tipo_servicio === "Mixto"` | `0 bolsas` → `precioRetiro`; `1–2` → `precioRetiroReciclableMixto`; `3+` → mixto + `bolsaExtra × (bolsas−2)` |
 | `estandar` | resto | `precioRetiro + bolsaExtra × max(0, bolsas−2)` |
 
@@ -813,7 +813,7 @@ No existe columna/fila **Mixto** en KPIs (`KPI_TIPOS_SERVICIO_COLUMNAS`: Recicla
 En `recolector-recoleccion-campo.ts`:
 
 - Efectivo, transferencia y QR: obligatorios, mínimo 0 (default `"0"` en el form)
-- Suma de los tres montos **≥ total a cobrar** (puede ser mayor, no menor), salvo **Empresa + Punto**: ahí la suma puede ser menor. `precio_total` sigue siendo el calculado; los pagos quedan como se cargaron.
+- Suma de los tres montos **≥ total a cobrar** (puede ser mayor, no menor), salvo **Puntos + Reciclaje**: ahí la suma puede ser menor. `precio_total` sigue siendo el calculado; los pagos quedan como se cargaron.
 
 #### Recolecciones manuales (operario)
 

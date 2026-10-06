@@ -9,7 +9,7 @@ import { RECOLECCION_OPERATIVA_LABELS } from "@/lib/domain/constants";
 import { isTipoServicioLogistica } from "@/lib/domain/parada-categoria";
 import {
   formatParametroMoney,
-  isEmpresaPuntoCobro,
+  isPuntosReciclajeCobro,
 } from "@/lib/domain/sistema-parametros";
 
 type RecoleccionRow = Database["public"]["Tables"]["ruta_recolecciones"]["Row"];
@@ -83,7 +83,7 @@ export function buildRecoleccionCampoFormData(
   const soloLectura = !recolectorPuedeEditarRecoleccion(item.estado_operativo, estadoRuta);
   const esLogistica =
     item.categoria_parada === "logistica" || isTipoServicioLogistica(item.tipo_servicio);
-  const esEmpresaPunto = !esLogistica && isEmpresaPuntoCobro(item.unidad, item.tipo_servicio);
+  const esEmpresaPunto = !esLogistica && isPuntosReciclajeCobro(item.unidad, item.tipo_servicio);
 
   return {
     id: item.id,

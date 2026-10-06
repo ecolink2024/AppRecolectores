@@ -14,7 +14,7 @@ import {
 import {
   buildPrecioCobroDetalle,
   formatParametroMoney,
-  isEmpresaPuntoCobro,
+  isPuntosReciclajeCobro,
 } from "@/lib/domain/sistema-parametros";
 
 export type PreciosCampoActivos = {
@@ -116,7 +116,7 @@ export function OperarioRecoleccionCampoModal({
   }, [open, onClose]);
 
   const esEmpresaPunto = recoleccion
-    ? isEmpresaPuntoCobro(recoleccion.unidad, recoleccion.tipo_servicio)
+    ? isPuntosReciclajeCobro(recoleccion.unidad, recoleccion.tipo_servicio)
     : false;
   const esCancelacion = cancelada;
   const contadoresRules = useMemo(
@@ -346,7 +346,7 @@ export function OperarioRecoleccionCampoModal({
                 <div className="grid grid-cols-2 gap-3">
                   {contadoresRules.bolsasLlenasRequired && (
                     <NumberField
-                      label={esEmpresaPunto ? "Bolsas llenas hogar" : "Bolsas llenas"}
+                      label={esEmpresaPunto ? "Bolsas de clientes llenas" : "Bolsas llenas"}
                       value={bolsasLlenas}
                       onChange={setBolsasLlenas}
                       required={contadoresRules.bolsasLlenasRequired}
@@ -355,7 +355,7 @@ export function OperarioRecoleccionCampoModal({
                   {esEmpresaPunto && (
                     <>
                       <NumberField
-                        label="Bolsas llenas punto"
+                        label="Bolsas del punto"
                         value={bolsasLlenasPunto}
                         onChange={setBolsasLlenasPunto}
                         required
@@ -378,7 +378,7 @@ export function OperarioRecoleccionCampoModal({
                   )}
                   {contadoresRules.bolsasNuevasRequired && (
                     <NumberField
-                      label="Bolsas nuevas"
+                      label={esEmpresaPunto ? "Bolsas nuevas que" : "Bolsas nuevas"}
                       value={bolsasNuevas}
                       onChange={setBolsasNuevas}
                       required={contadoresRules.bolsasNuevasRequired}
@@ -410,7 +410,7 @@ export function OperarioRecoleccionCampoModal({
                 </p>
                 <p className="mb-3 text-xs text-zinc-500">
                   {esEmpresaPunto
-                    ? "En Empresa + Punto la suma puede ser menor al total de referencia (también puede ser mayor)."
+                    ? "En Puntos + Reciclaje la suma puede ser menor al total de referencia (también puede ser mayor)."
                     : "La suma de los tres montos no puede ser menor al total (puede ser mayor)."}{" "}
                   Referencia: Precio bolsa extra - Hogar {formatParametroMoney(precios.bolsaExtra)}.
                 </p>

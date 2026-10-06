@@ -1,6 +1,6 @@
 import {
   calcPrecioTotalCobrarConReglas,
-  isEmpresaPuntoCobro,
+  isPuntosReciclajeCobro,
   normalizeTipoServicio,
   normalizeUnidad,
   type PrecioCobroInput,
@@ -79,7 +79,7 @@ export function isTipoServicioOrganico(tipoServicio: string | null | undefined):
  * - Reciclaje: no aplica biotachos (llenos ni nuevos).
  * - Orgánico: no aplica bolsas (llenas ni nuevas) ni cestos.
  * - Mixto y tipo Punto (sin Empresa): aplican todos.
- * - Empresa + Punto: bolsas (hogar / nuevas) sí; biotachos y cestos no.
+ * - Puntos + Reciclaje: bolsas (clientes / punto / vendidas / nuevas); biotachos y cestos no.
  * - Logística (Proveedor/Cooperativa): no usa estos contadores de cliente.
  * Cuando un contador no aplica, no se muestra en el formulario ni es obligatorio.
  */
@@ -110,7 +110,7 @@ export function getRecoleccionCampoContadoresRules(
 
   const organico = isTipoServicioOrganico(tipoServicio);
   const reciclaje = isTipoServicioReciclaje(tipoServicio);
-  const empresaPunto = isEmpresaPuntoCobro(unidad, tipoServicio);
+  const empresaPunto = isPuntosReciclajeCobro(unidad, tipoServicio);
 
   return {
     bolsasLlenasRequired: !organico,
@@ -169,7 +169,7 @@ export function parseRecoleccionCampoBody(
   const observaciones_recolector = str(body.observaciones_recolector) || null;
   const nombre_firmante = str(body.nombre_firmante);
   const firma_digital = str(body.firma_digital);
-  const empresaPunto = isEmpresaPuntoCobro(precios.unidad, precios.tipoServicio);
+  const empresaPunto = isPuntosReciclajeCobro(precios.unidad, precios.tipoServicio);
   const logistica = isTipoServicioLogistica(precios.tipoServicio);
   const cancelada = bodyMarcaCancelada(body) || motivo_cancelacion != null;
 

@@ -127,8 +127,7 @@ Validar → Enviar pendientes.
 
 ### Qué ve el recolector
 
-- Aviso de cobro Empresa + Punto.
-- Contadores: **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**.
+- Contadores en **Puntos + Reciclaje**: **Bolsas de clientes llenas**, **Bolsas del punto**, **Bolsas nuevas vendidas** y **Bolsas nuevas que**.
 - **No** aparecen biotachos ni cestos.
 - Total de referencia = (bolsas de clientes llenas × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). La suma de efectivo, transferencia y QR puede ser menor. Bolsas del punto es solo cantidad.
 

@@ -101,7 +101,7 @@ export function isTipoServicioMixto(tipoServicio: string | null | undefined): bo
   return normalizeTipoServicio(tipoServicio).toLowerCase() === "mixto";
 }
 
-/** Empresa + Punto: cobro automático = hogar × bolsa llena hogar + nuevas vendidas × bolsa punto. */
+/** Historial → Puntos: unidad Empresa y tipo Punto. No define el formulario de campo. */
 export function isEmpresaPuntoCobro(
   unidad: string | null | undefined,
   tipoServicio: string | null | undefined,
@@ -111,11 +111,20 @@ export function isEmpresaPuntoCobro(
   return tipo === "punto" || tipo === "puntos";
 }
 
+/** Formulario especial de campo: unidad Puntos y tipo Reciclaje. */
+export function isPuntosReciclajeCobro(
+  unidad: string | null | undefined,
+  tipoServicio: string | null | undefined,
+): boolean {
+  if (normalizeUnidad(unidad).toLowerCase() !== "puntos") return false;
+  return normalizeTipoServicio(tipoServicio).toLowerCase() === "reciclaje";
+}
+
 export function resolvePrecioCobroRegla(
   unidad: string | null | undefined,
   tipoServicio: string | null | undefined,
 ): PrecioCobroRegla {
-  if (isEmpresaPuntoCobro(unidad, tipoServicio)) return "empresa_punto";
+  if (isPuntosReciclajeCobro(unidad, tipoServicio)) return "empresa_punto";
   if (isUnidadEmpresa(unidad)) return "empresa";
   if (isTipoServicioMixto(tipoServicio)) return "mixto";
   return "estandar";
@@ -333,7 +342,7 @@ export function buildPrecioCobroDetalle(input: PrecioCobroInput): PrecioCobroDet
           ? `${bolsasNuevasVendidas} bolsa(s) nueva(s) vendida(s) × ${precioBolsaPuntoLabel}`
           : null,
       ayudaCobro:
-        "Empresa + Punto: el total de referencia es (bolsas de clientes llenas × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). La suma de los pagos puede ser menor. Bolsas del punto: solo cantidad; el cobro en punto va en efectivo/transferencia/QR.",
+        "Puntos + Reciclaje: el total de referencia es (bolsas de clientes llenas × precio bolsa llena hogar) + (bolsas nuevas vendidas × precio bolsa punto). La suma de los pagos puede ser menor. Bolsas del punto: solo cantidad; el cobro en punto va en efectivo/transferencia/QR.",
     };
   }
 
