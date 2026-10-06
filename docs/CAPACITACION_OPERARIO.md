@@ -137,7 +137,7 @@ Validar → Enviar pendientes.
 2. Debajo del título: botones **Rutas** y **Puntos**. Tocá **Puntos**.
 3. Dos bloques, mismo filtro de fechas:
    - **Pagos de punto** — carga a mano (ver más abajo).
-   - **Recolecciones** — una fila por visita Empresa + Punto: fecha, punto, bolsas de clientes llenas, bolsas nuevas vendidas, bolsas llenas punto, monto, forma de pago, bolsas nuevas, observaciones.
+   - **Recolecciones** — una fila por visita Puntos + Reciclaje: fecha, punto, bolsas de clientes llenas, bolsas nuevas vendidas, bolsas llenas punto, monto, forma de pago, bolsas nuevas, observaciones.
 
 ### Pagos de punto (Agregar pago)
 
@@ -164,7 +164,7 @@ Cada **Guardar pago** suma una fila a la tabla. Estos pagos **no** vienen de la 
 4. El recolector hace la jornada en el celular.
 5. Cuando finaliza, la ruta pasa a **Historial** como **Realizada**.
 6. El operario revisa, puede **Editar** datos de jornada o **Editar carga** de paradas.
-7. En Historial → **Puntos**: revisar recolecciones Empresa + Punto y, si hace falta, **Agregar pago**.
+7. En Historial → **Puntos**: revisar recolecciones Puntos + Reciclaje y, si hace falta, **Agregar pago**.
 8. **Cierre operario** → la ruta queda **Cerrada** e impacta KPIs. Si hubo transferencia o QR, se actualizan la **Deuda** y la **fecha** en la planilla de deudas. Si la deuda importada de la ruta es negativa, se resta. Las paradas **Mixto** no pisan esa planilla. Si el servidor no está conectado a esa planilla, el cierre no se hace y ves el error. En una ruta ya cerrada, **Reenviar deudas** vuelve a escribir la planilla.
 
 ---

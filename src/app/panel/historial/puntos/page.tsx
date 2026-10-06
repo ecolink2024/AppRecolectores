@@ -68,7 +68,7 @@ export default async function PanelHistorialPuntosPage({ searchParams }: Props) 
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Historial</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
             {filtroFechas.etiqueta} · {formatRutaFecha(filtroFechas.desde)} —{" "}
-            {formatRutaFecha(filtroFechas.hasta)}. Recolecciones Empresa + Punto.
+            {formatRutaFecha(filtroFechas.hasta)}. Recolecciones Puntos + Reciclaje.
           </p>
         </div>
         <OperarioHistorialSubnav />
@@ -84,7 +84,7 @@ export default async function PanelHistorialPuntosPage({ searchParams }: Props) 
           <div>
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Recolecciones</h2>
             <p className="text-sm text-zinc-500">
-              Una fila por recolección Empresa + Punto, ordenadas por fecha (más reciente primero).
+              Una fila por recolección Puntos + Reciclaje, ordenadas por fecha (más reciente primero).
             </p>
           </div>
           <OperarioHistorialPuntosTable rows={rows} />

@@ -188,9 +188,9 @@ Vista staff **dentro de Historial**, no en el menú superior (`panel-staff-nav.t
 | Ruta | Qué muestra |
 |------|-------------|
 | `/panel/historial` | Jornadas `completada` / `cerrada` / `cancelada` |
-| `/panel/historial/puntos` | Pagos de punto + recolecciones Empresa + Punto del mismo rango (`resolveKpiFiltroFechas`) |
+| `/panel/historial/puntos` | Pagos de punto + recolecciones Puntos + Reciclaje del mismo rango (`resolveKpiFiltroFechas`) |
 
-**Recolecciones (no es una tabla nueva):** `buildHistorialPuntosRows` filtra `isEmpresaPuntoCobro` sobre las paradas de las rutas del historial en el rango. Columnas: fecha, punto, bolsas clientes llenas (`bolsas_llenas`), vendidas, llenas punto, monto (`precio_total`), forma de pago (efectivo/transferencia/QR), bolsas nuevas, observaciones (recolector + operario). Canceladas → cantidades/monto/`—`.
+**Recolecciones (no es una tabla nueva):** `buildHistorialPuntosRows` filtra `isPuntosReciclajeCobro` (unidad Puntos y tipo Reciclaje) sobre las paradas de las rutas del historial en el rango. Columnas: fecha, punto, bolsas clientes llenas (`bolsas_llenas`), vendidas, llenas punto, monto (`precio_total`), forma de pago (efectivo/transferencia/QR), bolsas nuevas, observaciones (recolector + operario). Canceladas → cantidades/monto/`—`.
 
 **Pagos de punto (tabla propia):** no se mezclan con `ruta_recolecciones`. Carga manual del operario; empareje por celular **pendiente**.
 
@@ -353,7 +353,7 @@ Matriz resumida (`src/lib/auth/permissions.ts`):
 | `/panel` | Todos | Staff → dashboard operario. Recolector → home (Hoy / Última jornada) |
 | `/panel` | superadmin, admin | **Operativo:** `borrador`, `activa`, `en_curso` |
 | `/panel/historial` | superadmin, admin | **Historial · Rutas:** `completada`, `cerrada`, `cancelada`; tablas ampliadas + export CSV; cierre operario / reactivar. Tabs internas Rutas / Puntos (`operario-historial-subnav.tsx`). **No** hay ítem Puntos en `panel-staff-nav` |
-| `/panel/historial/puntos` | superadmin, admin | Historial · Puntos: `punto_pagos` + recolecciones Empresa + Punto (`buildHistorialPuntosRows`); mismo filtro de fechas |
+| `/panel/historial/puntos` | superadmin, admin | Historial · Puntos: `punto_pagos` + recolecciones Puntos + Reciclaje (`buildHistorialPuntosRows`); mismo filtro de fechas |
 | `/panel/kpis` | superadmin, admin | KPIs por período (solo rutas historial; presets o `?desde=&hasta=`) + export CSV |
 | `/panel/parametros` | superadmin, admin | Cuatro precios con historial (`operario-parametros-sistema.tsx`) |
 | `/panel/usuarios` | superadmin, admin | Alta y gestión de usuarios |
@@ -462,7 +462,7 @@ Componentes en `src/components/panel/operario/`:
 |------------|---------|
 | `operario-dashboard.tsx` | Orquestador Operativo / Historial; subnav Rutas/Puntos si `isHistorial`; cierre operario, export historial; subtítulo de sección Ruta con conteo |
 | `operario-historial-subnav.tsx` | Tabs **Rutas** / **Puntos** (pathname; no `useSearchParams`) |
-| `operario-historial-puntos-table.tsx` | Tabla recolecciones Empresa + Punto |
+| `operario-historial-puntos-table.tsx` | Tabla recolecciones Puntos + Reciclaje |
 | `operario-punto-pagos-panel.tsx` | Formulario desplegable Agregar pago + tabla `punto_pagos` |
 | `operario-scrollable-table.tsx` | Contenedor reutilizable: `max-h` + `overflow-auto`, thead sticky (`OPERARIO_TABLE_HEAD_STICKY`), pie opcional con conteo de filas |
 | `operario-rutas-table.tsx` | Tabla Operativo: recolecciones, exitosas, bolsas/biotachos, montos, insumos, **Ver detalle** |

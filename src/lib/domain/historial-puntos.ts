@@ -1,4 +1,4 @@
-import { isEmpresaPuntoCobro } from "@/lib/domain/sistema-parametros";
+import { isPuntosReciclajeCobro } from "@/lib/domain/sistema-parametros";
 import { formatMoney, type RecoleccionOperarioRow } from "@/lib/domain/operario-dashboard";
 import { formatRutaFecha } from "@/lib/domain/rutas";
 import type { RecoleccionOperativaEstado } from "@/types/database";
@@ -56,7 +56,7 @@ export function buildHistorialPuntosRows(
   const fechaPorRuta = new Map(rutas.map((ruta) => [ruta.id, ruta.fecha]));
 
   return recolecciones
-    .filter((item) => isEmpresaPuntoCobro(item.unidad, item.tipo_servicio))
+    .filter((item) => isPuntosReciclajeCobro(item.unidad, item.tipo_servicio))
     .map((item) => {
       const fecha = fechaPorRuta.get(item.ruta_id) || item.dia || "";
       const visitada = item.estado_operativo === "visitada";

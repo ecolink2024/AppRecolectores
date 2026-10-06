@@ -101,7 +101,7 @@ export function isTipoServicioMixto(tipoServicio: string | null | undefined): bo
   return normalizeTipoServicio(tipoServicio).toLowerCase() === "mixto";
 }
 
-/** Historial → Puntos: unidad Empresa y tipo Punto. No define el formulario de campo. */
+/** Unidad Empresa y tipo Punto. El historial de recolecciones ya no usa este filtro. */
 export function isEmpresaPuntoCobro(
   unidad: string | null | undefined,
   tipoServicio: string | null | undefined,

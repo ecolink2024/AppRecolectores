@@ -21,7 +21,7 @@ export function OperarioHistorialPuntosTable({ rows }: Props) {
   if (rows.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900">
-        No hay recolecciones Empresa + Punto en este rango de fechas.
+        No hay recolecciones Puntos + Reciclaje en este rango de fechas.
       </div>
     );
   }
@@ -29,7 +29,7 @@ export function OperarioHistorialPuntosTable({ rows }: Props) {
   return (
     <OperarioScrollableTable
       maxHeightClass="max-h-[min(70vh,40rem)]"
-      footer={`${rows.length} recolección${rows.length === 1 ? "" : "es"} Empresa + Punto`}
+      footer={`${rows.length} recolección${rows.length === 1 ? "" : "es"} Puntos + Reciclaje`}
     >
       <table className="min-w-full text-left text-sm">
         <thead className={OPERARIO_TABLE_HEAD_STICKY}>
