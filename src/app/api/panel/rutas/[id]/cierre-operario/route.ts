@@ -64,7 +64,7 @@ export async function POST(_request: Request, { params }: Props) {
   if (deudaItems && !deudaItems.ok) {
     return NextResponse.json({ ok: false, error: deudaItems.error }, { status: 500 });
   }
-  if (deudaItems?.ok && deudaSyncBloqueaCierre(deudaItems.items)) {
+  if (deudaItems?.ok && deudaSyncBloqueaCierre(deudaItems.items, deudaItems.ultimas)) {
     return NextResponse.json({ ok: false, error: DEUDA_SYNC_NO_CONFIGURADA }, { status: 503 });
   }
 
@@ -86,7 +86,7 @@ export async function POST(_request: Request, { params }: Props) {
 
   const deudaSync =
     DEUDA_LEDGER_HABILITADO && deudaItems?.ok
-      ? await syncDeudasLedger(deudaItems.items)
+      ? await syncDeudasLedger(deudaItems.items, deudaItems.ultimas)
       : null;
   const deudaAviso = deudaSync ? avisoPlanillaDeudas(deudaSync, { rutaCerrada: true }) : null;
 

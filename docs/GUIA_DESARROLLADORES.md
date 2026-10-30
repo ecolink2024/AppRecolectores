@@ -401,7 +401,7 @@ Precio total a cobrar (reglas Empresa / Mixto / estándar): `src/lib/domain/sist
 | GET | `/api/integrations/sheets/import-recolecciones` | `Bearer SHEETS_IMPORT_SECRET` |
 | POST | `/api/integrations/sheets/import-recolecciones` | idem |
 
-Script Apps Script: `scripts/google-apps-script/ImportarRuta.gs` (`doPost` action `sync-deudas` → ledger col H/L/M)  
+Script Apps Script: `scripts/google-apps-script/ImportarRuta.gs` (`doPost` action `sync-deudas` → ledger col H/L/M/P)  
 Doc: [SHEETS_INTEGRATION.md](./SHEETS_INTEGRATION.md)
 
 ---
@@ -420,11 +420,12 @@ Doc: [SHEETS_INTEGRATION.md](./SHEETS_INTEGRATION.md)
 
 Al **cierre operario** (`POST /api/panel/rutas/[id]/cierre-operario`):
 
-1. Para cada parada **visitada** (no logística, no **Mixto**) con transferencia y/o QR > 0: `deuda_ledger = deuda_importada + monto_transferencia + monto_qr` (el efectivo no suma). Si `deuda_importada` es negativa, resta. Mixto no se escribe: la celda de la planilla queda como está.
-2. **No** se actualiza `ruta_recolecciones.deuda` (la app sigue mostrando la deuda importada).
-3. `syncDeudasLedger` POST al Web App de Apps Script (`SHEETS_DEUDA_WEBAPP_URL` + `SHEETS_IMPORT_SECRET`).
-4. El script abre el spreadsheet ledger (`1mWYWFdoU3e2yeVIwi2Z90fr5ds-Jx0dEARJ5wR-WOvw`, gid `47039710`), busca el teléfono en **columna H**, escribe el total en **columna L** y el día de la parada (`dia`, `YYYY-MM-DD`) en **columna M**. Si hay varias paradas del mismo teléfono en el cierre, la fecha que queda es la más nueva.
-5. Si el servidor no tiene `SHEETS_DEUDA_WEBAPP_URL` y hay transferencias o QR, el cierre responde 503 y **no** pasa la ruta a `cerrada`. Si Google falla después de cerrar, la respuesta trae `deuda_aviso` y en Historial se puede reenviar con `POST /api/panel/rutas/[id]/deuda-ledger`. Si un teléfono no está en la columna H, el aviso lista esos números.
+1. Para cada parada **visitada** que no sea logística, `buildUltimaRecoleccionItems` arma la fecha de **última recolección** (columna **P**), también si el cobro fue solo efectivo y también en **Mixto**. Canceladas, omitidas y pendientes no entran. Si el mismo teléfono se visitó más de una vez, queda la fecha más nueva.
+2. Para cada parada **visitada** (no logística, no **Mixto**) con transferencia y/o QR > 0: `deuda_ledger = deuda_importada + monto_transferencia + monto_qr` (el efectivo no suma). Si `deuda_importada` es negativa, resta. Mixto no pisa L ni M.
+3. **No** se actualiza `ruta_recolecciones.deuda` (la app sigue mostrando la deuda importada).
+4. `syncDeudasLedger` POST al Web App de Apps Script (`SHEETS_DEUDA_WEBAPP_URL` + `SHEETS_IMPORT_SECRET`), con `items` (deuda) y `ultimas` (columna P).
+5. El script abre el spreadsheet ledger (`1mWYWFdoU3e2yeVIwi2Z90fr5ds-Jx0dEARJ5wR-WOvw`, gid `47039710`), busca el teléfono en **columna H**, escribe el total en **columna L**, el día de esa deuda en **columna M** y la última recolección en **columna P**.
+6. Si el servidor no tiene `SHEETS_DEUDA_WEBAPP_URL` y hay algo para anotar (deuda o última recolección), el cierre responde 503 y **no** pasa la ruta a `cerrada`. Si Google falla después de cerrar, la respuesta trae `deuda_aviso` y en Historial se puede reenviar con `POST /api/panel/rutas/[id]/deuda-ledger`. Si un teléfono no está en la columna H, el aviso lista esos números.
 
 ### Panel operario
 

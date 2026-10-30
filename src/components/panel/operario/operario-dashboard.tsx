@@ -464,7 +464,7 @@ export function OperarioDashboard({
             message={
               rutaACierreOperario
                 ? DEUDA_LEDGER_HABILITADO
-                  ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Si hubo transferencia o QR, se anota en la planilla de deudas. Si el servidor no está conectado a esa planilla, el cierre no se hace.`
+                  ? `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. En la planilla se anota la última recolección de cada parada visitada. Si hubo transferencia o QR, también se actualizan la deuda y su fecha. Si el servidor no está conectado a esa planilla, el cierre no se hace.`
                   : `La ruta "${rutaACierreOperario.nombre}" pasará a estado Cerrada. Esta acción confirma el cierre administrativo.`
                 : "La ruta pasará a Cerrada."
             }

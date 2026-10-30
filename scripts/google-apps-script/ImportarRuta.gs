@@ -13,7 +13,8 @@
  * las filas nuevas se suman. Teléfono repetido o ruta Realizada/Cerrada → Error.
  *
  * Al cierre operario, la app llama a doPost (Web App) y este script
- * escribe en el ledger (otra planilla): col H teléfono, col L deuda, col M fecha.
+ * escribe en el ledger (otra planilla): col H teléfono, col L deuda,
+ * col M fecha de la deuda y col P última recolección.
  */
 
 const CONFIG = {
@@ -52,6 +53,7 @@ const CONFIG = {
     COL_TELEFONO: 8,
     COL_DEUDA: 12,
     COL_FECHA: 13,
+    COL_ULTIMA: 16,
   },
 };
 
@@ -796,18 +798,22 @@ function getLedgerSheet_() {
   throw new Error("No se encontró la pestaña del ledger (gid " + cfg.SHEET_GID + ")");
 }
 
-function aplicarDeudasLedger_(items) {
+function aplicarDeudasLedger_(items, ultimas) {
   const cfg = CONFIG.DEUDA_LEDGER;
   const sheet = getLedgerSheet_();
+  const deudas = items || [];
+  const fechas = ultimas || [];
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) {
-    return {
-      ok: true,
-      actualizadas: 0,
-      no_encontradas: (items || []).map(function (item) {
-        return item.telefono || item.telefono_normalizado || "";
-      }),
-    };
+    const faltantes = [];
+    const vistoVacio = {};
+    deudas.concat(fechas).forEach(function (item) {
+      const label = item.telefono || item.telefono_normalizado || "";
+      if (!label || vistoVacio[label]) return;
+      vistoVacio[label] = true;
+      faltantes.push(label);
+    });
+    return { ok: true, actualizadas: 0, no_encontradas: faltantes };
   }
 
   const phoneValues = sheet
@@ -822,30 +828,52 @@ function aplicarDeudasLedger_(items) {
   }
 
   const noEncontradas = [];
-  let actualizadas = 0;
+  const vistoFaltante = {};
+  const filasTocadas = {};
 
-  for (let i = 0; i < (items || []).length; i++) {
-    const item = items[i];
+  function filaDe_(item) {
     const key =
       item.phone_key ||
       phoneMatchKey_(item.telefono_normalizado || item.telefono || "");
     const rows = key ? keyToRows[key] : null;
     if (!key || !rows || rows.length === 0) {
-      noEncontradas.push(item.telefono || item.telefono_normalizado || "");
-      continue;
+      const label = item.telefono || item.telefono_normalizado || "";
+      if (label && !vistoFaltante[label]) {
+        vistoFaltante[label] = true;
+        noEncontradas.push(label);
+      }
+      return 0;
     }
-    const deuda = Number(item.deuda);
-    const valor = Number.isFinite(deuda) ? deuda : 0;
-    const fila = rows[0];
-    sheet.getRange(fila, cfg.COL_DEUDA).setValue(valor);
-    const fecha = parseFechaLedger_(item.fecha);
-    if (fecha) {
-      sheet.getRange(fila, cfg.COL_FECHA).setValue(fecha);
-    }
-    actualizadas += 1;
+    return rows[0];
   }
 
-  return { ok: true, actualizadas: actualizadas, no_encontradas: noEncontradas };
+  for (let i = 0; i < deudas.length; i++) {
+    const fila = filaDe_(deudas[i]);
+    if (!fila) continue;
+    const deuda = Number(deudas[i].deuda);
+    const valor = Number.isFinite(deuda) ? deuda : 0;
+    sheet.getRange(fila, cfg.COL_DEUDA).setValue(valor);
+    const fechaDeuda = parseFechaLedger_(deudas[i].fecha);
+    if (fechaDeuda) {
+      sheet.getRange(fila, cfg.COL_FECHA).setValue(fechaDeuda);
+    }
+    filasTocadas[fila] = true;
+  }
+
+  for (let i = 0; i < fechas.length; i++) {
+    const fecha = parseFechaLedger_(fechas[i].fecha);
+    if (!fecha) continue;
+    const fila = filaDe_(fechas[i]);
+    if (!fila) continue;
+    sheet.getRange(fila, cfg.COL_ULTIMA).setValue(fecha);
+    filasTocadas[fila] = true;
+  }
+
+  return {
+    ok: true,
+    actualizadas: Object.keys(filasTocadas).length,
+    no_encontradas: noEncontradas,
+  };
 }
 
 function doPost(e) {
@@ -865,7 +893,7 @@ function doPost(e) {
       return jsonOutput_({ ok: false, error: "El ledger está ocupado; reintentá" });
     }
     try {
-      return jsonOutput_(aplicarDeudasLedger_(body.items || []));
+      return jsonOutput_(aplicarDeudasLedger_(body.items || [], body.ultimas || []));
     } finally {
       lock.releaseLock();
     }

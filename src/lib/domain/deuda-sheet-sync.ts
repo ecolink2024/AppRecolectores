@@ -24,6 +24,15 @@ export type DeudaSheetItem = {
   fecha: string | null;
 };
 
+/** Fecha de última recolección (columna P). Solo paradas visitadas. */
+export type UltimaRecoleccionItem = {
+  telefono: string;
+  telefono_normalizado: string;
+  phone_key: string;
+  /** Día de la recolección, `YYYY-MM-DD`. */
+  fecha: string;
+};
+
 function num(value: number | string | null | undefined): number {
   if (value === null || value === undefined || value === "") return 0;
   const n = typeof value === "number" ? value : Number(String(value).replace(",", "."));
@@ -63,6 +72,23 @@ export function parseDeudaMonto(value: string | number | null | undefined): numb
   return Number.isFinite(n) ? n : 0;
 }
 
+function resolvePhone(item: RecoleccionDeudaSyncInput): {
+  telefono: string;
+  telefono_normalizado: string;
+  phone_key: string;
+} | null {
+  const telefonoRaw = item.telefono_normalizado?.trim() || item.telefono?.trim() || "";
+  const normalized = normalizeArgPhone(telefonoRaw);
+  const telefono = normalized.ok ? normalized.value : telefonoRaw;
+  const phone_key = phoneMatchKey(telefono);
+  if (!phone_key) return null;
+  return {
+    telefono,
+    telefono_normalizado: normalized.ok ? normalized.value : telefono,
+    phone_key,
+  };
+}
+
 /**
  * Deuda a escribir en el ledger (otra planilla): deuda importada + transferencia + QR.
  * Si la deuda importada es negativa, resta. No incluye efectivo. Mixto no se escribe.
@@ -83,16 +109,12 @@ export function buildDeudaSheetItems(
     const cobroDigital = roundMoney(transferencia + qr);
     if (cobroDigital <= 0) continue;
 
-    const telefonoRaw =
-      item.telefono_normalizado?.trim() || item.telefono?.trim() || "";
-    const normalized = normalizeArgPhone(telefonoRaw);
-    const telefono = normalized.ok ? normalized.value : telefonoRaw;
-    const key = phoneMatchKey(telefono);
-    if (!key) continue;
+    const phone = resolvePhone(item);
+    if (!phone) continue;
 
     const deuda = roundMoney(parseDeudaMonto(item.deuda) + cobroDigital);
     const fecha = parseFechaRecoleccion(item.dia);
-    const existing = byKey.get(key);
+    const existing = byKey.get(phone.phone_key);
     if (existing) {
       existing.deuda = roundMoney(existing.deuda + cobroDigital);
       if (fecha && (!existing.fecha || fecha > existing.fecha)) {
@@ -101,11 +123,45 @@ export function buildDeudaSheetItems(
       continue;
     }
 
-    byKey.set(key, {
-      telefono,
-      telefono_normalizado: normalized.ok ? normalized.value : telefono,
-      phone_key: key,
+    byKey.set(phone.phone_key, {
+      telefono: phone.telefono,
+      telefono_normalizado: phone.telefono_normalizado,
+      phone_key: phone.phone_key,
       deuda,
+      fecha,
+    });
+  }
+
+  return [...byKey.values()];
+}
+
+/**
+ * Columna P: día de cada parada visitada, también en efectivo y en Mixto.
+ * No entran canceladas, omitidas, pendientes ni paradas logísticas.
+ * Si el mismo teléfono se visitó más de una vez, queda la fecha más nueva.
+ */
+export function buildUltimaRecoleccionItems(
+  recolecciones: RecoleccionDeudaSyncInput[],
+): UltimaRecoleccionItem[] {
+  const byKey = new Map<string, UltimaRecoleccionItem>();
+
+  for (const item of recolecciones) {
+    if (item.estado_operativo !== "visitada") continue;
+    if (isParadaLogistica(item)) continue;
+
+    const fecha = parseFechaRecoleccion(item.dia);
+    if (!fecha) continue;
+
+    const phone = resolvePhone(item);
+    if (!phone) continue;
+
+    const existing = byKey.get(phone.phone_key);
+    if (existing && existing.fecha >= fecha) continue;
+
+    byKey.set(phone.phone_key, {
+      telefono: phone.telefono,
+      telefono_normalizado: phone.telefono_normalizado,
+      phone_key: phone.phone_key,
       fecha,
     });
   }

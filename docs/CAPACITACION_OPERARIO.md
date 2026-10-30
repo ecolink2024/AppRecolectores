@@ -148,7 +148,7 @@ Validar → Enviar pendientes.
 5. Cuando finaliza, la ruta pasa a **Historial** como **Realizada**.
 6. El operario revisa, puede **Editar** datos de jornada o **Editar carga** de paradas.
 7. En Historial → **Puntos**: revisar recolecciones Puntos + Reciclaje.
-8. **Cierre operario** → la ruta queda **Cerrada** e impacta KPIs. Si hubo transferencia o QR, se actualizan la **Deuda** y la **fecha** en la planilla de deudas. Si la deuda importada de la ruta es negativa, se resta. Las paradas **Mixto** no pisan esa planilla. Si el servidor no está conectado a esa planilla, el cierre no se hace y ves el error. En una ruta ya cerrada, **Reenviar deudas** vuelve a escribir la planilla.
+8. **Cierre operario** → la ruta queda **Cerrada** e impacta KPIs. En la planilla de deudas se pisa la **última recolección** (columna P) de cada parada visitada. Si hubo transferencia o QR, también se actualizan la **Deuda** (columna L) y la **fecha de esa deuda** (columna M). El efectivo no suma a la deuda. Si la deuda importada es negativa, se resta. Las paradas **Mixto** no pisan L ni M; sí actualizan la P. Si el servidor no está conectado a esa planilla, el cierre no se hace y ves el error. En una ruta ya cerrada, **Reenviar deudas** vuelve a escribir la planilla.
 
 ---
 

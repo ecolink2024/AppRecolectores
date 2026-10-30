@@ -103,8 +103,9 @@ No es la hoja `Rutas`. Es [este spreadsheet](https://docs.google.com/spreadsheet
 Al **cierre operario** (Historial, rutas Realizadas), la app escribe ahí:
 
 - Columna **H**: teléfono (busca la fila)
-- Columna **L**: deuda nueva = deuda que ya estaba en la app + transferencia + QR (el efectivo no suma). Si esa deuda importada es negativa, resta. Las paradas **Mixto** no se escriben: no se pisa la deuda ni la fecha.
-- Columna **M**: fecha de la recolección (día de la parada). Si el mismo teléfono se cobró más de una vez en ese cierre, queda la fecha más nueva.
+- Columna **L**: deuda nueva = deuda que ya estaba en la app + transferencia + QR (el efectivo no suma). Si esa deuda importada es negativa, resta. Las paradas **Mixto** no pisan esta columna.
+- Columna **M**: fecha de esa deuda (día de la parada). Si el mismo teléfono se cobró más de una vez en ese cierre, queda la fecha más nueva. Mixto no pisa esta columna.
+- Columna **P**: última recolección. Se pisa con el día de cada parada **visitada**, también en efectivo y en Mixto. Canceladas, omitidas y paradas logísticas no entran.
 
 La app **no** muestra esa deuda nueva ni esa fecha.
 
@@ -120,7 +121,7 @@ La app **no** muestra esa deuda nueva ni esa fecha.
 
 Si el script **ya está publicado**, no crees otra implementación: cambia la URL y hay que volver a pegarla. En **Implementar → Administrar implementaciones**, editá la aplicación web y elegí **Nueva versión**.
 
-Si falta la URL y la ruta tiene transferencia o QR, el cierre **no se hace** y el operario ve el error. Con la ruta ya **Cerrada**, **Reenviar deudas** en Historial vuelve a escribir la planilla. Si Google responde y algún teléfono no está en la columna H, el aviso lista esos números; el cierre igual queda hecho.
+Si falta la URL y la ruta tiene una visita para anotar (o transferencia o QR), el cierre **no se hace** y el operario ve el error. Con la ruta ya **Cerrada**, **Reenviar deudas** en Historial vuelve a escribir la planilla. Si Google responde y algún teléfono no está en la columna H, el aviso lista esos números; el cierre igual queda hecho.
 
 ## API
 

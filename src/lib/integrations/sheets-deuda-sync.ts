@@ -1,4 +1,4 @@
-import type { DeudaSheetItem } from "@/lib/domain/deuda-sheet-sync";
+import type { DeudaSheetItem, UltimaRecoleccionItem } from "@/lib/domain/deuda-sheet-sync";
 import { getSheetsDeudaWebappUrl, getSheetsImportSecret } from "@/lib/env";
 
 export type DeudaSheetSyncResult = {
@@ -16,8 +16,9 @@ export type DeudaSheetSyncResult = {
  */
 export async function syncDeudasLedger(
   items: DeudaSheetItem[],
+  ultimas: UltimaRecoleccionItem[] = [],
 ): Promise<DeudaSheetSyncResult> {
-  if (items.length === 0) {
+  if (items.length === 0 && ultimas.length === 0) {
     return { attempted: false, ok: true };
   }
 
@@ -25,7 +26,7 @@ export async function syncDeudasLedger(
   const secret = getSheetsImportSecret();
   if (!url || !secret) {
     const error =
-      "El servidor no tiene conectada la planilla de deudas (SHEETS_DEUDA_WEBAPP_URL). Las transferencias y QR no se anotaron.";
+      "El servidor no tiene conectada la planilla de deudas (SHEETS_DEUDA_WEBAPP_URL). No se anotaron las deudas ni la última recolección.";
     console.error("[deuda-sheet]", error);
     return { attempted: false, ok: false, error };
   }
@@ -42,6 +43,12 @@ export async function syncDeudasLedger(
           telefono_normalizado: item.telefono_normalizado,
           phone_key: item.phone_key,
           deuda: item.deuda,
+          fecha: item.fecha,
+        })),
+        ultimas: ultimas.map((item) => ({
+          telefono: item.telefono,
+          telefono_normalizado: item.telefono_normalizado,
+          phone_key: item.phone_key,
           fecha: item.fecha,
         })),
       }),

@@ -363,7 +363,9 @@ Cuando el recolector **finalizó** la ruta, esta aparece en **Historial** con es
 2. Confirmá en dos pasos
 3. La ruta pasa a **Cerrada** (sigue en Historial)
 
-Si alguna parada se cobró por **transferencia o QR**, en ese momento se suma ese monto a la **Deuda** del cliente y se pega en la planilla de deudas, junto con la **fecha de esa recolección** (no lo vas a ver cambiado dentro de la app). Si la deuda que vino en la planilla de rutas es **negativa**, ese número se resta en lugar de sumarse. Las paradas **Mixto** no modifican esa planilla: la deuda y la fecha quedan como estaban. El recolector **finalizar** no escribe el ledger: así podés **Editar carga** antes y el monto que viaja es el ya revisado.
+En ese momento, para cada parada **visitada** (se logró pasar), se pisa la **última recolección** del cliente en la planilla de deudas (columna **P**) con el día de esa parada. No entran canceladas, omitidas ni las que no se lograron pasar. Proveedor y Cooperativa tampoco. Si el mismo teléfono se visitó más de una vez, queda la fecha más nueva. Eso no se ve cambiado dentro de la app.
+
+Si además hubo **transferencia o QR**, se actualizan la **Deuda** (columna **L**) y la **fecha de esa deuda** (columna **M**). El efectivo no suma a la deuda. Si la deuda que vino en la planilla de rutas es **negativa**, ese número se resta. Las paradas **Mixto** no pisan L ni M; sí actualizan la P. El recolector **finalizar** no escribe la planilla: así podés **Editar carga** antes y lo que viaja es lo ya revisado.
 
 Si el servidor **no está conectado** a esa planilla, el cierre **no se hace** y aparece el error en Historial. Si la ruta ya quedó **Cerrada** y la planilla no se actualizó (o faltó un teléfono), en la fila está **Reenviar deudas**. Si un teléfono no está en la planilla, el aviso lista cuál.
 

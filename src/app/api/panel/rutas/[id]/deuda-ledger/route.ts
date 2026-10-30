@@ -72,6 +72,6 @@ export async function POST(_request: Request, { params }: Props) {
       ? deudaAviso
       : deudaSync.attempted
         ? `Planilla actualizada (${deudaSync.actualizadas ?? 0} fila${deudaSync.actualizadas === 1 ? "" : "s"}).`
-        : "Esta ruta no tiene transferencias ni QR para anotar en la planilla.",
+        : "Esta ruta no tiene paradas visitadas para anotar en la planilla.",
   });
 }
